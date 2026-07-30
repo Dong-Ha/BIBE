@@ -340,7 +340,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="masthead">
-        <a className="brand" href="/" aria-label="말씀의 결 홈">
+        <a className="brand" href={import.meta.env.BASE_URL} aria-label="말씀의 결 홈">
           <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
           <span>
             <strong>말씀의 결</strong>

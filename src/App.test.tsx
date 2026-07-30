@@ -18,6 +18,11 @@ describe('explorer', () => {
     expect(window.location.search).toContain('passage=ex-40-34')
   })
 
+  it('keeps the home link inside the GitHub Pages repository path', () => {
+    render(<App />)
+    expect(screen.getByRole('link', { name: '말씀의 결 홈' })).toHaveAttribute('href', '/BIBE/')
+  })
+
   it('reveals Reformed commentary after textual observation', () => {
     render(<App />)
     const disclosure = screen.getByRole('button', { name: /개혁주의 렌즈/ })
