@@ -320,6 +320,7 @@ export const nodes: PassageNode[] = [
 export const connections: Connection[] = [
   { id: 'word-genesis', source: 'jn-1-1', target: 'gen-1-1', type: '평행', label: '태초와 창조', explanation: '두 책 모두 “태초”와 하나님의 창조 행위로 시작한다.' },
   { id: 'word-light', source: 'jn-1-1', target: 'jn-1-5', type: '반복', label: '말씀 안의 생명과 빛', explanation: '창조주 말씀 안의 생명이 사람들의 빛으로 소개된다.' },
+  { id: 'light-creation', source: 'gen-1-1', target: 'jn-1-5', type: '발전', label: '창조의 빛과 생명의 빛', explanation: '창조 때 어둠을 가른 빛이 요한복음에서 말씀 안에 있는 생명의 빛으로 발전한다.' },
   { id: 'light-judgment', source: 'jn-1-5', target: 'jn-3-19', type: '발전', label: '빛이 사람을 드러냄', explanation: '서문의 대조가 인간의 사랑과 행위를 드러내는 심판 주제로 발전한다.' },
   { id: 'light-i-am', source: 'jn-1-5', target: 'jn-8-12', type: '성취', label: '빛의 정체', explanation: '서문에서 소개된 빛을 예수께서 자신의 정체로 선언한다.' },
   { id: 'light-last-call', source: 'jn-8-12', target: 'jn-12-35', type: '반복', label: '빛을 따르고 믿으라', explanation: '빛의 선언은 공적 사역의 끝에서 믿음과 제자도를 촉구한다.' },
@@ -333,7 +334,7 @@ export const connections: Connection[] = [
 
 export const threads: Thread[] = [
   { id: 'word', number: '01', name: '말씀과 계시', shortName: '말씀', premise: '창조의 말씀이 육신을 입고 하나님을 알리신다.', color: '#8f4438', nodeIds: ['jn-1-1', 'gen-1-1', 'jn-1-5'], connectionIds: ['word-genesis', 'word-light'] },
-  { id: 'light', number: '02', name: '빛과 어둠', shortName: '빛', premise: '빛은 예수의 정체를 밝히고 인간의 사랑을 드러낸다.', color: '#b17b2a', nodeIds: ['gen-1-1', 'jn-1-5', 'jn-3-19', 'jn-8-12', 'jn-12-35'], connectionIds: ['word-light', 'light-judgment', 'light-i-am', 'light-last-call'] },
+  { id: 'light', number: '02', name: '빛과 어둠', shortName: '빛', premise: '빛은 예수의 정체를 밝히고 인간의 사랑을 드러낸다.', color: '#b17b2a', nodeIds: ['gen-1-1', 'jn-1-5', 'jn-3-19', 'jn-8-12', 'jn-12-35'], connectionIds: ['light-creation', 'light-judgment', 'light-i-am', 'light-last-call'] },
   { id: 'life', number: '03', name: '생명과 중생', shortName: '생명', premise: '위로부터 주시는 생명이 믿음으로 드러난다.', color: '#56705d', nodeIds: ['ezk-36-25', 'jn-3-3', 'jn-20-31'], connectionIds: ['newbirth-ezekiel', 'newbirth-purpose'] },
   { id: 'sign', number: '04', name: '표적과 믿음', shortName: '표적', premise: '표적은 기이함을 넘어 그리스도의 영광을 가리킨다.', color: '#65558f', nodeIds: ['jn-2-11', 'jn-20-31'], connectionIds: ['sign-purpose'] },
   { id: 'shepherd', number: '05', name: '선한 목자와 언약', shortName: '목자', premise: '하나님이 약속하신 목자가 자기 양을 찾아 목숨을 내어 준다.', color: '#53747d', nodeIds: ['ezk-34-11', 'jn-10-11'], connectionIds: ['shepherd-promise'] },
@@ -373,6 +374,10 @@ export function validateContent() {
     }
     for (const connectionId of thread.connectionIds) {
       if (!connectionIds.has(connectionId)) errors.push(`${thread.id}: missing connection ${connectionId}`)
+      const connection = connectionById.get(connectionId)
+      if (connection && (!thread.nodeIds.includes(connection.source) || !thread.nodeIds.includes(connection.target))) {
+        errors.push(`${thread.id}: connection ${connectionId} leaves thread`)
+      }
     }
     if (!thread.nodeIds.length) errors.push(`${thread.id}: empty thread`)
   }
