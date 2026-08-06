@@ -14,6 +14,12 @@ export interface ReformedLens {
   confessions: ConfessionReference[]
 }
 
+export interface StudyGuide {
+  context: string
+  questions: string[]
+  caution: string
+}
+
 export interface PassageNode {
   id: string
   reference: string
@@ -25,6 +31,7 @@ export interface PassageNode {
   y: number
   externalUrl: string
   lens: ReformedLens
+  study?: StudyGuide
 }
 
 export interface Connection {

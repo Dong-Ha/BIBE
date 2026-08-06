@@ -32,6 +32,26 @@ describe('explorer', () => {
     expect(screen.getByRole('heading', { name: '계시는 인격으로 완성된다' })).toBeInTheDocument()
   })
 
+  it('shows why the selected passage connects to its neighbors', () => {
+    render(<App />)
+    expect(screen.getAllByText('태초와 창조')).toHaveLength(2)
+    expect(screen.getByText('두 책 모두 “태초”와 하나님의 창조 행위로 시작한다.')).toBeInTheDocument()
+  })
+
+  it('opens the deeper reading guide for the cross and resurrection thread', () => {
+    window.history.replaceState({}, '', '/?thread=cross&passage=jn-20-24')
+    render(<App />)
+
+    const disclosure = screen.getByRole('button', { name: /더 깊이 읽기/ })
+    expect(disclosure).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(disclosure)
+
+    expect(disclosure).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('heading', { name: '이 장면의 문맥' })).toBeInTheDocument()
+    expect(screen.getByText(/도마의 장면은 복음서의 기록 목적 바로 앞에 놓인다/)).toBeInTheDocument()
+    expect(screen.getAllByRole('listitem')).toHaveLength(3)
+  })
+
   it('copies a deep link for the selected discovery', async () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /이 발견 공유/ }))

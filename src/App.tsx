@@ -25,7 +25,7 @@ function ThreadRail({
 }) {
   return (
     <nav className="thread-rail" aria-label="요한복음 실타래">
-      <p className="rail-label">일곱 개의 실타래</p>
+      <p className="rail-label">여덟 개의 실타래</p>
       <div className="thread-list">
         {threads.map((thread) => {
           const isSelected = selectedThread.id === thread.id
@@ -198,8 +198,16 @@ function PassagePanel({
   shareState: 'idle' | 'copied' | 'failed'
 }) {
   const [lensOpen, setLensOpen] = useState(false)
+  const [studyOpen, setStudyOpen] = useState(false)
+  const relatedConnections = thread.connectionIds
+    .map((id) => connectionById.get(id))
+    .filter((connection): connection is Connection => Boolean(connection))
+    .filter((connection) => connection.source === node.id || connection.target === node.id)
 
-  useEffect(() => setLensOpen(false), [node.id])
+  useEffect(() => {
+    setLensOpen(false)
+    setStudyOpen(false)
+  }, [node.id])
 
   return (
     <aside
@@ -226,6 +234,66 @@ function PassagePanel({
         <p>{node.observation}</p>
       </section>
 
+      {relatedConnections.length > 0 && (
+        <section className="connection-card">
+          <div className="section-kicker">
+            <span>02</span>
+            <p>본문 사이의 결</p>
+          </div>
+          <div className="connection-details">
+            {relatedConnections.map((connection) => {
+              const peerId = connection.source === node.id ? connection.target : connection.source
+              const peer = nodeById.get(peerId)
+              return (
+                <article key={connection.id}>
+                  <div>
+                    <span>{connection.type}</span>
+                    <strong>{connection.label}</strong>
+                  </div>
+                  {peer && <small>{peer.reference} · {peer.title}</small>}
+                  <p>{connection.explanation}</p>
+                </article>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {node.study && (
+        <section className="study-section">
+          <button
+            className="study-disclosure"
+            aria-expanded={studyOpen}
+            aria-controls="study-guide"
+            onClick={() => setStudyOpen((open) => !open)}
+          >
+            <span>
+              <small>03 · 스스로 살펴보기</small>
+              <strong>더 깊이 읽기</strong>
+            </span>
+            <span className="disclosure-icon" aria-hidden="true">{studyOpen ? '−' : '+'}</span>
+          </button>
+          {studyOpen && (
+            <div id="study-guide" className="study-content">
+              <section>
+                <h3>이 장면의 문맥</h3>
+                <p>{node.study.context}</p>
+              </section>
+              <section>
+                <h3>본문에 묻기</h3>
+                <ol>
+                  {node.study.questions.map((question) => <li key={question}>{question}</li>)}
+                </ol>
+              </section>
+              <aside>
+                <strong>읽을 때 주의할 점</strong>
+                <p>{node.study.caution}</p>
+              </aside>
+            </div>
+          )}
+        </section>
+      )}
+
       <section className="lens-section">
         <button
           className="lens-disclosure"
@@ -235,7 +303,7 @@ function PassagePanel({
         >
           <span className="lens-symbol" aria-hidden="true">R</span>
           <span>
-            <small>02 · 해석의 자리</small>
+            <small>{node.study ? '04' : '03'} · 해석의 자리</small>
             <strong>개혁주의 렌즈</strong>
           </span>
           <span className="disclosure-icon" aria-hidden="true">{lensOpen ? '−' : '+'}</span>
