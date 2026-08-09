@@ -38,6 +38,25 @@ describe('explorer', () => {
     expect(screen.getByText('두 책 모두 “태초”와 하나님의 창조 행위로 시작한다.')).toBeInTheDocument()
   })
 
+  it('reveals the expanded guide for every thread', () => {
+    render(<App />)
+    fireEvent.click(screen.getByText('이 실타래 더 깊이 읽기'))
+    expect(screen.getByText('읽기의 초점')).toBeInTheDocument()
+    expect(screen.getByText(/창조와 성막의 언어를 어떻게 이어 가는지/)).toBeInTheDocument()
+    expect(screen.getByText('핵심 질문')).toBeInTheDocument()
+  })
+
+  it('opens the two new content threads', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /생수와 성령/ }))
+    expect(screen.getByRole('heading', { name: '생수와 성령' })).toBeInTheDocument()
+    expect(screen.getByText('5개의 본문')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /증언과 믿음/ }))
+    expect(screen.getByRole('heading', { name: '증언과 믿음' })).toBeInTheDocument()
+    expect(window.location.search).toContain('thread=witness')
+  })
+
   it('opens the deeper reading guide for the cross and resurrection thread', () => {
     window.history.replaceState({}, '', '/?thread=cross&passage=jn-20-24')
     render(<App />)

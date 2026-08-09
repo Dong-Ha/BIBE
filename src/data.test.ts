@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { connections, getInitialSelection, nodes, threads, validateContent } from './data'
 
 describe('curated content', () => {
-  it('contains eight literary threads', () => {
-    expect(threads).toHaveLength(8)
+  it('contains ten literary threads', () => {
+    expect(threads).toHaveLength(10)
   })
 
   it('gives every thread enough passages for a meaningful path', () => {
@@ -40,6 +40,19 @@ describe('curated content', () => {
       expect(node.lens.scripture.length).toBeGreaterThan(0)
       expect(node.lens.confessions.length).toBeGreaterThan(0)
     }
+  })
+
+  it('gives every thread an expanded reading guide', () => {
+    for (const thread of threads) {
+      expect(thread.guide.context.length).toBeGreaterThan(80)
+      expect(thread.guide.focus.length).toBeGreaterThan(30)
+      expect(thread.guide.question.length).toBeGreaterThan(30)
+    }
+  })
+
+  it('adds substantial water and witness paths', () => {
+    expect(threads.find((thread) => thread.id === 'water')?.nodeIds).toHaveLength(5)
+    expect(threads.find((thread) => thread.id === 'witness')?.nodeIds).toHaveLength(5)
   })
 
   it('gives every cross and resurrection passage a substantial study guide', () => {

@@ -266,7 +266,52 @@ input:focus-visible,
   line-height: 1.7;
 }
 
-.desktop-map { margin-top: 28px; }
+.thread-guide {
+  max-width: 640px;
+  margin-top: 15px;
+  border: 1px solid color-mix(in srgb, var(--thread-color), transparent 72%);
+  border-radius: 12px;
+  background: rgba(255, 253, 248, .72);
+  overflow: hidden;
+}
+
+.thread-guide summary {
+  padding: 11px 14px;
+  color: var(--thread-color);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+
+.thread-guide-content {
+  padding: 0 14px 14px;
+  border-top: 1px solid color-mix(in srgb, var(--thread-color), transparent 84%);
+}
+
+.thread-guide-content > p {
+  margin: 13px 0;
+  color: #5f6762;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.thread-guide-content dl { display: grid; gap: 10px; margin: 0; }
+.thread-guide-content dl > div { display: grid; grid-template-columns: 76px 1fr; gap: 10px; }
+.thread-guide-content dt {
+  color: var(--thread-color);
+  font-size: 9px;
+  font-weight: 700;
+}
+.thread-guide-content dd {
+  margin: 0;
+  color: #4f5752;
+  font-family: var(--serif);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.desktop-map { margin-top: 22px; }
 .desktop-map svg { display: block; width: 100%; height: auto; overflow: visible; }
 
 .connection path {

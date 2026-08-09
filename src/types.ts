@@ -50,6 +50,11 @@ export interface Thread {
   shortName: string
   premise: string
   color: string
+  guide: {
+    context: string
+    focus: string
+    question: string
+  }
   nodeIds: string[]
   connectionIds: string[]
 }

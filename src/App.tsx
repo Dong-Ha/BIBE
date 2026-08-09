@@ -25,7 +25,7 @@ function ThreadRail({
 }) {
   return (
     <nav className="thread-rail" aria-label="요한복음 실타래">
-      <p className="rail-label">여덟 개의 실타래</p>
+      <p className="rail-label">열 개의 실타래</p>
       <div className="thread-list">
         {threads.map((thread) => {
           const isSelected = selectedThread.id === thread.id
@@ -81,6 +81,23 @@ function InsightMap({
         <span className="map-count">{threadNodes.length}개의 본문</span>
       </div>
       <p className="map-premise">{thread.premise}</p>
+
+      <details className="thread-guide">
+        <summary>이 실타래 더 깊이 읽기</summary>
+        <div className="thread-guide-content">
+          <p>{thread.guide.context}</p>
+          <dl>
+            <div>
+              <dt>읽기의 초점</dt>
+              <dd>{thread.guide.focus}</dd>
+            </div>
+            <div>
+              <dt>핵심 질문</dt>
+              <dd>{thread.guide.question}</dd>
+            </div>
+          </dl>
+        </div>
+      </details>
 
       <div className="desktop-map">
         <svg

@@ -22,9 +22,9 @@
 - Key contexts of use: desktop study, mobile reading between sessions, and shared-link review in a group
 
 ## Information architecture
-- Primary navigation: seven motif threads in a persistent sidebar
+- Primary navigation: ten motif threads in a persistent sidebar
 - Core routes/screens: theme overview, passage detail, OT background, confessional references, shareable state
-- Content hierarchy: thread summary first, then passage map, then supporting references and confessional notes
+- Content hierarchy: thread summary and expandable reading guide first, then passage map, then supporting references and confessional notes
 
 ## Design principles
 - Principle 1: observation before interpretation
