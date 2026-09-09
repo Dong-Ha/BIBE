@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { connections, getInitialSelection, nodes, threads, validateContent } from './data'
 
 describe('curated content', () => {
-  it('contains ten literary threads', () => {
-    expect(threads).toHaveLength(10)
+  it('contains eleven literary threads', () => {
+    expect(threads).toHaveLength(11)
   })
 
   it('gives every thread enough passages for a meaningful path', () => {
@@ -20,7 +20,25 @@ describe('curated content', () => {
         .map((node) => node.id.split('-')[0]),
     )
 
-    expect(oldTestamentPrefixes.size).toBeGreaterThanOrEqual(5)
+    expect(oldTestamentPrefixes.size).toBeGreaterThanOrEqual(8)
+  })
+
+  it('includes an Old Testament-focused covenant path', () => {
+    const covenantThread = threads.find((thread) => thread.id === 'covenant')
+    expect(covenantThread).toBeDefined()
+    expect(covenantThread?.nodeIds).toEqual([
+      'gen-12-1',
+      'ex-19-4',
+      'deut-30-6',
+      '2sa-7-12',
+      'jer-31-31',
+      'jn-1-14',
+    ])
+    expect(covenantThread?.connectionIds).toHaveLength(5)
+
+    const newCovenantPassages = covenantThread?.nodeIds.slice(0, 5) ?? []
+    expect(newCovenantPassages).toHaveLength(5)
+    expect(newCovenantPassages.every((nodeId) => nodes.some((node) => node.id === nodeId))).toBe(true)
   })
 
   it('has unique identifiers', () => {

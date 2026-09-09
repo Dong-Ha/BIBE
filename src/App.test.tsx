@@ -57,6 +57,17 @@ describe('explorer', () => {
     expect(window.location.search).toContain('thread=witness')
   })
 
+  it('opens the Old Testament covenant path', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /언약과 성취/ }))
+
+    expect(screen.getByRole('heading', { name: '언약과 성취' })).toBeInTheDocument()
+    expect(screen.getByText('6개의 본문')).toBeInTheDocument()
+    expect(screen.getAllByText('창세기 12:1–3').length).toBeGreaterThanOrEqual(2)
+    expect(window.location.search).toContain('thread=covenant')
+    expect(window.location.search).toContain('passage=gen-12-1')
+  })
+
   it('opens the deeper reading guide for the cross and resurrection thread', () => {
     window.history.replaceState({}, '', '/?thread=cross&passage=jn-20-24')
     render(<App />)

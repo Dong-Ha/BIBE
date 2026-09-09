@@ -24,8 +24,8 @@ function ThreadRail({
   onSelect: (thread: Thread) => void
 }) {
   return (
-    <nav className="thread-rail" aria-label="요한복음 실타래">
-      <p className="rail-label">열 개의 실타래</p>
+    <nav className="thread-rail" aria-label="성경 주제 실타래">
+      <p className="rail-label">{threads.length}개의 실타래</p>
       <div className="thread-list">
         {threads.map((thread) => {
           const isSelected = selectedThread.id === thread.id
@@ -433,9 +433,9 @@ export default function App() {
           </span>
         </a>
         <div className="book-context">
-          <span>탐험 중인 책</span>
-          <strong>요한복음</strong>
-          <small>복음서 · 21장</small>
+          <span>탐험 중인 범위</span>
+          <strong>요한복음과 구약</strong>
+          <small>성경 · 언약과 성취</small>
         </div>
         <div className="view-principle">
           <span aria-hidden="true">◌</span>
@@ -451,7 +451,7 @@ export default function App() {
 
       <footer className="page-footer">
         <p>본문 관찰과 신학적 해설을 구분하여 읽습니다.</p>
-        <span>{relationSummary ? `현재 연결 · ${relationSummary}` : '요한복음의 결을 따라가세요.'}</span>
+        <span>{relationSummary ? `현재 연결 · ${relationSummary}` : '성경의 결을 따라가세요.'}</span>
       </footer>
       <div className="sr-only" aria-live="polite">
         {shareState === 'copied' ? '현재 탐색 주소가 클립보드에 복사되었습니다.' : ''}

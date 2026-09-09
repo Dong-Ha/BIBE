@@ -816,6 +816,101 @@ export const nodes: PassageNode[] = [
       caution: '도마를 질문했다는 이유만으로 조롱하거나, 반대로 의심 자체를 믿음보다 우월하게 여기지 않는다. 본문은 의심하는 사람을 찾아오신 은혜와 사도적 증언을 신뢰하도록 부르는 말씀을 함께 보여 준다.',
     },
   },
+  {
+    id: 'gen-12-1',
+    reference: '창세기 12:1–3',
+    eyebrow: '언약의 시작',
+    title: '모든 민족을 향한 복의 약속',
+    summary: '하나님은 아브람을 부르시고 큰 민족과 이름과 복을 약속하시며, 땅의 모든 족속이 그를 통해 복을 얻으리라고 선언하신다.',
+    observation: '명령과 약속이 함께 주어지고, 한 사람에게 주신 복이 처음부터 모든 민족을 향하도록 넓게 열려 있다.',
+    x: 98,
+    y: 202,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '은혜의 언약은 하나님의 약속에서 시작된다',
+      summary: '아브람의 여정은 인간이 하나님께 이르는 계획이 아니라 하나님이 먼저 부르시고 약속하신 은혜에 대한 믿음의 응답이다. 그 약속은 그리스도 안에서 열방을 향한 복으로 성취된다.',
+      scripture: ['갈라디아서 3:8–14', '히브리서 11:8–10'],
+      confessions: [
+        { document: '웨스트민스터 신앙고백', section: '제7장', summary: '은혜의 언약과 시대를 따라 드러난 하나의 구원 약속', url: confessionUrls.westminster },
+      ],
+    },
+  },
+  {
+    id: 'ex-19-4',
+    reference: '출애굽기 19:4–6',
+    eyebrow: '시내산의 부르심',
+    title: '제사장 나라와 거룩한 백성',
+    summary: '하나님은 애굽에서 구원해 낸 이스라엘을 자신의 소유, 제사장 나라, 거룩한 백성으로 부르신다.',
+    observation: '순종의 요청보다 독수리 날개로 업어 구원하셨다는 은혜의 회상이 먼저 나오며, 백성의 사명은 이미 받은 구원 위에 세워진다.',
+    x: 240,
+    y: 96,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '구원받은 백성은 거룩한 사명으로 부름받는다',
+      summary: '율법의 순종은 구원을 얻기 위한 값이 아니라 구원하신 하나님께 속한 백성의 응답이다. 교회도 그리스도 안에서 왕 같은 제사장으로 불려 하나님의 덕을 선포한다.',
+      scripture: ['베드로전서 2:9–10', '디도서 2:11–14'],
+      confessions: [
+        { document: '하이델베르크 요리문답', section: '제86문', summary: '은혜로 구원받은 사람이 선한 일을 행하는 이유', url: confessionUrls.heidelberg },
+      ],
+    },
+  },
+  {
+    id: 'deut-30-6',
+    reference: '신명기 30:6',
+    eyebrow: '마음의 변화 약속',
+    title: '마음을 다해 하나님을 사랑하도록',
+    summary: '모세는 하나님이 자기 백성의 마음에 할례를 베푸셔서 마음과 뜻을 다해 하나님을 사랑하고 생명을 누리게 하실 날을 바라본다.',
+    observation: '언약에 대한 온전한 사랑은 백성의 의지만으로 완성되지 않으며, 하나님이 친히 마음을 새롭게 하시는 미래의 은혜로 약속된다.',
+    x: 382,
+    y: 250,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '하나님은 명령하신 사랑을 새 마음으로 이루신다',
+      summary: '율법은 마음을 다한 사랑을 요구하지만 타락한 인간은 스스로 그 마음을 만들 수 없다. 하나님은 성령으로 마음을 새롭게 하셔서 자기 백성이 믿음과 사랑으로 응답하게 하신다.',
+      scripture: ['예레미야 31:31–34', '로마서 2:28–29', '골로새서 2:11–13'],
+      confessions: [
+        { document: '도르트 신조', section: '제3·4교리, 제11–12항', summary: '성령께서 마음을 새롭게 하시고 믿음으로 응답하게 하시는 중생', url: confessionUrls.dort },
+      ],
+    },
+  },
+  {
+    id: '2sa-7-12',
+    reference: '사무엘하 7:12–16',
+    eyebrow: '다윗에게 주신 언약',
+    title: '영원히 견고할 왕위',
+    summary: '하나님은 다윗의 후손을 세우고 그의 나라와 왕위를 영원히 견고하게 하겠다고 약속하신다.',
+    observation: '성전과 왕조와 부자 관계의 언어가 한 약속 안에 묶이며, 다윗 이후의 한 왕을 넘어 영원한 통치를 바라보게 한다.',
+    x: 524,
+    y: 96,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '참된 다윗의 왕은 그리스도다',
+      summary: '다윗 언약은 역사적 왕조를 지탱하면서도 죽음으로 끝나지 않는 왕을 기다리게 한다. 부활하신 그리스도는 자기 백성을 의와 은혜로 다스리는 영원한 왕이시다.',
+      scripture: ['누가복음 1:31–33', '사도행전 2:29–36'],
+      confessions: [
+        { document: '웨스트민스터 신앙고백', section: '제8장', summary: '선지자와 제사장과 왕이신 유일한 중보자 그리스도', url: confessionUrls.westminster },
+      ],
+    },
+  },
+  {
+    id: 'jer-31-31',
+    reference: '예레미야 31:31–34',
+    eyebrow: '새 언약의 약속',
+    title: '마음에 기록되는 하나님의 법',
+    summary: '하나님은 깨어진 언약과 다른 새 언약을 세워 법을 마음에 기록하고, 죄를 용서하며, 백성이 자신을 알게 하겠다고 약속하신다.',
+    observation: '새 언약의 핵심은 단순한 규정의 교체가 아니라 내면의 변화, 하나님을 아는 관계, 완전한 죄 사함에 있다.',
+    x: 666,
+    y: 250,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '새 언약은 더 나은 중보자 안에서 성취된다',
+      summary: '하나님은 자기 백성이 실패한 자리에서 죄 사함과 새 마음을 친히 약속하신다. 그리스도의 단번 속죄와 성령의 내적 사역이 이 약속의 확실한 기초다.',
+      scripture: ['히브리서 8:6–13', '히브리서 10:14–18'],
+      confessions: [
+        { document: '벨직 신앙고백', section: '제22–23조', summary: '그리스도를 믿는 믿음과 그분 안에서 받는 의롭다 하심', url: confessionUrls.belgic },
+      ],
+    },
+  },
 ]
 
 export const connections: Connection[] = [
@@ -856,6 +951,11 @@ export const connections: Connection[] = [
   { id: 'witness-john', source: 'jn-1-6', target: 'jn-5-31', type: '반복', label: '사람의 증언에서 더 큰 증언으로', explanation: '세례 요한의 첫 증언이 예수의 사역과 아버지와 성경의 더 큰 증언 안에 자리 잡는다.' },
   { id: 'witness-cross', source: 'jn-5-31', target: 'jn-19-34', type: '성취', label: '말씀과 사역에서 목격으로', explanation: '예수를 가리키던 말씀과 사역의 증언이 십자가를 직접 본 제자의 참된 목격 증언으로 이어진다.' },
   { id: 'witness-purpose', source: 'jn-19-34', target: 'jn-20-31', type: '발전', label: '목격에서 기록된 믿음으로', explanation: '십자가를 본 이의 증언은 후대 독자가 기록된 표적을 통해 예수를 믿고 생명을 얻도록 하는 복음서의 목적과 만난다.' },
+  { id: 'covenant-abraham-sinai', source: 'gen-12-1', target: 'ex-19-4', type: '발전', label: '복의 약속에서 언약 백성으로', explanation: '아브라함에게 약속된 큰 민족이 출애굽의 구원을 거쳐 열방 가운데 하나님을 드러낼 제사장 나라로 세워진다.' },
+  { id: 'covenant-sinai-heart', source: 'ex-19-4', target: 'deut-30-6', type: '발전', label: '명령에서 새 마음의 약속으로', explanation: '시내산에서 거룩한 백성으로 부르신 하나님은 굳은 마음을 아시고, 친히 마음을 새롭게 하셔서 자신을 사랑하게 하실 은혜를 약속하신다.' },
+  { id: 'covenant-heart-david', source: 'deut-30-6', target: '2sa-7-12', type: '발전', label: '새 마음의 백성과 언약의 왕', explanation: '마음을 새롭게 하실 약속은 하나님의 백성을 의롭게 다스리고 영원히 보존할 다윗의 후손에 대한 약속과 함께 전진한다.' },
+  { id: 'covenant-david-new', source: '2sa-7-12', target: 'jer-31-31', type: '발전', label: '영원한 왕과 새 언약', explanation: '다윗의 왕위에 대한 약속과 죄 사함과 새 마음의 약속은 의로운 왕이 다스릴 새 언약의 소망을 함께 이룬다.' },
+  { id: 'covenant-new-christ', source: 'jer-31-31', target: 'jn-1-14', type: '성취', label: '약속된 은혜가 그리스도 안에', explanation: '죄를 용서하고 하나님을 알게 하겠다는 새 언약의 약속이 은혜와 진리가 충만하며 아버지를 알리시는 그리스도 안에서 성취된다.' },
 ]
 
 export const threads: Thread[] = [
@@ -908,6 +1008,11 @@ export const threads: Thread[] = [
     id: 'witness', number: '10', name: '증언과 믿음', shortName: '증언', premise: '여러 증언이 예수의 정체와 사역을 확증하고 독자를 생명의 믿음으로 부른다.', color: '#6a5d8b',
     guide: { context: '요한복음은 법정처럼 증인을 차례로 세운다. 세례 요한, 예수의 사역, 아버지, 성경, 십자가의 목격자가 서로를 보강하며, 기록된 증언은 직접 보지 못한 독자에게도 믿음의 근거가 된다.', focus: '증언의 주체와 내용, 증언을 거절하는 이유, 기록이 지향하는 믿음의 목적을 나누어 살핀다.', question: '충분한 증언 앞에서도 불신이 가능한 이유는 무엇이며 성령은 기록된 말씀을 어떻게 살아 있는 증언이 되게 하시는가?' },
     nodeIds: ['deut-19-15', 'jn-1-6', 'jn-5-31', 'jn-19-34', 'jn-20-31'], connectionIds: ['witness-law', 'witness-john', 'witness-cross', 'witness-purpose'],
+  },
+  {
+    id: 'covenant', number: '11', name: '언약과 성취', shortName: '언약', premise: '구약의 언약들이 한 백성과 왕과 새 마음을 약속하며 그리스도를 향해 나아간다.', color: '#7b6042',
+    guide: { context: '아브라함에게 주신 열방의 복, 시내산에서 세우신 제사장 나라, 모세가 내다본 새 마음, 다윗에게 약속하신 영원한 왕위, 예레미야가 선포한 새 언약을 한 흐름으로 읽는다. 서로 다른 시대의 약속은 폐기되는 계단이 아니라 하나님이 자기 백성을 구원하시고 그리스도 안에서 함께 거하시려는 한 목적을 점차 선명하게 드러낸다.', focus: '각 언약에서 하나님이 먼저 행하시는 일, 백성에게 주시는 정체성과 사명, 이후 본문에서 확장되는 약속을 구분해 살핀다.', question: '여러 시대에 주신 언약이 그리스도 안에서 하나의 구원 이야기로 성취된다는 사실은 구약과 신약을 읽는 방식을 어떻게 바꾸는가?' },
+    nodeIds: ['gen-12-1', 'ex-19-4', 'deut-30-6', '2sa-7-12', 'jer-31-31', 'jn-1-14'], connectionIds: ['covenant-abraham-sinai', 'covenant-sinai-heart', 'covenant-heart-david', 'covenant-david-new', 'covenant-new-christ'],
   },
 ]
 

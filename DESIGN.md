@@ -3,7 +3,7 @@
 ## Source of truth
 - Status: Draft
 - Last refreshed: 2026-07-30
-- Primary product surfaces: single-page Bible study web app focused on John’s Gospel
+- Primary product surfaces: single-page Bible study web app connecting John’s Gospel with Old Testament backgrounds and covenant themes
 - Evidence reviewed: `README.md` only; no existing UI assets, components, or design docs were present
 
 ## Brand
@@ -12,7 +12,7 @@
 - Avoid: novelty-for-novelty’s-sake, purple-heavy defaults, speculative commentary, and dense paragraph walls
 
 ## Product goals
-- Goals: help users trace Johannine themes through representative passages, OT background, and Reformed confessional framing
+- Goals: help users trace Johannine themes and the Old Testament covenant story through representative passages and Reformed confessional framing
 - Non-goals: full Bible text hosting, commentary database, user accounts, community features, or broad denomination comparison
 - Success signals: a user can move from one theme to another, inspect a passage, open a confessional reference, and share the current view
 
@@ -22,7 +22,7 @@
 - Key contexts of use: desktop study, mobile reading between sessions, and shared-link review in a group
 
 ## Information architecture
-- Primary navigation: ten motif threads in a persistent sidebar
+- Primary navigation: eleven motif threads in a persistent sidebar, including an Old Testament-focused covenant path
 - Core routes/screens: theme overview, passage detail, OT background, confessional references, shareable state
 - Content hierarchy: thread summary and expandable reading guide first, then passage map, then supporting references and confessional notes
 
