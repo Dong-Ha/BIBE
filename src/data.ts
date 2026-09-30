@@ -911,6 +911,286 @@ export const nodes: PassageNode[] = [
       ],
     },
   },
+  {
+    id: 'gen-15-5',
+    reference: '창세기 15:5–6',
+    eyebrow: '아브라함 언약의 확증',
+    title: '믿음을 의로 여기시다',
+    summary: '하나님은 별처럼 많은 후손을 약속하시고, 아브람은 그 말씀을 믿으며 하나님은 그의 믿음을 의로 여기신다.',
+    observation: '약속의 내용은 인간의 능력을 넘어서는 후손이며, 본문은 아브람의 행위보다 약속하신 하나님을 신뢰하는 믿음을 강조한다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '의롭다 하심은 믿음으로 받는 약속이다',
+      summary: '아브라함의 믿음은 공로가 아니라 하나님의 약속을 받는 빈손이다. 바울은 이 장면을 유대인과 이방인이 함께 은혜로 의롭다 하심을 받는 복음의 증거로 읽는다.',
+      scripture: ['로마서 4:1–5', '갈라디아서 3:6–9'],
+      confessions: [
+        { document: '벨직 신앙고백', section: '제22–23조', summary: '그리스도를 믿음으로 받는 의와 믿음의 도구적 역할', url: confessionUrls.belgic },
+      ],
+    },
+    study: {
+      context: '하나님은 아브람에게 땅과 후손을 약속하셨지만 아직 자녀가 없었다. 별을 보게 하신 장면은 약속의 규모와 인간의 한계를 함께 드러낸다.',
+      questions: [
+        '하나님은 아브람의 현실과 약속 사이의 간격에 어떻게 응답하시는가?',
+        '본문에서 믿음은 어떤 대상과 말씀을 향하는가?',
+        '로마서 4장은 이 장면을 오늘의 칭의 교리와 어떻게 연결하는가?',
+      ],
+      caution: '믿음을 의로 여기셨다는 말씀을 믿음 자체가 완전한 도덕적 공로라는 뜻으로 읽지 않는다. 믿음은 약속하신 하나님과 그리스도의 의를 의지하는 수단이다.',
+    },
+  },
+  {
+    id: 'ex-24-3',
+    reference: '출애굽기 24:3–8',
+    eyebrow: '시내산 언약 체결',
+    title: '피로 세워진 언약',
+    summary: '이스라엘은 하나님의 말씀에 응답하고, 제물의 피가 제단과 백성에게 뿌려지며 언약 체결을 확인한다.',
+    observation: '말씀의 낭독과 백성의 응답, 제물의 피가 함께 등장해 언약이 단순한 합의가 아니라 하나님이 정하신 생명과 순종의 관계임을 보여 준다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '언약의 피는 그리스도의 희생을 예고한다',
+      summary: '시내산의 제사는 죄인을 거룩하신 하나님께 가까이 이끄는 데 피 흘림이 필요함을 가르친다. 예수는 마지막 만찬에서 자기 피를 새 언약의 피라고 하시며 더 나은 언약의 중보자가 되신다.',
+      scripture: ['마가복음 14:22–25', '히브리서 9:18–22'],
+      confessions: [
+        { document: '웨스트민스터 신앙고백', section: '제7장 5–6항', summary: '옛 언약과 새 언약의 시행 및 그리스도 안에서의 성취', url: confessionUrls.westminster },
+      ],
+    },
+    study: {
+      context: '출애굽으로 구원받은 백성은 시내산에서 언약의 말씀을 듣고 응답한다. 모세는 제단을 세우고 희생 제물의 피로 언약을 확인한다.',
+      questions: [
+        '백성의 순종 약속에 앞서 이스라엘은 어떤 구원을 이미 경험했는가?',
+        '언약서 낭독과 피 뿌림은 각각 어떤 역할을 하는가?',
+        '예수께서 자기 피를 새 언약의 피라고 하신 말씀은 이 장면을 어떻게 성취하는가?',
+      ],
+      caution: '이 본문을 인간의 순종이 구원을 사는 계약으로 축소하지 않는다. 언약은 먼저 구원하신 하나님의 은혜에 기초하고, 순종은 그 은혜를 받은 백성의 응답이다.',
+    },
+  },
+  {
+    id: 'isa-55-3',
+    reference: '이사야 55:3–5',
+    eyebrow: '다윗 언약의 확장',
+    title: '확실한 다윗의 은혜',
+    summary: '하나님은 귀를 기울이고 나아오는 이들에게 생명을 약속하시며 다윗에게 베푸신 확실한 은혜를 백성과 연결하신다.',
+    observation: '다윗에게 주신 왕의 약속이 한 왕조의 경계를 넘어 백성과 열방을 향한 초청과 증언의 사명으로 확장된다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '다윗의 약속은 부활하신 왕 안에서 열린다',
+      summary: '하나님이 다윗에게 맹세하신 은혜는 죽음에 갇히지 않는 왕을 바라보게 한다. 사도들은 예수의 부활과 승천에서 이 약속이 확증되었다고 선포한다.',
+      scripture: ['사도행전 13:32–37', '사도행전 2:29–36'],
+      confessions: [
+        { document: '웨스트민스터 신앙고백', section: '제8장 1–2항', summary: '언약의 중보자이자 영원한 왕이신 그리스도', url: confessionUrls.westminster },
+      ],
+    },
+    study: {
+      context: '이사야 55장은 값없이 주시는 생명의 초청을 선포한다. 다윗에게 주신 언약은 그 초청의 신실한 근거로 제시되고, 뒤이어 열방이 하나님의 영광을 보게 될 전망이 이어진다.',
+      questions: [
+        '“듣고” “나아오라”는 초청은 생명을 받는 방식에 대해 무엇을 보여 주는가?',
+        '다윗에게 베푸신 은혜가 백성과 열방에게 확장되는 흐름은 무엇인가?',
+        '사도행전 13장은 이 약속을 예수의 부활과 어떻게 연결하는가?',
+      ],
+      caution: '다윗 언약의 성취를 이스라엘의 역사와 분리된 막연한 영적 비유로 만들지 않는다. 성경은 역사적 약속이 예수의 부활 안에서 성취되고 열방으로 확장됨을 함께 증언한다.',
+    },
+  },
+  {
+    id: 'lk-22-19',
+    reference: '누가복음 22:19–20',
+    eyebrow: '새 언약의 식탁',
+    title: '너희를 위하여 주는 몸',
+    summary: '예수는 떡과 잔을 제자들에게 주며 자신의 몸과 피를 기억하고 새 언약에 참여하도록 명하신다.',
+    observation: '출애굽을 기억하던 유월절 식탁에서 예수는 자신의 죽음을 새 언약과 연결하고, 제자들의 공동체적 기억과 소망을 세우신다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '성찬은 그리스도의 단번 희생을 믿음으로 누리는 표다',
+      summary: '성찬은 그리스도를 다시 희생시키는 제사가 아니라 이미 드려진 몸과 피의 은혜를 말씀과 성령 안에서 믿음으로 받는 언약의 표와 인이다. 교회는 이 식탁에서 주의 죽으심을 선포하며 다시 오실 때까지 기다린다.',
+      scripture: ['고린도전서 10:16–17', '고린도전서 11:23–26', '히브리서 10:10–14'],
+      confessions: [
+        { document: '웨스트민스터 신앙고백', section: '제29장 1–7항', summary: '주의 만찬의 제정과 그리스도와의 영적 교제', url: confessionUrls.westminster },
+      ],
+    },
+    study: {
+      context: '예수의 마지막 식사는 유월절 맥락에서 이루어진다. 누가는 떡과 잔을 예수의 자기희생, 제자들의 기억, 하나님 나라의 완성에 대한 소망과 연결한다.',
+      questions: [
+        '예수는 떡과 잔을 각각 자신의 어떤 사역과 연결하시는가?',
+        '“기억하라”는 말씀은 개인의 회상과 교회의 예배에 어떤 의미를 주는가?',
+        '고린도전서 11:26은 성찬과 재림의 소망을 어떻게 연결하는가?',
+      ],
+      caution: '성찬의 표를 공허한 기념물로 축소하거나, 반대로 그리스도의 희생을 반복하는 행위로 이해하지 않는다. 성령은 믿는 이들을 그리스도와 실제로 교제하게 하시며, 그리스도의 희생은 단번에 완성되었다.',
+    },
+  },
+  {
+    id: 'isa-53-4',
+    reference: '이사야 53:4–6',
+    eyebrow: '고난받는 종',
+    title: '우리의 죄악을 담당한 종',
+    summary: '고난받는 종은 백성의 질고와 죄악을 대신 담당하고, 그의 상처로 그들이 평화를 누린다.',
+    observation: '처음에는 종의 고난을 자기 죄에 대한 벌로 오해하지만, 본문은 그 고난이 “우리”의 죄를 위한 대속임을 밝힌다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '그리스도는 죄인을 대신한 대속자다',
+      summary: '십자가는 단지 사랑의 본을 보이는 사건이 아니라 죄의 형벌을 대신 담당하신 그리스도의 형벌 대속이다. 그 의가 믿는 자에게 전가되어 하나님과 화목하게 된다.',
+      scripture: ['마가복음 10:45', '로마서 5:6–11', '베드로전서 2:24–25'],
+      confessions: [
+        { document: '벨직 신앙고백', section: '제20–21조', summary: '그리스도의 만족과 대속적 희생', url: confessionUrls.belgic },
+      ],
+    },
+    study: {
+      context: '이사야 52:13부터 이어지는 종의 노래는 종의 낮아짐과 높아짐을 함께 그린다. 이 단락은 종의 고난과 백성의 죄 사이에 대리적 관계가 있음을 설명한다.',
+      questions: [
+        '화자는 종의 고난을 처음에 어떻게 오해했으며 무엇을 깨닫는가?',
+        '본문에서 “우리”의 죄와 종의 고난은 어떤 관계를 이루는가?',
+        '신약은 이 종의 노래를 예수의 죽음과 어떻게 연결하는가?',
+      ],
+      caution: '고난받는 종의 형상을 고통받는 사람에게 인내를 강요하는 데 사용하지 않는다. 본문은 불의한 고난을 정당화하지 않고, 죄인을 구원하기 위해 종이 자원하여 담당한 대속을 말한다.',
+    },
+  },
+  {
+    id: 'jn-19-28',
+    reference: '요한복음 19:28–30',
+    eyebrow: '십자가의 완성',
+    title: '다 이루었다',
+    summary: '예수는 성경을 이루시고 마지막 순간에 자신의 사명을 완성했다고 선언하신 뒤 죽음을 맞으신다.',
+    observation: '목마름과 신 포도주, 성경의 성취, “다 이루었다”는 선언은 십자가가 우발적 패배가 아니라 맡겨진 사명의 완성임을 강조한다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '그리스도의 순종은 구원을 완성했다',
+      summary: '그리스도는 율법 아래서 온전히 순종하고 십자가에서 죄의 값을 담당하셨다. 구원은 성도의 보충을 기다리지 않으며 믿음은 완성된 그리스도의 사역을 받는다.',
+      scripture: ['로마서 5:18–19', '히브리서 10:11–14', '요한복음 17:4'],
+      confessions: [
+        { document: '웨스트민스터 신앙고백', section: '제8장 4–5항', summary: '그리스도의 능동적·수동적 순종과 완성된 중보 사역', url: confessionUrls.westminster },
+      ],
+    },
+    study: {
+      context: '예수의 죽음 장면은 유월절 준비일의 배경과 성경의 성취를 함께 언급한다. 요한은 예수가 자신의 생명을 빼앗긴 수동적 희생자가 아니라 사명을 완성하시는 주임을 드러낸다.',
+      questions: [
+        '예수의 목마름과 신 포도주 장면은 성경의 성취와 어떻게 연결되는가?',
+        '“다 이루었다”는 선언은 예수의 사명에 관해 무엇을 말하는가?',
+        '완성된 사역을 믿는다는 것은 자기 공로와 실패를 바라보는 태도를 어떻게 바꾸는가?',
+      ],
+      caution: '“다 이루었다”를 모든 개인의 구원 여부가 자동으로 확정되었다는 뜻으로 단순화하지 않는다. 그리스도의 구속 사역은 완전하며, 그 유익은 성령이 믿음으로 그리스도와 연합시키시는 이들에게 적용된다.',
+    },
+  },
+  {
+    id: 'jn-20-19',
+    reference: '요한복음 20:19–23',
+    eyebrow: '부활하신 주의 파송',
+    title: '평강을 주고 보내시다',
+    summary: '부활하신 예수는 두려워 숨은 제자들 가운데 오셔서 평강을 선포하고 상처를 보이시며 그들을 세상으로 보내신다.',
+    observation: '십자가의 흔적은 부활이 다른 존재로의 교체가 아니라 못 박히신 예수의 몸으로 일어난 부활임을 확인하며, 파송은 성령의 선물과 연결된다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '부활의 평강은 교회의 사명을 낳는다',
+      summary: '그리스도는 자기 백성에게 먼저 화목의 평강을 주시고, 그 평강을 받은 교회를 복음의 증인으로 보내신다. 죄 사함의 선포는 사도적 복음에 근거하며 교회는 그 말씀을 충실히 전한다.',
+      scripture: ['고린도후서 5:18–21', '누가복음 24:46–49', '사도행전 1:8'],
+      confessions: [
+        { document: '하이델베르크 요리문답', section: '제83–84문', summary: '복음 선포와 죄 사함을 통한 천국 열쇠의 시행', url: confessionUrls.heidelberg },
+      ],
+    },
+    study: {
+      context: '제자들은 유대 지도자들을 두려워해 문을 잠갔지만 예수는 그들 가운데 오신다. 이어지는 파송은 실패한 제자들의 용기보다 부활하신 주의 권위와 성령의 선물에 기초한다.',
+      questions: [
+        '예수는 두려워하는 제자들에게 어떤 순서로 다가가시는가?',
+        '손과 옆구리를 보이신 일은 부활의 정체를 어떻게 증언하는가?',
+        '예수의 파송과 성령의 선물은 교회의 증언을 어떻게 세우는가?',
+      ],
+      caution: '죄를 사하는 권세를 교회 지도자의 독립적인 권한으로 해석하지 않는다. 교회는 복음에 따라 회개하는 자에게 용서를 선포하고, 복음을 거부하는 죄의 심각성을 경고한다.',
+    },
+  },
+  {
+    id: '1co-15-20',
+    reference: '고린도전서 15:20–23',
+    eyebrow: '부활의 첫 열매',
+    title: '잠자는 자들의 첫 열매',
+    summary: '바울은 그리스도의 몸의 부활을 죽은 이들의 부활이 시작되었다는 첫 열매로 선포하고, 아담 안의 죽음과 그리스도 안의 생명을 대조한다.',
+    observation: '그리스도의 부활은 고립된 기적이 아니라 그와 연합한 이들의 장래 부활을 보증하는 시작이며, 각자의 차례와 때가 함께 제시된다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '그리스도와의 연합은 몸의 부활을 보증한다',
+      summary: '첫 아담에게 속한 인류는 죽음의 지배 아래 있지만, 둘째 아담이신 그리스도께 속한 백성은 그분의 부활 생명에 참여한다. 구원은 영혼만의 탈출이 아니라 몸과 창조의 회복을 포함한다.',
+      scripture: ['로마서 5:12–21', '고린도전서 15:42–49', '로마서 8:18–23'],
+      confessions: [
+        { document: '웨스트민스터 신앙고백', section: '제32장 2–3항', summary: '몸의 부활과 의인과 악인의 부활', url: confessionUrls.westminster },
+      ],
+    },
+    study: {
+      context: '고린도 교회 일부가 죽은 자의 부활을 부정하자 바울은 그리스도의 부활이 복음과 성도의 소망에 필수라고 논증한다. 농사의 첫 열매 이미지는 뒤따를 수확의 확실성을 보여 준다.',
+      questions: [
+        '첫 열매라는 비유는 그리스도의 부활과 성도의 부활 사이를 어떻게 설명하는가?',
+        '아담과 그리스도 안에 있다는 표현은 죽음과 생명의 대표성을 어떻게 대비하는가?',
+        '몸의 부활 소망은 현재의 고난과 섬김을 어떻게 바라보게 하는가?',
+      ],
+      caution: '부활을 영혼이 죽음 뒤에 계속 존재한다는 주장으로 축소하지 않는다. 바울이 선포하는 소망은 그리스도의 몸의 부활을 따라 성도도 몸으로 다시 살아나는 것이다.',
+    },
+  },
+  {
+    id: 'jn-6-35',
+    reference: '요한복음 6:35–40',
+    eyebrow: '생명의 떡 선언',
+    title: '아버지께서 주신 이를 잃지 않으심',
+    summary: '예수는 자신을 생명의 떡이라 밝히고, 아버지께서 주신 자를 마지막 날에 다시 살리겠다고 약속하신다.',
+    observation: '먹고 마시는 표상이 예수께 오는 믿음을 설명하고, 아버지의 뜻과 아들의 보존 및 마지막 날의 부활이 한 약속으로 결합된다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '구원은 삼위 하나님의 은혜로 시작해 완성된다',
+      summary: '아버지는 백성을 아들에게 주시고, 아들은 그들을 받아 잃지 않으며 마지막 날에 살리신다. 믿음은 이 은혜를 얻어 내는 조건이 아니라 그리스도께 나아오는 수단이고, 보존과 부활은 하나님의 약속에 달려 있다.',
+      scripture: ['요한복음 10:27–30', '로마서 8:29–39', '에베소서 1:3–14'],
+      confessions: [
+        { document: '도르트 신조', section: '제5교리, 제8–9항', summary: '하나님의 보존과 성도의 견인', url: confessionUrls.dort },
+      ],
+    },
+    study: {
+      context: '오병이어 표적 뒤 무리는 표적이 가리키는 예수보다 빵을 구한다. 예수는 생명의 떡으로 자신을 계시하며 믿음과 아버지의 구원 뜻을 설명한다.',
+      questions: [
+        '예수께 오는 것과 믿는 것은 본문에서 어떻게 평행을 이루는가?',
+        '아버지의 뜻과 아들의 사명은 주어진 자들의 구원에 어떤 확신을 주는가?',
+        '마지막 날의 부활 약속은 현재의 믿음과 어떤 관계가 있는가?',
+      ],
+      caution: '이 본문을 성찬의 물질적 요소만으로 해석하지 않는다. 문맥은 예수를 믿음으로 받아 생명을 얻는 일을 우선 말하며, 성찬은 이 복음을 가시적으로 확증하는 표다.',
+    },
+  },
+  {
+    id: 'rom-6-3',
+    reference: '로마서 6:3–5',
+    eyebrow: '그리스도와의 연합',
+    title: '그리스도와 함께 죽고 살아남',
+    summary: '바울은 세례를 그리스도의 죽음과 부활에 연합한 표로 설명하고, 성도가 새 생명 가운데 행한다고 가르친다.',
+    observation: '그리스도와 함께 묻히고 살아났다는 과거의 연합이 현재의 새 삶과 장래의 부활을 함께 지탱한다.',
+    x: 0,
+    y: 0,
+    externalUrl: bibleUrl,
+    lens: {
+      title: '연합에서 칭의와 성화의 열매가 나온다',
+      summary: '성도는 믿음으로 그리스도와 연합하여 그의 죽음과 부활에 참여한다. 죄의 지배에서 해방된 새 삶은 구원의 대가가 아니라 그리스도께 속한 사람에게 성령이 맺게 하시는 열매다.',
+      scripture: ['골로새서 2:11–14', '갈라디아서 2:19–20', '로마서 8:1–4'],
+      confessions: [
+        { document: '하이델베르크 요리문답', section: '제70–71문', summary: '세례의 표와 그리스도의 피와 성령으로 씻음', url: confessionUrls.heidelberg },
+      ],
+    },
+    study: {
+      context: '로마서 5장은 그리스도를 통해 은혜와 생명이 왕 노릇한다고 말한다. 6장은 은혜가 죄를 계속 지어도 된다는 허가가 아니라 그리스도와 연합한 새 정체성임을 설명한다.',
+      questions: [
+        '세례는 본문에서 그리스도의 어떤 사건과 연결되는가?',
+        '새 생명 가운데 걷는 삶은 구원의 원인인가 결과인가?',
+        '장래 부활의 소망은 현재의 죄와 싸우는 태도를 어떻게 바꾸는가?',
+      ],
+      caution: '세례 행위 자체가 믿음과 무관하게 자동으로 구원한다는 뜻으로 읽지 않는다. 세례는 그리스도와의 연합을 가리키는 언약의 표이며, 그리스도의 은혜는 믿음으로 받는다.',
+    },
+  },
 ]
 
 export const connections: Connection[] = [
@@ -956,6 +1236,16 @@ export const connections: Connection[] = [
   { id: 'covenant-heart-david', source: 'deut-30-6', target: '2sa-7-12', type: '발전', label: '새 마음의 백성과 언약의 왕', explanation: '마음을 새롭게 하실 약속은 하나님의 백성을 의롭게 다스리고 영원히 보존할 다윗의 후손에 대한 약속과 함께 전진한다.' },
   { id: 'covenant-david-new', source: '2sa-7-12', target: 'jer-31-31', type: '발전', label: '영원한 왕과 새 언약', explanation: '다윗의 왕위에 대한 약속과 죄 사함과 새 마음의 약속은 의로운 왕이 다스릴 새 언약의 소망을 함께 이룬다.' },
   { id: 'covenant-new-christ', source: 'jer-31-31', target: 'jn-1-14', type: '성취', label: '약속된 은혜가 그리스도 안에', explanation: '죄를 용서하고 하나님을 알게 하겠다는 새 언약의 약속이 은혜와 진리가 충만하며 아버지를 알리시는 그리스도 안에서 성취된다.' },
+  { id: 'covenant-faith-promise', source: 'gen-12-1', target: 'gen-15-5', type: '발전', label: '부르심에서 믿음의 응답으로', explanation: '하나님의 열방을 향한 약속은 후손을 주시겠다는 확증으로 구체화되고 아브람은 약속하신 분을 믿는다.' },
+  { id: 'covenant-sinai-blood', source: 'ex-19-4', target: 'ex-24-3', type: '발전', label: '구원받은 백성과 언약의 피', explanation: '출애굽으로 건짐 받은 백성이 말씀을 듣고 응답하며 희생의 피로 시내산 언약이 확인된다.' },
+  { id: 'covenant-david-mercy', source: '2sa-7-12', target: 'isa-55-3', type: '발전', label: '다윗의 약속에서 열방의 초청으로', explanation: '다윗에게 약속된 확실한 은혜는 생명으로 부르는 초청과 열방을 향한 증언으로 확장된다.' },
+  { id: 'covenant-new-table', source: 'jer-31-31', target: 'lk-22-19', type: '성취', label: '새 언약의 약속과 식탁', explanation: '예수는 예레미야가 약속한 죄 사함과 새 언약을 자신의 몸과 피로 세우신다.' },
+  { id: 'cross-servant-sin', source: 'isa-52-13', target: 'isa-53-4', type: '발전', label: '종의 높임과 대속의 고난', explanation: '높임을 받는 종은 자기 백성의 질고와 죄악을 대신 담당하는 고난을 통과한다.' },
+  { id: 'cross-lamb-finished-node', source: 'jn-1-29', target: 'jn-19-28', type: '성취', label: '어린양의 사명 완성', explanation: '세상 죄를 지는 어린양이라는 선언은 십자가에서 맡은 사명을 다 이루신 예수의 죽음으로 향한다.' },
+  { id: 'cross-finished-witness', source: 'jn-19-28', target: 'jn-20-19', type: '발전', label: '십자가의 완성에서 부활의 평강으로', explanation: '죽음을 통해 사명을 완성하신 예수는 부활하여 제자들에게 평강과 증언의 사명을 주신다.' },
+  { id: 'cross-resurrection-firstfruit', source: 'jn-20-19', target: '1co-15-20', type: '발전', label: '부활의 목격에서 교회의 소망으로', explanation: '제자들이 만난 부활하신 예수는 바울이 선포하는 모든 성도의 부활을 보증하는 첫 열매다.' },
+  { id: 'life-bread-resurrection', source: 'jn-5-24', target: 'jn-6-35', type: '발전', label: '현재의 생명과 마지막 날의 보존', explanation: '이미 사망에서 생명으로 옮겨진 믿는 자는 생명의 떡이신 예수의 약속 안에서 마지막 날의 부활도 소망한다.' },
+  { id: 'life-union-newwalk', source: 'jn-6-35', target: 'rom-6-3', type: '발전', label: '그리스도께 와서 새 생명으로 걷다', explanation: '예수를 믿어 생명을 얻는 은혜는 그리스도와 연합한 사람이 새 생명 가운데 걷는 열매로 나타난다.' },
 ]
 
 export const threads: Thread[] = [
@@ -972,7 +1262,7 @@ export const threads: Thread[] = [
   {
     id: 'life', number: '03', name: '생명과 중생', shortName: '생명', premise: '위로부터 주시는 생명이 현재의 영생과 마지막 부활로 이어진다.', color: '#56705d',
     guide: { context: '요한복음에서 영생은 죽은 뒤에만 시작되는 보상이 아니다. 성령으로 위에서 난 사람은 지금 사망에서 생명으로 옮겨지고, 그 현재의 생명은 마지막 몸의 부활을 향해 나아간다.', focus: '“이미” 얻은 생명과 “아직” 기다리는 부활이 예수 안에서 어떻게 하나가 되는지 읽는다.', question: '새 생명이 인간의 결단보다 성령의 주권적 역사에서 시작된다는 사실은 믿음과 확신에 무엇을 더하는가?' },
-    nodeIds: ['ezk-36-25', 'jn-3-3', 'jn-5-24', 'jn-11-25', 'jn-20-31'], connectionIds: ['newbirth-ezekiel', 'life-present', 'life-resurrection', 'newbirth-purpose'],
+    nodeIds: ['ezk-36-25', 'jn-3-3', 'jn-5-24', 'jn-6-35', 'rom-6-3', 'jn-11-25', 'jn-20-31'], connectionIds: ['newbirth-ezekiel', 'life-present', 'life-resurrection', 'newbirth-purpose', 'life-bread-resurrection', 'life-union-newwalk'],
   },
   {
     id: 'sign', number: '04', name: '표적과 믿음', shortName: '표적', premise: '표적은 공급과 생명의 권세를 통해 그리스도의 영광을 가리킨다.', color: '#65558f',
@@ -997,7 +1287,7 @@ export const threads: Thread[] = [
   {
     id: 'cross', number: '08', name: '십자가와 부활', shortName: '부활', premise: '죄를 담당한 어린양의 죽음이 부활의 새 창조와 믿음의 고백으로 이어진다.', color: '#724b5f',
     guide: { context: '이사야의 고난받는 종과 세례 요한의 어린양 선언은 십자가의 “다 이루었다”에서 절정에 이른다. 빈 무덤과 도마의 고백은 그 죽음이 패배가 아니라 죄를 이기고 새 창조를 여는 완성임을 증언한다.', focus: '대속, 성경 성취, 실제 죽음, 몸의 부활, 사도적 증언을 하나의 구속 사건으로 읽는다.', question: '“나의 주, 나의 하나님”이라는 고백은 십자가와 부활을 단순한 교리에서 인격적인 믿음으로 어떻게 이끄는가?' },
-    nodeIds: ['isa-52-13', 'jn-1-29', 'jn-19-16', 'jn-20-1', 'jn-20-24'], connectionIds: ['cross-servant-lamb', 'cross-lamb-finished', 'cross-death-morning', 'cross-witness-confession'],
+    nodeIds: ['isa-52-13', 'isa-53-4', 'jn-1-29', 'jn-19-16', 'jn-19-28', 'jn-20-1', 'jn-20-19', 'jn-20-24', '1co-15-20'], connectionIds: ['cross-servant-lamb', 'cross-lamb-finished', 'cross-death-morning', 'cross-witness-confession', 'cross-servant-sin', 'cross-lamb-finished-node', 'cross-finished-witness', 'cross-resurrection-firstfruit'],
   },
   {
     id: 'water', number: '09', name: '생수와 성령', shortName: '생수', premise: '목마른 이를 향한 초청이 그리스도께서 주시는 성령의 생명으로 넘쳐흐른다.', color: '#3f7780',
@@ -1012,7 +1302,7 @@ export const threads: Thread[] = [
   {
     id: 'covenant', number: '11', name: '언약과 성취', shortName: '언약', premise: '구약의 언약들이 한 백성과 왕과 새 마음을 약속하며 그리스도를 향해 나아간다.', color: '#7b6042',
     guide: { context: '아브라함에게 주신 열방의 복, 시내산에서 세우신 제사장 나라, 모세가 내다본 새 마음, 다윗에게 약속하신 영원한 왕위, 예레미야가 선포한 새 언약을 한 흐름으로 읽는다. 서로 다른 시대의 약속은 폐기되는 계단이 아니라 하나님이 자기 백성을 구원하시고 그리스도 안에서 함께 거하시려는 한 목적을 점차 선명하게 드러낸다.', focus: '각 언약에서 하나님이 먼저 행하시는 일, 백성에게 주시는 정체성과 사명, 이후 본문에서 확장되는 약속을 구분해 살핀다.', question: '여러 시대에 주신 언약이 그리스도 안에서 하나의 구원 이야기로 성취된다는 사실은 구약과 신약을 읽는 방식을 어떻게 바꾸는가?' },
-    nodeIds: ['gen-12-1', 'ex-19-4', 'deut-30-6', '2sa-7-12', 'jer-31-31', 'jn-1-14'], connectionIds: ['covenant-abraham-sinai', 'covenant-sinai-heart', 'covenant-heart-david', 'covenant-david-new', 'covenant-new-christ'],
+    nodeIds: ['gen-12-1', 'gen-15-5', 'ex-19-4', 'ex-24-3', 'deut-30-6', '2sa-7-12', 'isa-55-3', 'jer-31-31', 'lk-22-19', 'jn-1-14'], connectionIds: ['covenant-abraham-sinai', 'covenant-sinai-heart', 'covenant-heart-david', 'covenant-david-new', 'covenant-new-christ', 'covenant-faith-promise', 'covenant-sinai-blood', 'covenant-david-mercy', 'covenant-new-table'],
   },
 ]
 
@@ -1032,10 +1322,19 @@ export function getInitialSelection(search: string) {
   return { threadId: thread.id, passageId }
 }
 
-export function validateContent() {
+export function validateContent(content = { nodes, connections, threads }) {
+  const { nodes, connections, threads } = content
   const errors: string[] = []
   const nodeIds = new Set(nodes.map((node) => node.id))
   const connectionIds = new Set(connections.map((connection) => connection.id))
+  const connectionsById = new Map(connections.map((connection) => [connection.id, connection]))
+  for (const [name, items] of [['nodes', nodes], ['connections', connections], ['threads', threads]] as const) {
+    const seen = new Set<string>()
+    for (const item of items) {
+      if (seen.has(item.id)) errors.push(`${name}: duplicate id ${item.id}`)
+      seen.add(item.id)
+    }
+  }
 
   for (const connection of connections) {
     if (!nodeIds.has(connection.source)) errors.push(`${connection.id}: missing source ${connection.source}`)
@@ -1043,13 +1342,14 @@ export function validateContent() {
   }
 
   for (const thread of threads) {
+    const threadNodeIds = new Set(thread.nodeIds)
     for (const nodeId of thread.nodeIds) {
       if (!nodeIds.has(nodeId)) errors.push(`${thread.id}: missing node ${nodeId}`)
     }
     for (const connectionId of thread.connectionIds) {
       if (!connectionIds.has(connectionId)) errors.push(`${thread.id}: missing connection ${connectionId}`)
-      const connection = connectionById.get(connectionId)
-      if (connection && (!thread.nodeIds.includes(connection.source) || !thread.nodeIds.includes(connection.target))) {
+      const connection = connectionsById.get(connectionId)
+      if (connection && (!threadNodeIds.has(connection.source) || !threadNodeIds.has(connection.target))) {
         errors.push(`${thread.id}: connection ${connectionId} leaves thread`)
       }
     }

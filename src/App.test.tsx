@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
@@ -62,7 +62,7 @@ describe('explorer', () => {
     fireEvent.click(screen.getByRole('button', { name: /언약과 성취/ }))
 
     expect(screen.getByRole('heading', { name: '언약과 성취' })).toBeInTheDocument()
-    expect(screen.getByText('6개의 본문')).toBeInTheDocument()
+    expect(screen.getByText('10개의 본문')).toBeInTheDocument()
     expect(screen.getAllByText('창세기 12:1–3').length).toBeGreaterThanOrEqual(2)
     expect(window.location.search).toContain('thread=covenant')
     expect(window.location.search).toContain('passage=gen-12-1')
@@ -80,6 +80,62 @@ describe('explorer', () => {
     expect(screen.getByRole('heading', { name: '이 장면의 문맥' })).toBeInTheDocument()
     expect(screen.getByText(/도마의 장면은 복음서의 기록 목적 바로 앞에 놓인다/)).toBeInTheDocument()
     expect(screen.getAllByRole('listitem')).toHaveLength(3)
+  })
+
+  it('does not add history entries when the selected passage is clicked again', () => {
+    render(<App />)
+    const pushState = vi.spyOn(window.history, 'pushState')
+    fireEvent.click(screen.getByRole('button', { name: /요한복음 1:1–3,.*선택됨/ }))
+    expect(pushState).not.toHaveBeenCalled()
+    pushState.mockRestore()
+  })
+
+  it('restores the passage and closes commentary on browser navigation', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /개혁주의 렌즈/ }))
+    window.history.replaceState({}, '', '/?thread=light&passage=jn-8-12')
+    fireEvent.popState(window)
+    expect(screen.getByRole('heading', { name: '빛과 어둠' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /개혁주의 렌즈/ })).toHaveAttribute('aria-expanded', 'false')
+    expect(document.title).toContain('요한복음 8:12')
+  })
+
+  it('ignores a pending copy result after the selected thread changes', async () => {
+    let complete!: () => void
+    vi.mocked(navigator.clipboard.writeText).mockReturnValue(new Promise<void>((resolve) => { complete = resolve }))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /이 발견 공유/ }))
+    fireEvent.click(screen.getByRole('button', { name: /성전과 그리스도/ }))
+    await act(async () => { complete() })
+    expect(screen.getByRole('button', { name: /이 발견 공유/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /링크 복사됨/ })).not.toBeInTheDocument()
+  })
+
+  it('offers the current URL when copying fails', async () => {
+    vi.mocked(navigator.clipboard.writeText).mockRejectedValue(new Error('clipboard unavailable'))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /이 발견 공유/ }))
+    expect(await screen.findByLabelText('현재 주소를 복사하세요')).toHaveValue(window.location.href)
+  })
+
+  it('selects map passages using the keyboard', () => {
+    render(<App />)
+    const node = screen.getByRole('button', { name: /창세기 1:1–5,/ })
+    fireEvent.keyDown(node, { key: ' ' })
+    expect(node).toHaveAttribute('aria-pressed', 'true')
+    expect(window.location.search).toContain('passage=gen-1-1')
+  })
+
+  it('gives all ten covenant passages distinct map positions', () => {
+    window.history.replaceState({}, '', '/?thread=covenant')
+    const { container } = render(<App />)
+    const nodes = Array.from(container.querySelectorAll('.map-node'))
+    expect(nodes).toHaveLength(10)
+    expect(new Set(nodes.map((node) => node.getAttribute('transform'))).size).toBe(10)
+    const addedNode = screen.getByRole('button', { name: /누가복음 22:19–20,/ })
+    fireEvent.click(addedNode)
+    expect(screen.getByRole('heading', { name: '너희를 위하여 주는 몸' })).toBeInTheDocument()
+    expect(window.location.search).toContain('passage=lk-22-19')
   })
 
   it('copies a deep link for the selected discovery', async () => {

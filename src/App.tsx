@@ -13,6 +13,7 @@ function writeSelection(threadId: string, passageId: string, replace = false) {
   const url = new URL(window.location.href)
   url.searchParams.set('thread', threadId)
   url.searchParams.set('passage', passageId)
+  if (!replace && url.href === window.location.href) return
   window.history[replace ? 'replaceState' : 'pushState']({}, '', url)
 }
 
@@ -60,12 +61,19 @@ function InsightMap({
   selectedNode: PassageNode
   onSelect: (node: PassageNode) => void
 }) {
-  const threadNodes = thread.nodeIds
+  const threadNodes = useMemo(() => thread.nodeIds
     .map((id) => nodeById.get(id))
-    .filter((node): node is PassageNode => Boolean(node))
-  const threadConnections = thread.connectionIds
+    .filter((node): node is PassageNode => Boolean(node)), [thread])
+  const threadConnections = useMemo(() => thread.connectionIds
     .map((id) => connectionById.get(id))
-    .filter((connection): connection is Connection => Boolean(connection))
+    .filter((connection): connection is Connection => Boolean(connection)), [thread])
+  // Position shared passages within each thread instead of using global coordinates.
+  const positions = useMemo(() => new Map(threadNodes.map((node, index) => {
+    const row = Math.floor(index / 4)
+    const column = row % 2 === 0 ? index % 4 : 3 - index % 4
+    return [node.id, { x: 110 + column * 233, y: 140 + row * 180 }]
+  })), [threadNodes])
+  const mapHeight = Math.max(400, Math.ceil(threadNodes.length / 4) * 180 + 90)
 
   return (
     <section
@@ -101,7 +109,7 @@ function InsightMap({
 
       <div className="desktop-map">
         <svg
-          viewBox="0 0 920 400"
+          viewBox={`0 0 920 ${mapHeight}`}
           role="group"
           aria-label={`${thread.name} 본문 연결 지도. 탭 키로 본문을 선택할 수 있습니다.`}
         >
@@ -111,12 +119,12 @@ function InsightMap({
             </filter>
           </defs>
           {threadConnections.map((connection) => {
-            const source = nodeById.get(connection.source)
-            const target = nodeById.get(connection.target)
+            const source = positions.get(connection.source)
+            const target = positions.get(connection.target)
             if (!source || !target) return null
             const midX = (source.x + target.x) / 2
             const midY = (source.y + target.y) / 2
-            const curve = Math.abs(target.x - source.x) > 250 ? 36 : 18
+            const curve = Math.abs(target.x - source.x) > 250 ? 140 : 18
             return (
               <g key={connection.id} className="connection">
                 <path
@@ -137,9 +145,10 @@ function InsightMap({
                 key={node.id}
                 className="map-node"
                 data-active={isSelected}
-                transform={`translate(${node.x}, ${node.y})`}
+                transform={`translate(${positions.get(node.id)!.x}, ${positions.get(node.id)!.y})`}
                 role="button"
                 tabIndex={0}
+                aria-pressed={isSelected}
                 aria-label={`${node.reference}, ${node.title}${isSelected ? ', 선택됨' : ''}`}
                 onClick={() => onSelect(node)}
                 onKeyDown={(event) => {
@@ -186,6 +195,7 @@ function InsightMap({
               <button
                 className="mobile-node"
                 data-active={selectedNode.id === node.id}
+                aria-pressed={selectedNode.id === node.id}
                 onClick={() => onSelect(node)}
               >
                 <span>{String(index + 1).padStart(2, '0')}</span>
@@ -220,11 +230,6 @@ function PassagePanel({
     .map((id) => connectionById.get(id))
     .filter((connection): connection is Connection => Boolean(connection))
     .filter((connection) => connection.source === node.id || connection.target === node.id)
-
-  useEffect(() => {
-    setLensOpen(false)
-    setStudyOpen(false)
-  }, [node.id])
 
   return (
     <aside
@@ -368,9 +373,10 @@ function PassagePanel({
 }
 
 export default function App() {
-  const initial = useRef(getInitialSelection(window.location.search))
-  const [threadId, setThreadId] = useState(initial.current.threadId)
-  const [passageId, setPassageId] = useState(initial.current.passageId)
+  const [initial] = useState(() => getInitialSelection(window.location.search))
+  const [threadId, setThreadId] = useState(initial.threadId)
+  const [passageId, setPassageId] = useState(initial.passageId)
+  const shareRequest = useRef(0)
   const [shareState, setShareState] = useState<'idle' | 'copied' | 'failed'>('idle')
 
   const selectedThread = threadById.get(threadId) || threads[0]
@@ -388,12 +394,17 @@ export default function App() {
   useEffect(() => {
     writeSelection(selectedThread.id, selectedNode.id, true)
     const onPopState = () => {
+      shareRequest.current += 1
+      setShareState('idle')
       const next = getInitialSelection(window.location.search)
       setThreadId(next.threadId)
       setPassageId(next.passageId)
     }
     window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
+    return () => {
+      shareRequest.current += 1
+      window.removeEventListener('popstate', onPopState)
+    }
   }, [])
 
   useEffect(() => {
@@ -402,6 +413,8 @@ export default function App() {
   }, [selectedNode.reference, selectedThread.name])
 
   const selectThread = (thread: Thread) => {
+    shareRequest.current += 1
+    setShareState('idle')
     const nextPassage = thread.nodeIds[0]
     setThreadId(thread.id)
     setPassageId(nextPassage)
@@ -409,16 +422,19 @@ export default function App() {
   }
 
   const selectNode = (node: PassageNode) => {
+    shareRequest.current += 1
+    setShareState('idle')
     setPassageId(node.id)
     writeSelection(selectedThread.id, node.id)
   }
 
   const share = async () => {
+    const request = ++shareRequest.current
     try {
       await navigator.clipboard.writeText(window.location.href)
-      setShareState('copied')
+      if (request === shareRequest.current) setShareState('copied')
     } catch {
-      setShareState('failed')
+      if (request === shareRequest.current) setShareState('failed')
     }
   }
 
@@ -434,7 +450,7 @@ export default function App() {
         </a>
         <div className="book-context">
           <span>탐험 중인 범위</span>
-          <strong>요한복음과 구약</strong>
+          <strong>요한복음과 성경 전체</strong>
           <small>성경 · 언약과 성취</small>
         </div>
         <div className="view-principle">
@@ -445,8 +461,8 @@ export default function App() {
 
       <main className="workspace">
         <ThreadRail selectedThread={selectedThread} onSelect={selectThread} />
-        <InsightMap thread={selectedThread} selectedNode={selectedNode} onSelect={selectNode} />
-        <PassagePanel node={selectedNode} thread={selectedThread} onShare={share} shareState={shareState} />
+        <InsightMap key={selectedThread.id} thread={selectedThread} selectedNode={selectedNode} onSelect={selectNode} />
+        <PassagePanel key={`${selectedThread.id}:${selectedNode.id}`} node={selectedNode} thread={selectedThread} onShare={share} shareState={shareState} />
       </main>
 
       <footer className="page-footer">
