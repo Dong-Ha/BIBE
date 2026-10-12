@@ -11,9 +11,9 @@
 ## 설치 후보
 
 - `LLS:CSKTMPTYOTSG`, `LLS:CSKTMPTYNTSG`: CASKET EMPTY 구약·신약 개관. Logos/출판사 소개에서 구속사 전체 흐름을 목표로 한다고 확인했다.
-- `LLS:NWCTYCTCHDEVO`: 뉴시티 교리문답 해설. 52문답과 기본 교리 소개를 확인했다. TGC의 공개 문답 페이지로 개별 질문을 추가 확인할 수 있다.
+- `LLS:NWCTYCTCHDEVO`: 뉴시티 교리문답 해설. Logos 설치 카탈로그와 책 소개 메타데이터를 확인했다. 별도로 TGC 공식 사이트의 공개 영어 문답 1, 27, 35, 46, 48, 52번에서 각각 Q&A·성경 본문·표시된 commentary·devotional·기도문을 읽었다. 이 공개 콘텐츠는 설치된 한국어 해설서의 본문 열람이나 번역 대조가 아니다. 세부 요약과 접근 범위는 [Logos 뉴시티 교리문답 자료](/references/logos-new-city.md) 및 각 문답별 문서를 참조한다.
 
-세 자료의 본문을 읽은 것은 아니다. `wiki/references/logos-casket-ot.md`, `logos-casket-nt.md`, `logos-new-city.md`는 서지와 소개 범위만 기록한다.
+CASKET EMPTY 두 자료의 본문은 읽지 않았다. 뉴시티 해설서도 설치 본문을 읽지 않았으며, TGC 공개 영어 웹 문답 여섯 개를 별도로 확인했다.
 
 출처별 접근 범위와 주제 요약은 [사사기](../wiki/references/logos-keller-judges.md), [로마서 1](../wiki/references/logos-keller-romans-1.md), [로마서 2](../wiki/references/logos-keller-romans-2.md), [갈라디아서](../wiki/references/logos-keller-galatians.md) 자료를 참조한다.
 

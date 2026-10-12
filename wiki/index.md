@@ -6,6 +6,7 @@ okf_version: "0.2"
 - [authors](authors/index.md) — 자료 묶음
 - [concepts](concepts/index.md) — 자료 묶음
 - [experiences](experiences/index.md) — 자료 묶음
+- [guides](guides/index.md) — 자료 묶음
 - [passages](passages/index.md) — 자료 묶음
 - [paths](paths/index.md) — 자료 묶음
 - [questions](questions/index.md) — 자료 묶음

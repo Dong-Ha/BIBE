@@ -55,3 +55,18 @@ test('book links are validated and contribute backlinks; Logos launch URI matche
   assert.match(publicationErrors([{ ...book, meta: { ...book.meta, logos: { ...book.meta.logos, uri: 'javascript:alert(1)' } } }]).join(), /invalid Logos resource/)
   assert.match(publicationErrors([doc({ type: 'Study Series' })]).join(), /study needs/)
 })
+
+
+test('daily guide publication checks unique days and target document types', () => {
+  const question = { ...doc({ type: 'Question', public_id: 'q', passages: ['/passages/p.md'], experience: '/experiences/e.md' }, '## 본문과 맥락\n## 복음으로 읽기\n## 남는 질문\n## 오늘의 응답'), id: 'questions/q' }
+  const passage = { ...doc({ type: 'Bible Passage', public_id: 'p', reference: '로마서 8:1' }, '## 본문과 맥락\n## 복음으로 읽기'), id: 'passages/p' }
+  const exercise = { ...doc({ type: 'Learning Experience', public_id: 'e' }), id: 'experiences/e' }
+  const days = Array.from({ length: 7 }, (_, i) => ({ id: `day-${i + 1}`, title: '오늘 읽기', question: '/questions/q.md', passage: '/passages/p.md', focus: '초점', reflection: '질문', practice: '응답' }))
+  const guide = { ...doc({ type: 'Reading Guide', public_id: 'guide', days }), id: 'guides/guide' }
+  assert.deepEqual(publicationErrors([question, passage, exercise, guide]), [])
+  const compiled = compileBundle([question, passage, exercise, guide])
+  assert.ok(compiled.documents.find(d => d.id === 'passages/p').backlinks.includes('guides/guide'))
+  assert.match(publicationErrors([{ ...guide, meta: { ...guide.meta, days: days.slice(0, 6) } }]).join(), /seven unique days/)
+  assert.match(publicationErrors([{ ...guide, meta: { ...guide.meta, days: [...days.slice(0, 6), days[0]] } }]).join(), /seven unique days/)
+  assert.match(publicationErrors([{ ...guide, meta: { ...guide.meta, days: days.map(day => ({ ...day, question: '/passages/p.md' })) } }, passage]).join(), /published Question/)
+})

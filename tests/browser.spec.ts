@@ -109,7 +109,7 @@ test('all eleven experience pages cover the four learning modes in the direct ex
 })
 
 test('home, church hurt, and an interactive map fit the selected mobile or desktop viewport', async ({ page }) => {
-  for (const path of ['./', '?doc=church-hurt', '?doc=connections', '?view=library', '?doc=study-galatians-freedom', '?doc=conscience-table']) {
+  for (const path of ['./', '?doc=church-hurt', '?doc=connections', '?view=library', '?doc=study-galatians-freedom', '?doc=conscience-table', '?doc=return-to-grace-7-days&day=day-4']) {
     await page.goto(path)
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1)
   }
@@ -124,6 +124,7 @@ test('captures review screenshots for the main reading routes', async ({ page },
     ['?doc=evidence', 'evidence'],
     ['?view=library', 'library'],
     ['?doc=study-galatians-freedom', 'galatians-study'],
+    ['?doc=return-to-grace-7-days&day=day-4', 'daily-guide'],
   ] as const
   for (const [path, name] of routes) {
     await page.goto(path)
@@ -187,4 +188,46 @@ test('search still finds body prose and interactive state descriptions after pay
   await page.locator('.document-row').click()
   await expect(page).toHaveURL(/doc=belonging-practice/)
   await expect(page.getByRole('group', { name: '상황과 관점 선택' }).getByRole('button', { name: '필요와 경계를 묻는 돌봄' })).toBeVisible()
+})
+
+
+test('a selected reading day is shareable and explicit read marks survive reload and browser back', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('?view=guides')
+  await expect(page.locator('.question-card')).toHaveCount(3)
+  await page.getByRole('link', { name: /은혜로 하루를 다시 시작하기/ }).click()
+  const days = page.getByRole('group', { name: '읽을 날 선택' })
+  await days.getByRole('button', { name: /3일/ }).click()
+  await expect(page).toHaveURL(/day=day-3/)
+  await page.getByRole('button', { name: '읽은 날 표시', exact: true }).click()
+  await expect(page.getByRole('status')).toHaveText('1일 읽음')
+  await page.getByRole('button', { name: '이 페이지 공유' }).click()
+  await expect(page.getByRole('button', { name: '링크 복사됨' })).toBeVisible()
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('day=day-3')
+  await page.reload()
+  await expect(page.getByRole('button', { name: '읽은 날 표시 취소' })).toBeVisible()
+  await page.locator('.guide-reading-links').getByRole('link', { name: /성경 본문/ }).click()
+  await expect(page).toHaveURL(/doc=jdg-2-6/)
+  await page.goBack()
+  await expect(page).toHaveURL(/day=day-3/)
+  await expect(page.getByRole('button', { name: '읽은 날 표시 취소' })).toBeVisible()
+  await page.getByRole('button', { name: '읽은 날 표시 취소' }).click()
+  await expect(page.getByRole('status')).toHaveText('0일 읽음')
+})
+
+test('guides allow keyboard selection, recover invalid dates, and keep read marks separate', async ({ page }) => {
+  await page.goto('?doc=return-to-grace-7-days&day=day-4')
+  await page.getByRole('button', { name: '읽은 날 표시', exact: true }).click()
+  await page.goto('?doc=explore-christianity-7-days&day=unknown')
+  await expect(page.getByText('읽을 날을 찾을 수 없어 첫날로 열었습니다.')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '선한 창조', exact: true })).toBeVisible()
+  await expect(page.locator('.guide-actions [role=status]')).toHaveText('0일 읽음')
+  const last = page.getByRole('group', { name: '읽을 날 선택' }).getByRole('button', { name: /7일/ })
+  await last.focus()
+  await last.press('Enter')
+  await expect(page).toHaveURL(/day=day-7/)
+  await expect(page.getByRole('button', { name: '다음 날', exact: true })).toBeDisabled()
+  await page.goto('?doc=church-disappointed-cautious-7-days&day=day-6')
+  await expect(page.locator('.guide-reflection')).toContainText('용서와 신뢰 회복')
+  await expect(page.locator('.guide-day-content')).toContainText('강제된 관계 회복')
 })

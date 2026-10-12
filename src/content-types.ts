@@ -52,6 +52,17 @@ export interface ContentSection {
   html: string
 }
 
+export interface GuideDay {
+  id: string
+  title: string
+  question: string
+  passage: string
+  experience?: string
+  focus: string
+  reflection: string
+  practice: string
+}
+
 export interface ContentDocument {
   id: string
   publicId: string
@@ -65,6 +76,7 @@ export interface ContentDocument {
   experience?: string
   experienceState?: string
   passages: string[]
+  days?: GuideDay[]
   books: string[]
   logos?: { resource_id: string; uri: string; access: string }
   questions: string[]

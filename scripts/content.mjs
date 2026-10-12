@@ -89,7 +89,10 @@ export function publicationErrors(concepts) {
     if (meta.books !== undefined && !Array.isArray(meta.books)) fail('books must be an array')
     if (books.some(book => typeof book !== 'string')) fail('book paths must be strings')
     const bookPaths = books.filter(book => typeof book === 'string')
-    const references = [...linksIn(body, id), ...(meta.passages ?? []), ...(meta.questions ?? []), ...bookPaths, ...(meta.experience ? [meta.experience] : [])]
+    if (meta.days !== undefined && !Array.isArray(meta.days)) fail('days must be an array')
+    const days = Array.isArray(meta.days) ? meta.days : []
+    const dayLinks = days.flatMap(day => [day?.question, day?.passage, day?.experience].filter(link => typeof link === 'string'))
+    const references = [...linksIn(body, id), ...(meta.passages ?? []), ...(meta.questions ?? []), ...bookPaths, ...dayLinks, ...(meta.experience ? [meta.experience] : [])]
     for (const link of references) {
       const target = link.replace(/^\//, '').replace(/\.md$/, '')
       if (!byId.has(target)) fail(`unpublished or missing target ${target}`)
@@ -100,6 +103,17 @@ export function publicationErrors(concepts) {
     }
     if (meta.logos && (!/^LLS:[A-Z0-9]+$/.test(meta.logos.resource_id ?? '') || meta.logos.uri !== `logosres:${meta.logos.resource_id.slice(4).toLowerCase()}` || !meta.logos.access)) fail('invalid Logos resource metadata')
     if (meta.type === 'Study Series' && (!meta.books?.length || !meta.passages?.length || !meta.experience || !body.includes('## 대화와 작은 실천'))) fail('study needs books, passages, experience and practice')
+    if (meta.type === 'Reading Guide') {
+      if (days.length !== 7 || new Set(days.map(day => day?.id)).size !== 7) fail('guide needs seven unique days')
+      for (const day of days) {
+        if (!day || !/^day-[1-7]$/.test(day.id ?? '') || !['title', 'focus', 'reflection', 'practice'].every(key => typeof day[key] === 'string' && day[key].trim())) { fail('guide day needs id, title, focus, reflection and practice'); continue }
+        for (const [field, type] of [['question', 'Question'], ['passage', 'Bible Passage'], ['experience', 'Learning Experience']]) {
+          if (field === 'experience' && day[field] === undefined) continue
+          const target = typeof day[field] === 'string' && byId.get(day[field].replace(/^\//, '').replace(/\.md$/, ''))
+          if (!target || target.meta.type !== type) fail(`guide day ${day.id} needs a published ${type}`)
+        }
+      }
+    }
     if (meta.type === 'Question') {
       for (const heading of ['본문과 맥락', '복음으로 읽기', '남는 질문', '오늘의 응답']) {
         if (!body.includes(`## ${heading}`)) fail(`missing editorial section ${heading}`)
@@ -157,7 +171,7 @@ export function renderMarkdown(body, doc, byId) {
 export function compileBundle(concepts) {
   const docs = concepts.filter(d => d.meta.published === true && d.meta.status === 'stable')
   const byId = new Map(docs.map(d => [d.id, d]))
-  const links = new Map(docs.map(d => [d.id, [...new Set([...linksIn(d.body, d.id), ...(d.meta.sources ?? []).map(source => resolveConceptLink(source.resource, d.id)).filter(Boolean), ...(d.meta.passages ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.questions ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.books ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.experience ? [d.meta.experience.replace(/^\//, '').replace(/\.md$/, '')] : [])])]]))
+  const links = new Map(docs.map(d => [d.id, [...new Set([...linksIn(d.body, d.id), ...(d.meta.sources ?? []).map(source => resolveConceptLink(source.resource, d.id)).filter(Boolean), ...(d.meta.passages ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.questions ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.days ?? []).flatMap(day => [day.question, day.passage, day.experience].filter(Boolean).map(p => p.replace(/^\//, '').replace(/\.md$/, ''))), ...(d.meta.books ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.experience ? [d.meta.experience.replace(/^\//, '').replace(/\.md$/, '')] : [])])]]))
   const legacy = { passages: {}, threads: {}, connections: {} }
   const documents = docs.map(doc => {
     const { meta, id, body } = doc
@@ -172,6 +186,7 @@ export function compileBundle(concepts) {
       id, publicId: meta.public_id, type: meta.type, title: meta.title, description: meta.description,
       reference: meta.reference, order: meta.order, tags: meta.tags ?? [], aliases: meta.aliases ?? [],
       passages: (meta.passages ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')),
+      days: meta.days?.map(day => ({ ...day, question: day.question.replace(/^\//, '').replace(/\.md$/, ''), passage: day.passage.replace(/^\//, '').replace(/\.md$/, ''), experience: day.experience?.replace(/^\//, '').replace(/\.md$/, '') })),
       books: (meta.books ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), logos: meta.logos,
       questions: (meta.questions ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')),
       experience: meta.experience?.replace(/^\//, '').replace(/\.md$/, ''), experienceState: meta.experience_state, sources: meta.sources ?? [],

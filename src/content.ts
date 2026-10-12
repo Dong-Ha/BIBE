@@ -9,17 +9,19 @@ export const questions = documents.filter(doc => doc.type === 'Question').sort((
 export const passages = documents.filter(doc => doc.type === 'Bible Passage')
 export const paths = documents.filter(doc => doc.type === 'Reading Path')
 export const experiences = documents.filter(doc => doc.type === 'Learning Experience')
+export const guides = documents.filter(doc => doc.type === 'Reading Guide').sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 export const studies = documents.filter(doc => doc.type === 'Study Series')
 export const concepts = documents.filter(doc => doc.type === 'Concept')
 export const references = documents.filter(doc => ['Reference', 'Author'].includes(doc.type))
 export const typeLabels: Record<string, string> = {
-  Question: '삶과 신앙의 질문', 'Study Series': '책과 함께 읽기', 'Bible Passage': '성경 본문', 'Reading Path': '성경 읽기 경로',
+  Question: '삶과 신앙의 질문', 'Study Series': '책과 함께 읽기', 'Reading Guide': '하루씩 읽기', 'Bible Passage': '성경 본문', 'Reading Path': '성경 읽기 경로',
   'Learning Experience': '직접 탐색', Concept: '쉬운 용어 설명', Reference: '원자료 안내', Author: '저자와 자료', Relationship: '본문 연결의 근거',
 }
 export interface NavigationState {
-  view: 'home' | 'library' | 'scripture' | 'experiences' | 'glossary' | 'sources' | 'search'
+  view: 'home' | 'guides' | 'library' | 'scripture' | 'experiences' | 'glossary' | 'sources' | 'search'
   document?: ContentDocument
   stateId?: string
+  dayId?: string
   query: string
   notice?: string
 }
@@ -39,12 +41,16 @@ export function readNavigation(search: string): NavigationState {
   const definition = experience?.definition, requestedState = params.get('state')
   const validState = definition?.states.some(s => s.id === requestedState)
   if (requestedState && definition && !validState) notice = '탐색 상태를 찾을 수 없어 처음 상태로 열었습니다.'
+  const requestedDay = params.get('day'), validDay = doc?.days?.some(day => day.id === requestedDay)
+  if (requestedDay && doc?.days && !validDay) notice = '읽을 날을 찾을 수 없어 첫날로 열었습니다.'
+  const dayId = validDay ? requestedDay! : doc?.days?.[0]?.id
   const view = params.get('view')
-  return { view: ['home', 'library', 'scripture', 'experiences', 'glossary', 'sources', 'search'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, stateId: validState ? requestedState! : doc?.experienceState ?? definition?.defaultState, query: params.get('q') ?? '', notice }
+  return { view: ['home', 'guides', 'library', 'scripture', 'experiences', 'glossary', 'sources', 'search'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, dayId, stateId: validState ? requestedState! : doc?.experienceState ?? definition?.defaultState, query: params.get('q') ?? '', notice }
 }
-export function documentHref(doc: ContentDocument, stateId?: string) {
+export function documentHref(doc: ContentDocument, stateId?: string, dayId?: string) {
   const params = new URLSearchParams({ doc: doc.publicId })
   if (stateId) params.set('state', stateId)
+  if (dayId) params.set('day', dayId)
   return `?${params}`
 }
 function normalize(value: string) { return value.normalize('NFKC').toLocaleLowerCase('ko').replace(/[\s:：–—.,·\-]/g, '') }
@@ -58,6 +64,7 @@ function plainText(html: string) {
 }
 const searchIndex = new Map(documents.map(doc => [doc.id, normalize([
   doc.searchText, ...doc.sections.map(section => `${section.title} ${plainText(section.html)}`),
+  ...(doc.days?.map(day => `${day.title} ${day.focus} ${day.reflection} ${day.practice}`) ?? []),
   ...(doc.definition?.states.map(state => `${state.label} ${state.description} ${state.evidence.join(' ')}`) ?? []),
 ].join(' '))]))
 export function searchDocuments(query: string) {

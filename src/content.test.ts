@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, searchDocuments, studies } from './content'
+import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, searchDocuments, studies, guides } from './content'
 
 describe('published content and navigation data', () => {
   it('publishes a complete home, passage, concept, path, and experience corpus', () => {
@@ -80,4 +80,22 @@ it('finds article body text and interactive states after eliminating duplicate g
   expect(searchDocuments('인정·편안함·통제').some(doc => doc.publicId === 'logosbook-keller-galatians')).toBe(true)
   expect(searchDocuments('정죄하지').some(doc => doc.publicId === 'conscience')).toBe(true)
   expect(searchDocuments('필요와 경계를 묻는 돌봄').some(doc => doc.publicId === 'belonging-practice')).toBe(true)
+})
+
+
+it('validates guide day addresses, links and searches their authored prompts', () => {
+  expect(guides).toHaveLength(3)
+  for (const guide of guides) {
+    expect(guide.days).toHaveLength(7)
+    for (const day of guide.days!) {
+      expect(documents.find(doc => doc.id === day.question)?.type).toBe('Question')
+      expect(documents.find(doc => doc.id === day.passage)?.backlinks).toContain(guide.id)
+    }
+  }
+  expect(readNavigation('?view=guides').view).toBe('guides')
+  expect(readNavigation('?doc=return-to-grace-7-days&day=day-4').dayId).toBe('day-4')
+  const invalid = readNavigation('?doc=return-to-grace-7-days&day=missing')
+  expect(invalid.dayId).toBe('day-1')
+  expect(invalid.notice).toContain('첫날')
+  expect(searchDocuments('선한 창조').some(doc => doc.publicId === 'explore-christianity-7-days')).toBe(true)
 })
