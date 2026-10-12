@@ -1,5 +1,6 @@
 export type ExperienceKind = 'story' | 'connections' | 'layers' | 'perspectives'
 export type RelationshipKind = 'direct' | 'promise' | 'theme' | 'application'
+export type RelationshipBasis = 'explicit' | 'allusion' | 'editorial'
 
 export interface ExperienceState {
   id: string
@@ -24,6 +25,8 @@ export interface ExperienceEdge {
   kind: RelationshipKind
   explanation: string
   evidence: string[]
+  basis?: RelationshipBasis
+  basisExplanation?: string
 }
 
 export interface InteractiveDefinition {

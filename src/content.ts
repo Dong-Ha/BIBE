@@ -1,5 +1,5 @@
 import generated from './generated/manifest.json'
-import type { PublicationManifest, ContentSummary, ContentDocument, ReadingPayload } from './content-types'
+import type { PublicationManifest, ContentSummary, ContentDocument, ReadingPayload, RelationshipBasis, RelationshipKind } from './content-types'
 
 export const bundle = generated as unknown as PublicationManifest
 export const documents: readonly ContentSummary[] = bundle.documents
@@ -16,6 +16,14 @@ export const references = documents.filter(doc => ['Reference', 'Author'].includ
 export const typeLabels: Record<string, string> = {
   Question: '삶과 신앙의 질문', 'Study Series': '책과 함께 읽기', 'Reading Guide': '하루씩 읽기', 'Bible Passage': '성경 본문', 'Reading Path': '성경 읽기 경로',
   'Learning Experience': '직접 탐색', Concept: '쉬운 용어 설명', Reference: '원자료 안내', Author: '저자와 자료', Relationship: '본문 연결의 근거',
+}
+export const relationshipKindLabels: Record<RelationshipKind, string> = {
+  direct: '본문의 직접 연결', promise: '약속과 성취의 해석', theme: '주제의 연결', application: '삶의 적용',
+}
+export const relationshipBasisLabels: Record<RelationshipBasis, string> = {
+  explicit: '본문의 명시적 선언 또는 인용',
+  allusion: '본문의 표현과 문맥이 암시',
+  editorial: '함께 읽기 위한 편집 해석',
 }
 export const mapGroups = ['all', 'bible', 'concepts', 'sources', 'experiences', 'questions', 'reading'] as const
 export type MapGroup = typeof mapGroups[number]
@@ -120,6 +128,13 @@ function resource<T>(hash: string, validate: (value: unknown) => value is T): Pr
   return pending
 }
 const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === 'string')
+const relationshipBases: readonly RelationshipBasis[] = ['explicit', 'allusion', 'editorial']
+function validRelationshipBasis(value: { basis?: unknown; basisExplanation?: unknown }) {
+  const hasBasis = value.basis !== undefined, hasExplanation = value.basisExplanation !== undefined
+  return !hasBasis && !hasExplanation || hasBasis && hasExplanation
+    && relationshipBases.includes(value.basis as RelationshipBasis)
+    && typeof value.basisExplanation === 'string' && value.basisExplanation.trim().length > 0
+}
 function usableDocument(value: unknown, summary: ContentSummary): value is ContentDocument {
   const doc = value as ContentDocument | null
   if (!doc || doc.id !== summary.id || doc.publicId !== summary.publicId || doc.type !== summary.type || typeof doc.title !== 'string' || typeof doc.description !== 'string') return false
@@ -133,11 +148,11 @@ function usableDocument(value: unknown, summary: ContentSummary): value is Conte
     if (!['id', 'title', 'goal', 'before', 'after', 'transfer'].every(field => typeof def[field as keyof typeof def] === 'string')) return false
     if (!def.states.every(state => state && typeof state.label === 'string' && typeof state.description === 'string' && strings(state.evidence) && strings(state.activeNodes) && (state.activeEdges === undefined || strings(state.activeEdges)))) return false
     if (!def.nodes.every(node => node && [node.id, node.label, node.detail, node.reference].every(value => typeof value === 'string'))) return false
-    if (!def.edges.every(edge => edge && [edge.id, edge.source, edge.target, edge.kind, edge.explanation].every(value => typeof value === 'string') && strings(edge.evidence))) return false
+    if (!def.edges.every(edge => edge && [edge.id, edge.source, edge.target, edge.kind, edge.explanation].every(value => typeof value === 'string') && strings(edge.evidence) && validRelationshipBasis(edge))) return false
   }
   if (summary.relationship) {
     const relation = doc.relationship
-    if (!relation || relation.source !== summary.relationship.source || relation.target !== summary.relationship.target || relation.kind !== summary.relationship.kind || typeof relation.explanation !== 'string' || !strings(relation.evidence)) return false
+    if (!relation || relation.source !== summary.relationship.source || relation.target !== summary.relationship.target || relation.kind !== summary.relationship.kind || typeof relation.explanation !== 'string' || !strings(relation.evidence) || !validRelationshipBasis(relation)) return false
   }
   if (summary.dayIds) {
     if (!Array.isArray(doc.days) || JSON.stringify(doc.days.map(day => day?.id)) !== JSON.stringify(summary.dayIds)) return false

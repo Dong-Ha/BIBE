@@ -77,3 +77,29 @@ it('rejects matching-ID responses missing required experience or relationship de
   }
   expect(fetcher).toHaveBeenCalledTimes(4)
 })
+
+it('validates optional relationship basis and explanation pairs in loaded full payloads', async () => {
+  const original = fetch
+  let attempts = 0
+  const fetcher = vi.fn(async (url: RequestInfo | URL) => {
+    const response = await original(url), doc = await response.json()
+    if (!doc.relationship) return { ok: true, json: async () => doc }
+    const next = structuredClone(doc)
+    if (attempts === 0) Object.assign(next.relationship, { basis: 'unsupported', basisExplanation: '해석' })
+    else if (attempts === 1) {
+      next.relationship.basis = 'allusion'
+      delete next.relationship.basisExplanation
+    }
+    else if (attempts === 2) Object.assign(next.relationship, { basis: 'editorial', basisExplanation: '  ' })
+    else Object.assign(next.relationship, { basis: 'allusion', basisExplanation: '본문의 표현과 문맥이 함께 암시합니다.' })
+    attempts++
+    return { ok: true, status: 200, json: async () => next }
+  })
+  vi.stubGlobal('fetch', fetcher)
+  const content = await import('./content'), summary = content.documents.find(doc => doc.type === 'Relationship')!
+  for (let i = 0; i < 3; i++) await expect(content.loadDocument(summary.id)).rejects.toThrow('Invalid content')
+  const valid = await content.loadDocument(summary.id)
+  expect(valid.relationship?.basis).toBe('allusion')
+  expect(valid.relationship?.basisExplanation).toContain('문맥')
+  expect(fetcher).toHaveBeenCalledTimes(4)
+})

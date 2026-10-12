@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bundle, concepts, documentById, documentByPublicId, documents, experiences, mapGroupLabels, mapGroups, mapHref, passages, paths, questions, readNavigation, readingLinkGroup, readingLinksFor, references, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
+import { bundle, concepts, documentById, documentByPublicId, documents, experiences, mapGroupLabels, mapGroups, mapHref, passages, paths, questions, readNavigation, readingLinkGroup, readingLinksFor, references, relationshipBasisLabels, relationshipKindLabels, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
 
 describe('published content and navigation data', () => {
   it('publishes compact summaries and supports asynchronous detail loading', async () => {
@@ -28,6 +28,39 @@ describe('published content and navigation data', () => {
     const detail = await loadDocument(documentByPublicId.get('acceptance')!.id)
     expect(detail.sections.length).toBeGreaterThan(0)
     expect(detail.sources.length).toBeGreaterThan(0)
+  })
+
+  it('keeps relationship interpretation details in the full payload, not the manifest summary', () => {
+    expect(relationshipKindLabels).toEqual({ direct: '본문의 직접 연결', promise: '약속과 성취의 해석', theme: '주제의 연결', application: '삶의 적용' })
+    expect(relationshipBasisLabels).toEqual({ explicit: '본문의 명시적 선언 또는 인용', allusion: '본문의 표현과 문맥이 암시', editorial: '함께 읽기 위한 편집 해석' })
+    const summary = documents.find(doc => doc.type === 'Relationship')!
+    expect(summary.relationship).toBeDefined()
+    expect(summary.relationship).not.toHaveProperty('basis')
+    expect(summary.relationship).not.toHaveProperty('basisExplanation')
+  })
+
+  it('publishes the seven reviewed relationship classifications only in validated detail payloads', async () => {
+    const reviewed = new Map([
+      ['relation-covenant-new-table', { basis: 'explicit', kind: 'promise' }],
+      ['relation-newbirth-ezekiel', { basis: 'allusion', kind: 'promise' }],
+      ['relation-shepherd-promise', { basis: 'allusion', kind: 'promise' }],
+      ['relation-water-invitation', { basis: 'editorial', kind: 'theme' }],
+      ['relation-temple-tabernacle', { basis: 'editorial', kind: 'theme' }],
+      ['relation-cross-servant-lamb', { basis: 'editorial', kind: 'theme' }],
+      ['relation-covenant-new-christ', { basis: 'editorial', kind: 'theme' }],
+    ])
+    const counts = { promise: 0, theme: 0 }
+    for (const [publicId, expected] of reviewed) {
+      const summary = documentByPublicId.get(publicId)!
+      expect(summary.type).toBe('Relationship')
+      expect(summary.relationship).not.toHaveProperty('basis')
+      const detail = await loadDocument(summary.id)
+      expect(detail.relationship?.basis).toBe(expected.basis)
+      expect(detail.relationship?.kind).toBe(expected.kind)
+      expect(detail.relationship?.basisExplanation?.trim().length).toBeGreaterThan(0)
+      counts[expected.kind as keyof typeof counts]++
+    }
+    expect(counts).toEqual({ promise: 3, theme: 4 })
   })
 
   it('maps all legacy passage and thread links to current documents', () => {

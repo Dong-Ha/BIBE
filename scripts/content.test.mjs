@@ -28,6 +28,43 @@ test('publication catches invalid exercise states and relation endpoints', () =>
   assert.match(publicationErrors([doc({ definition: invalid })]).join(), /unknown active node/)
   assert.match(publicationErrors([doc({ relationship: { kind: 'theme', from: '/missing.md', to: '/other.md', explanation: '연결', evidence: ['근거'] } })]).join(), /missing relationship endpoint/)
 })
+test('relationship basis metadata is an optional complete pair and stays out of the compact manifest', () => {
+  const relation = {
+    id: 'test-edge', source: 'grace', target: 'grace', from: '/concepts/grace.md', to: '/concepts/grace.md',
+    kind: 'theme', explanation: '함께 읽을 수 있습니다.', evidence: ['요한복음 4:10'],
+  }
+  assert.deepEqual(publicationErrors([doc({ type: 'Relationship', relationship: relation })]), [])
+  const withBasis = { ...relation, basis: 'allusion', basisExplanation: '표현과 문맥이 함께 암시합니다.' }
+  assert.deepEqual(publicationErrors([doc({ type: 'Relationship', relationship: withBasis })]), [])
+  for (const invalid of [
+    { ...relation, basis: 'unknown', basisExplanation: '해석' },
+    { ...relation, basis: 'explicit' },
+    { ...relation, basisExplanation: '해석' },
+    { ...relation, basis: 'editorial', basisExplanation: '   ' },
+  ]) assert.match(publicationErrors([doc({ type: 'Relationship', relationship: invalid })]).join(), /relationship basis requires/)
+
+  const publication = compilePublication(compileBundle([doc({ type: 'Relationship', relationship: withBasis })]))
+  const summary = publication.manifest.documents[0]
+  assert.deepEqual(summary.relationship, { source: 'grace', target: 'grace', kind: 'theme' })
+  const detail = JSON.parse(publication.details.get(summary.detailHash))
+  assert.equal(detail.relationship.basis, 'allusion')
+  assert.equal(detail.relationship.basisExplanation, withBasis.basisExplanation)
+})
+
+test('experience edges validate relationship basis metadata when supplied', () => {
+  const definition = {
+    kind: 'connections', goal: '목표', before: '질문', after: '발견', transfer: '적용', defaultState: 'one',
+    states: [
+      { id: 'one', label: '하나', description: '설명', evidence: ['요한복음 1:1'], activeNodes: ['n'] },
+      { id: 'two', label: '둘', description: '설명', evidence: ['요한복음 1:2'], activeNodes: [] },
+    ],
+    nodes: [{ id: 'n', label: '말씀', detail: '설명', reference: '요한복음 1:1' }],
+    edges: [{ id: 'e', source: 'n', target: 'n', kind: 'direct', explanation: '연결', evidence: ['요한복음 1:1'], basis: 'explicit', basisExplanation: '본문에서 직접 말합니다.' }],
+  }
+  assert.deepEqual(publicationErrors([doc({ definition })]), [])
+  definition.edges[0].basis = 'uncertain'
+  assert.match(publicationErrors([doc({ definition })]).join(), /invalid relationship basis on experience edge/)
+})
 test('compiler produces backlinks and repeatable output; drafts stay out of the site', () => {
   const a = doc({}, '## 설명\n\n[믿음](/concepts/faith.md)')
   const b = { ...doc({ public_id: 'faith' }), id: 'concepts/faith', path: 'concepts/faith.md' }

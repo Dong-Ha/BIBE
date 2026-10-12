@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { InteractiveDefinition, ExperienceEdge, ExperienceNode, ExperienceState } from '../content-types'
+import { relationshipKindLabels } from '../content'
 import './learning-experience.css'
-
-const relationLabels: Record<ExperienceEdge['kind'], string> = {
-  direct: '본문에서 직접 연결',
-  promise: '약속과 성취',
-  theme: '주제의 연결',
-  application: '오늘의 적용',
-}
 
 const kindLabels: Record<InteractiveDefinition['kind'], string> = {
   story: '이야기 따라 읽기',
@@ -50,9 +44,9 @@ function SvgMap({
       const from = positions.get(edge.source); const to = positions.get(edge.target)
       if (!from || !to) return null
       const midX = (from.x + to.x) / 2; const midY = (from.y + to.y) / 2
-      return <g key={edge.id} className="le-edge" role="button" tabIndex={0} aria-label={`${relationLabels[edge.kind]}: ${edge.explanation}`} onClick={() => onSelectEdge(edge)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelectEdge(edge) } }}>
+      return <g key={edge.id} className="le-edge" role="button" tabIndex={0} aria-label={`${relationshipKindLabels[edge.kind]}: ${edge.explanation}`} onClick={() => onSelectEdge(edge)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelectEdge(edge) } }}>
         <path d={`M ${from.x} ${from.y} Q ${midX} ${midY - (from.y === to.y ? 100 : 0)} ${to.x} ${to.y}`} />
-        <text x={midX} y={midY - (from.y === to.y ? 76 : 8)} textAnchor="middle">{relationLabels[edge.kind]}</text>
+        <text x={midX} y={midY - (from.y === to.y ? 76 : 8)} textAnchor="middle">{relationshipKindLabels[edge.kind]}</text>
       </g>
     })}
     {nodes.map((node) => {
@@ -115,11 +109,11 @@ export function LearningExperience({ definition, stateId, resetStateId, onStateC
     </div>}
     {definition.kind === 'connections' && <div className="le-controls le-state-buttons" role="group" aria-label="본문 연결 종류">
       {definition.states.map(state => {
-        const matchingKind = definition.defaultState === 'all' && (Object.keys(relationLabels) as ExperienceEdge['kind'][]).find(kind => {
+        const matchingKind = definition.defaultState === 'all' && (Object.keys(relationshipKindLabels) as ExperienceEdge['kind'][]).find(kind => {
           const ids = definition.edges.filter(edge => edge.kind === kind).map(edge => edge.id)
           return ids.length > 0 && ids.length === state.activeEdges?.length && ids.every(id => state.activeEdges?.includes(id))
         })
-        const label = state.id === 'all' ? '모든 연결' : matchingKind ? relationLabels[matchingKind] : state.label
+        const label = state.id === 'all' ? '모든 연결' : matchingKind ? relationshipKindLabels[matchingKind] : state.label
         return <button className="le-filter" key={state.id} type="button" aria-pressed={current.id === state.id} onClick={() => chooseState(state)}>{label}</button>
       })}
     </div>}
@@ -139,7 +133,7 @@ export function LearningExperience({ definition, stateId, resetStateId, onStateC
       <div className="le-reading" aria-live="polite">
         <div className="le-current"><span>{definition.kind === 'story' ? '이야기의 장면' : definition.kind === 'layers' ? '살펴보는 단계' : definition.kind === 'perspectives' ? '선택한 관점' : '관계의 초점'}</span><h3>{current.label}</h3><p>{current.description}</p></div>
         {selectedNode && definition.nodes.some((node) => node.id === selectedNode) && (() => { const node = definition.nodes.find((item) => item.id === selectedNode)!; return <div className="le-evidence"><span>선택한 인물 또는 본문</span><h4>{node.label} · {node.reference}</h4><p>{node.detail}</p></div> })()}
-        {selectedEdge && <div className="le-evidence"><span>{relationLabels[selectedEdge.kind]}</span><h4>{definition.nodes.find((node) => node.id === selectedEdge.source)?.label} → {definition.nodes.find((node) => node.id === selectedEdge.target)?.label}</h4><p>{selectedEdge.explanation}</p><p className="le-citation">근거: {selectedEdge.evidence.join(' · ')}</p></div>}
+        {selectedEdge && <div className="le-evidence"><span>{relationshipKindLabels[selectedEdge.kind]}</span><h4>{definition.nodes.find((node) => node.id === selectedEdge.source)?.label} → {definition.nodes.find((node) => node.id === selectedEdge.target)?.label}</h4><p>{selectedEdge.explanation}</p><p className="le-citation">근거: {selectedEdge.evidence.join(' · ')}</p></div>}
         <div className="le-evidence"><span>본문에서 확인하기</span><ul>{evidence.map((item) => <li key={item}>{item}</li>)}</ul></div>
         <div className="le-reflection"><span>발견 돌아보기</span><p>{definition.after}</p></div>
         <div className="le-transfer"><span>새 상황에 옮겨 보기</span><p>{definition.transfer}</p></div>

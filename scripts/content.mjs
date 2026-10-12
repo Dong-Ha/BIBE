@@ -57,9 +57,16 @@ export async function loadConcepts(root = wikiRoot) {
 }
 
 const relationKinds = ['direct', 'promise', 'theme', 'application']
+const relationBases = ['explicit', 'allusion', 'editorial']
 const experienceKinds = ['story', 'connections', 'layers', 'perspectives']
 
 const validEvidence = value => Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && item.trim())
+const validRelationshipBasis = value => {
+  const hasBasis = value.basis !== undefined, hasExplanation = value.basisExplanation !== undefined
+  return !hasBasis && !hasExplanation || hasBasis && hasExplanation
+    && relationBases.includes(value.basis)
+    && typeof value.basisExplanation === 'string' && value.basisExplanation.trim().length > 0
+}
 
 export function publicationErrors(concepts) {
   const errors = []
@@ -128,6 +135,7 @@ export function publicationErrors(concepts) {
     if (meta.relationship) {
       const relation = meta.relationship
       if (!relationKinds.includes(relation.kind) || !relation.explanation || !validEvidence(relation.evidence)) fail('relationship requires kind, explanation and evidence')
+      if (!validRelationshipBasis(relation)) fail('relationship basis requires a supported basis and a nonempty basisExplanation together')
       for (const target of [relation.from, relation.to]) if (!byId.has(target?.replace(/^\//, '').replace(/\.md$/, ''))) fail(`missing relationship endpoint ${target}`)
     }
     if (meta.definition) {
@@ -144,7 +152,10 @@ export function publicationErrors(concepts) {
         for (const node of state.activeNodes ?? []) if (!nodeIds.has(node)) fail(`unknown active node ${node}`)
         for (const edge of state.activeEdges ?? []) if (!edgeIds.has(edge)) fail(`unknown active edge ${edge}`)
       }
-      for (const edge of def.edges ?? []) if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target) || !relationKinds.includes(edge.kind) || !edge.explanation || !validEvidence(edge.evidence)) fail(`invalid experience edge ${edge.id}`)
+      for (const edge of def.edges ?? []) {
+        if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target) || !relationKinds.includes(edge.kind) || !edge.explanation || !validEvidence(edge.evidence)) fail(`invalid experience edge ${edge.id}`)
+        if (!validRelationshipBasis(edge)) fail(`invalid relationship basis on experience edge ${edge.id}`)
+      }
     }
     for (const actor of [meta.generated, ...([meta.verified].flat())].filter(Boolean)) {
       if (!actor.by || !/^(human:|process:|[^/]+\/)/.test(actor.by) || !actor.at || !/T.*(?:Z|[+-]\d\d:\d\d)$/.test(actor.at)) fail('invalid actor or timestamp')

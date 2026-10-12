@@ -37,7 +37,7 @@ describe('LearningExperience', () => {
     const nodeButton = screen.getByRole('button', { name: '첫 장면. 눅 15:11' })
     fireEvent.keyDown(nodeButton, { key: 'Enter' })
     expect(screen.getByText('첫 장면의 본문 설명')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /본문에서 직접 연결: 아버지가 아들을 맞이합니다/ }))
+    fireEvent.click(screen.getByRole('button', { name: /본문의 직접 연결: 아버지가 아들을 맞이합니다/ }))
     expect(screen.getByText('근거: 누가복음 15:20')).toBeInTheDocument()
   })
 
