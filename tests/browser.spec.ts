@@ -146,7 +146,7 @@ test('book reading paths link to passages, source scope and the installed Logos 
   await page.getByRole('complementary').getByRole('link', { name: /팀 켈러, 당신을 위한 갈라디아서/ }).click()
   await expect(page.getByRole('heading', { name: '한국어판에서 직접 확인한 범위' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Logos에서 책 열기' })).toHaveAttribute('href', 'logosres:gwfykor69ga')
-  await expect(page.getByText(/한국어판 전체를 읽거나/)).toBeVisible()
+  await expect(page.getByText(/한국어판 전체를 읽은 것은 아니며/)).toBeVisible()
 })
 
 test('new scenarios can be adjusted and restored using every exploration mode', async ({ page }) => {
@@ -171,4 +171,20 @@ test('new scenarios can be adjusted and restored using every exploration mode', 
   await expect(page).toHaveURL(/state=grace/)
   await page.reload()
   await expect(page.getByRole('heading', { name: '그리스도 안의 의', exact: true })).toBeVisible()
+})
+
+
+test('search still finds body prose and interactive state descriptions after payload reduction', async ({ page }) => {
+  await page.goto('./')
+  const search = page.getByRole('searchbox')
+  await search.fill('인정·편안함·통제')
+  await search.press('Enter')
+  await page.locator('.document-row').filter({ has: page.getByRole('heading', { name: /당신을 위한 갈라디아서/ }) }).click()
+  await expect(page.getByRole('heading', { name: '한국어판에서 직접 확인한 범위' })).toBeVisible()
+  await search.fill('필요와 경계를 묻는 돌봄')
+  await search.press('Enter')
+  await expect(page.locator('.document-row')).toHaveCount(1)
+  await page.locator('.document-row').click()
+  await expect(page).toHaveURL(/doc=belonging-practice/)
+  await expect(page.getByRole('group', { name: '상황과 관점 선택' }).getByRole('button', { name: '필요와 경계를 묻는 돌봄' })).toBeVisible()
 })

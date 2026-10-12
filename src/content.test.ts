@@ -9,7 +9,7 @@ describe('published content and navigation data', () => {
     expect(Object.keys(bundle.legacy.threads)).toHaveLength(11)
     expect(paths).toHaveLength(11)
     expect(studies).toHaveLength(6)
-    expect(passages).toHaveLength(83)
+    expect(passages).toHaveLength(84)
     expect(experiences).toHaveLength(11)
     expect(passages.length).toBeGreaterThanOrEqual(55)
     expect(concepts.length).toBeGreaterThan(0)
@@ -70,7 +70,14 @@ describe('book reading paths', () => {
     }
     const galatians = documentByPublicId.get('logosbook-keller-galatians')!
     expect(galatians.logos?.access).toContain('local-body-excerpt')
-    expect(galatians.sections.map(section => section.html).join(' ')).toContain('한국어판 전체를 읽거나')
+    expect(galatians.sections.map(section => section.html).join(' ')).toContain('한국어판 전체를 읽은 것은 아니며')
     expect(searchDocuments('갈라디아서 5:13').some(doc => doc.publicId === 'gal-5-13')).toBe(true)
   })
+})
+
+
+it('finds article body text and interactive states after eliminating duplicate generated text', () => {
+  expect(searchDocuments('인정·편안함·통제').some(doc => doc.publicId === 'logosbook-keller-galatians')).toBe(true)
+  expect(searchDocuments('정죄하지').some(doc => doc.publicId === 'conscience')).toBe(true)
+  expect(searchDocuments('필요와 경계를 묻는 돌봄').some(doc => doc.publicId === 'belonging-practice')).toBe(true)
 })

@@ -20,7 +20,7 @@ sources:
     title: "팀 켈러, 당신을 위한 로마서 1: 서지와 공개 샘플"
   - id: keller-romans-2
     resource: /references/logos-keller-romans-2.md
-    title: "팀 켈러, 당신을 위한 로마서 2: 서지와 목차"
+    title: "팀 켈러, 당신을 위한 로마서 2: 서지와 공개 샘플"
 generated:
   by: codex/content-editor
   at: 2026-10-12T15:05:35Z
@@ -54,7 +54,7 @@ generated:
 
 ## 깊은 읽기
 
-[양심과 식탁의 분별](/experiences/conscience-table.md)을 사용하고 [양심](/concepts/conscience.md), [용서](/concepts/forgiveness.md)와 [교회](/concepts/church.md)를 함께 살펴보세요. Keller의 로마서 2권 참고자료는 한국어판 소개와 영어 원서의 공개 목차를 확인한 기록이며, 여기의 해석과 적용을 뒷받침하는 본문 자료로 사용하지 않았습니다.[^keller-romans-2]
+[양심과 식탁의 분별](/experiences/conscience-table.md)을 사용하고 [양심](/concepts/conscience.md), [용서](/concepts/forgiveness.md)와 [교회](/concepts/church.md)를 함께 살펴보세요. 로마서 2권 참고자료는 한국어판 소개·목차와 영어 원서 로마서 8장 공개 샘플의 범위를 구분합니다. 로마서 14장 책 본문을 확인한 자료가 아니므로 이 질문의 본문 해석과 적용 근거로 사용하지 않았습니다.[^keller-romans-2]
 
 [^bible]: 로마서 1:18–2:11; 14:1–15:7
 [^keller-romans-1]: [로마서 1 참고자료](/references/logos-keller-romans-1.md)는 출판사 공개 미리보기 일부를 확인했다.

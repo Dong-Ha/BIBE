@@ -48,11 +48,23 @@ export function documentHref(doc: ContentDocument, stateId?: string) {
   return `?${params}`
 }
 function normalize(value: string) { return value.normalize('NFKC').toLocaleLowerCase('ko').replace(/[\s:：–—.,·\-]/g, '') }
+// Build one searchable view of rendered text instead of shipping a second copy
+// of every article body in the generated bundle.
+function plainText(html: string) {
+  return html.replace(/<[^>]*>/g, ' ').replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (_, key: string) => ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' })[key] ?? '').replace(/&#(x[0-9a-f]+|[0-9]+);/gi, (_, code: string) => {
+    const value = code[0].toLowerCase() === 'x' ? Number.parseInt(code.slice(1), 16) : Number(code)
+    return value >= 0 && value <= 0x10ffff ? String.fromCodePoint(value) : ''
+  })
+}
+const searchIndex = new Map(documents.map(doc => [doc.id, normalize([
+  doc.searchText, ...doc.sections.map(section => `${section.title} ${plainText(section.html)}`),
+  ...(doc.definition?.states.map(state => `${state.label} ${state.description} ${state.evidence.join(' ')}`) ?? []),
+].join(' '))]))
 export function searchDocuments(query: string) {
   const tokens = query.trim().split(/\s+/).map(normalize).filter(Boolean)
   if (!tokens.length) return []
   return documents.filter(doc => doc.type !== 'Relationship').map(doc => {
-    const text = normalize(doc.searchText), title = normalize(`${doc.title} ${doc.reference ?? ''} ${doc.aliases.join(' ')}`)
+    const text = searchIndex.get(doc.id) ?? '', title = normalize(`${doc.title} ${doc.reference ?? ''} ${doc.aliases.join(' ')}`)
     return { doc, score: tokens.every(token => text.includes(token)) ? tokens.reduce((score, token) => score + (title.includes(token) ? 3 : 1), 0) : 0 }
   }).filter(result => result.score).sort((a, b) => b.score - a.score).map(result => result.doc)
 }

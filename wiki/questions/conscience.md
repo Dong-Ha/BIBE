@@ -17,10 +17,10 @@ sources:
     author: 대한성서공회
   - id: keller-romans-2
     resource: /references/logos-keller-romans-2.md
-    title: "팀 켈러, 당신을 위한 로마서 2: 서지와 목차"
+    title: "팀 켈러, 당신을 위한 로마서 2: 서지와 공개 샘플"
   - id: keller-galatians
     resource: /references/logos-keller-galatians.md
-    title: "팀 켈러, 당신을 위한 갈라디아서: 서지와 목차"
+    title: "팀 켈러, 당신을 위한 갈라디아서: 서지와 공개 샘플"
 generated:
   by: codex/content-editor
   at: 2026-10-12T15:05:35Z
@@ -54,7 +54,7 @@ generated:
 
 ## 깊은 읽기
 
-[양심과 식탁의 네 관점](/experiences/conscience-table.md)을 살펴보고 [양심](/concepts/conscience.md), [믿음](/concepts/faith.md), [교회](/concepts/church.md)와 함께 읽으세요. Keller의 로마서 자료는 한국어판 소개와 영어 원서 목차 확인 범위에 한정되며, 본문의 해석은 성경 자체를 근거로 합니다.[^keller-romans-2]
+[양심과 식탁의 네 관점](/experiences/conscience-table.md)을 살펴보고 [양심](/concepts/conscience.md), [믿음](/concepts/faith.md), [교회](/concepts/church.md)와 함께 읽으세요. 로마서 2권 참고자료는 소개·목차와 로마서 8장 공개 샘플의 확인 범위를 구분합니다. 로마서 14장에 관한 책 본문을 읽은 기록은 아니며, 이 질문의 해석은 성경 자체를 근거로 합니다.[^keller-romans-2]
 
 [^bible]: 로마서 14:1–15:7; 고린도전서 6:19–20
 [^keller-romans-2]: [로마서 2 참고자료](/references/logos-keller-romans-2.md)

@@ -1,7 +1,7 @@
 ---
 type: Reference
-title: "팀 켈러, 당신을 위한 갈라디아서: 서지와 일부 본문"
-description: 설치된 한국어판의 갈라디아서 3장 해설 일부와 공식 서지·목차에서 확인한 주제 범위.
+title: "팀 켈러, 당신을 위한 갈라디아서: 서지와 공개 샘플"
+description: 설치된 한국어판의 갈라디아서 3장 해설 일부와 영어 원서 공개 샘플의 확인 범위.
 public_id: logosbook-keller-galatians
 status: stable
 published: true
@@ -15,13 +15,17 @@ sources:
     resource: https://www.thegoodbook.com/galatians-for-you-1
     title: Galatians For You — publisher contents and sample listing
     author: The Good Book Company
+  - id: galatians-sample
+    resource: https://d3d7wiqvcv31di.cloudfront.net/dl/1QqDg4vwnuteV3spTHbKcqfw65Qqy6Yp7/fygal-Look%20Inside.pdf?dl=0&k=1c4edde3a449c55bc926a7922d97986e1da999b7891f7bdae8e03e73691e67b8
+    title: Galatians For You — Look Inside PDF
+    author: Timothy Keller
 generated:
   by: codex/logos-source-editor
-  at: 2026-10-12T14:57:31Z
+  at: 2026-10-12T15:15:07Z
 logos:
   resource_id: LLS:GWFYKOR69GA
   uri: logosres:gwfykor69ga
-  access: catalog+publisher-toc+local-body-excerpt
+  access: catalog+publisher-preview+local-body-excerpt
   local_catalog: raw/logos-catalog.json
 ---
 
@@ -29,13 +33,14 @@ logos:
 
 Logos의 한국어판 서지는 두란노서원이 2018년에 출판한 팀 켈러의 「당신을 위한 갈라디아서」로 기록한다. 한국어판 소개는 갈라디아 교회가 행위로 돌아가는 문제와 복음의 은혜·자유를 강조한다.[^duranno-keller-set]
 
-영어 원서의 출판사 목차는 복음의 유일성, 은혜, 교회 안의 일치, 율법, 하나님의 자녀 됨, 자유, 성품과 관계, 삶의 열매를 각 본문 단락과 연결한다.[^galatians-page] 출판사 페이지에는 20쪽 미리보기 PDF 링크가 있으나, 이번 조사에서 PDF 본문 텍스트는 검토하지 못했다. 따라서 위 주제는 목차와 판본 소개를 요약한 것이며 샘플 본문 독해로 제시하지 않는다.
+영어 원서의 출판사 목차는 복음의 유일성, 은혜, 교회 안의 일치, 율법, 하나님의 자녀 됨, 자유, 성품과 관계, 삶의 열매를 각 본문 단락과 연결한다.[^galatians-page] 20쪽 PDF 샘플에서 서론(인쇄본 9–11쪽)과 갈라디아서 1:1–9 해설(인쇄본 13–23쪽)을 읽었다.[^galatians-sample] 서론은 복음이 비기독교인의 입문 단계에만 필요한 것이 아니라 신자의 삶 전체에 필요하며, 마음과 생각과 사랑을 변화시킨다고 설명한다. 첫 장에서는 그리스도에 율법 준수나 다른 자격을 더해 하나님께 온전히 받아들여지려는 가르침이 복음을 뒤집고 공동체를 갈라놓는다고 해설한다. 그리스도의 구원은 인간의 기여가 아니라 하나님이 이루신 구원이라는 요약은 이 샘플에서 확인한 저자 설명에 한정된다.
 
 [^duranno-keller-set]: [Logos 한국어판 시리즈 서지 및 소개](https://kr.logos.com/product/194737/tim-kelreo-dangsineul-wihan-sirijeu). 서지와 소개 메타데이터를 확인했다.
-[^galatians-page]: [The Good Book Company 공식 페이지](https://www.thegoodbook.com/galatians-for-you-1). 출판사 설명·목차·20쪽 샘플 제공을 확인했다.
+[^galatians-page]: [The Good Book Company 공식 페이지](https://www.thegoodbook.com/galatians-for-you-1). 책 소개와 목차를 확인했다.
+[^galatians-sample]: [공식 Look Inside PDF](https://d3d7wiqvcv31di.cloudfront.net/dl/1QqDg4vwnuteV3spTHbKcqfw65Qqy6Yp7/fygal-Look%20Inside.pdf?dl=0&k=1c4edde3a449c55bc926a7922d97986e1da999b7891f7bdae8e03e73691e67b8). 총 20쪽 중 인쇄본 9–11쪽, 13–23쪽을 읽었다.
 
 ## 한국어판에서 직접 확인한 범위
 
 설치된 Logos 한국어판에서 Part 3의 5장 「‘더 나은’ 복음을 위해 율법을 덧입지 말라」(갈라디아서 3:1–14) 중 「뿌리 뽑아야 할 습성」 부분을 화면으로 읽었다. 저자는 행동을 바꾸려는 의지만으로 해결하려는 접근을 경계하고, 자신을 정당화하거나 인정·편안함·통제를 구원처럼 붙드는 마음을 복음과 연결해 다룬다. 그리스도께서 이루신 일과 그 안에서 받은 정체성을 반복해서 삶에 적용한다는 논지를 이 범위에서 확인했다.
 
-이는 위 단락을 직접 읽고 작성한 요약이다. 한국어판 전체를 읽거나 영어 PDF와 전부 대조한 기록은 아니다. 책 전문이나 화면 이미지는 공개하지 않는다. 본문 관찰과 이 사이트의 읽기 과정은 성경 장절에서 따로 확인할 수 있다.
+이는 한국어판에서 확인한 해당 단락을 직접 읽고 작성한 요약이다. 한국어판 전체를 읽은 것은 아니며, 영어 PDF와 그 전체를 대조한 것도 아니다. 책 전문이나 화면 이미지는 공개하지 않는다. 본문 관찰과 이 사이트의 읽기 과정은 성경 장절에서 따로 확인할 수 있다.

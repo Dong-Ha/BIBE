@@ -176,7 +176,7 @@ export function compileBundle(concepts) {
       questions: (meta.questions ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')),
       experience: meta.experience?.replace(/^\//, '').replace(/\.md$/, ''), experienceState: meta.experience_state, sources: meta.sources ?? [],
       links: links.get(id), backlinks: docs.filter(other => links.get(other.id).includes(id)).map(other => other.id), sections,
-      searchText: [meta.title, meta.description, meta.reference, ...(meta.tags ?? []), ...(meta.aliases ?? []), body.replace(/\[[^\]]+\]\([^)]*\)/g, '')].filter(Boolean).join(' '),
+      searchText: [meta.title, meta.description, meta.reference, ...(meta.tags ?? []), ...(meta.aliases ?? [])].filter(Boolean).join(' '),
       generated: meta.generated, verified: meta.verified ? [meta.verified].flat() : [], definition: meta.definition,
       nodeIds: meta.node_ids, connectionIds: meta.connection_ids, relationship: meta.relationship,
     }

@@ -17,10 +17,10 @@ sources:
     author: 대한성서공회
   - id: keller-galatians
     resource: /references/logos-keller-galatians.md
-    title: "팀 켈러, 당신을 위한 갈라디아서: 서지와 목차"
+    title: "팀 켈러, 당신을 위한 갈라디아서: 서지와 공개 샘플"
   - id: keller-romans-2
     resource: /references/logos-keller-romans-2.md
-    title: "팀 켈러, 당신을 위한 로마서 2: 서지와 목차"
+    title: "팀 켈러, 당신을 위한 로마서 2: 서지와 공개 샘플"
 generated:
   by: codex/content-editor
   at: 2026-10-12T15:05:35Z
@@ -40,7 +40,7 @@ generated:
 
 ## 복음으로 읽기
 
-그리스도는 사랑으로 자신을 내어 주셨고 성령은 공동체를 사랑의 길로 이끄십니다. 따라서 섬김은 하나님께 사랑받으려는 보상이 아니라 이미 주어진 사랑에 대한 응답입니다. 사랑은 상대의 모든 선택을 승인하는 것과 다릅니다. 진실을 말하고 해를 멈추며, 잘못을 인정하고 회복을 돕는 일도 사랑에 속합니다.
+그리스도는 사랑으로 자신을 내어 주셨고 성령은 공동체를 사랑의 길로 이끄십니다. 따라서 섬김은 하나님께 사랑받으려는 보상이 아니라 이미 주어진 사랑에 대한 응답입니다. 갈라디아서를 다룬 켈러의 공개 서문도 신자가 복음을 처음 믿을 때뿐 아니라 계속해서 은혜가 필요하다는 방향을 제시합니다. 이는 성경의 주장을 대신하는 권위가 아니라, 은혜를 변화의 조건이 아닌 삶의 지속적인 토대로 읽도록 돕는 참고 관점입니다.[^keller-galatians] 사랑은 상대의 모든 선택을 승인하는 것과 다릅니다. 진실을 말하고 해를 멈추며, 잘못을 인정하고 회복을 돕는 일도 사랑에 속합니다.
 
 자유를 말할 때 강한 사람이 약한 사람에게 자신의 선택을 강요하지 않는지 돌아봐야 합니다. 반대로 공동체의 관습을 지키려는 열심이 새로운 신자를 억압할 수도 있습니다. 바울의 권면은 은혜를 조건으로 바꾸지 않으면서도, 이웃을 위해 자발적으로 권리를 조정하고 서로의 짐을 지는 공동체를 그립니다. 그 방향은 성령의 열매로 드러나며, 실패가 있을 때 고백과 돌이킴을 통해 다시 배워 갑니다.
 
@@ -54,7 +54,7 @@ generated:
 
 ## 깊은 읽기
 
-[자유에서 열매로](/experiences/freedom-fruit.md)를 살펴보고 [성령의 열매](/concepts/fruit.md), [성화](/concepts/sanctification.md)와 [은혜](/concepts/grace.md)를 읽으세요. 갈라디아서 참고자료의 저자 주장은 출판사 소개와 목차에서 확인한 주제 범위로 한정합니다.[^keller-galatians]
+[자유에서 열매로](/experiences/freedom-fruit.md)를 살펴보고 [성령의 열매](/concepts/fruit.md), [성화](/concepts/sanctification.md)와 [은혜](/concepts/grace.md)를 읽으세요. 갈라디아서 참고자료의 저자 주장은 영어 원서 공개 서문·1:1–9 샘플과 한국어판 3:1–14 일부에서 실제 확인한 범위로 한정합니다.[^keller-galatians]
 
 [^bible]: 갈라디아서 5:1–6:5; 로마서 12:1–8
 [^keller-galatians]: [갈라디아서 참고자료](/references/logos-keller-galatians.md)
