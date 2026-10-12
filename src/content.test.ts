@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, references, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
+import { bundle, concepts, documentById, documentByPublicId, documents, experiences, mapGroupLabels, mapGroups, mapHref, passages, paths, questions, readNavigation, readingLinkGroup, readingLinksFor, references, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
 
 describe('published content and navigation data', () => {
   it('publishes compact summaries and supports asynchronous detail loading', async () => {
@@ -136,6 +136,54 @@ describe('published content and navigation data', () => {
     const invalid = readNavigation('?doc=story&state=missing')
     expect(invalid.stateId).toBe('leaving')
     expect(invalid.notice).toContain('처음 상태로 열었습니다')
+  })
+
+  it('projects every question’s authored public links once and classifies them into map filters', () => {
+    expect(mapGroups).toEqual(['all', 'bible', 'concepts', 'sources', 'experiences', 'questions', 'reading'])
+    expect(mapGroupLabels).toEqual({
+      all: '모든 자료', bible: '성경 본문', concepts: '용어', sources: '출처',
+      experiences: '직접 탐색', questions: '다른 질문', reading: '이어 읽기',
+    })
+
+    for (const question of questions) {
+      const expectedIds = [...new Set(question.links)].flatMap(id => {
+        const doc = documentById.get(id)
+        return doc && doc.id !== question.id ? [doc.id] : []
+      })
+      const all = readingLinksFor(question)
+      expect(new Set(all.map(doc => doc.id)).size).toBe(all.length)
+      expect(new Set(all.map(doc => doc.id))).toEqual(new Set(expectedIds))
+      for (const group of mapGroups.filter(group => group !== 'all')) {
+        expect(readingLinksFor(question, group).map(doc => doc.id)).toEqual(all.filter(doc => readingLinkGroup(doc) === group).map(doc => doc.id))
+      }
+    }
+  })
+
+  it('parses map focus, filters and only a linked node while retaining legacy document priority', () => {
+    const question = documentByPublicId.get('sin-question')!
+    const sin = documentByPublicId.get('sin')!
+    const filteredNode = readNavigation(mapHref('sin-question', 'concepts', 'sin'))
+    expect(filteredNode.view).toBe('map')
+    expect(filteredNode.mapFocus?.id).toBe(question.id)
+    expect(filteredNode.mapGroup).toBe('concepts')
+    expect(filteredNode.mapNode?.id).toBe(sin.id)
+    expect(readNavigation(mapHref('sin-question', 'bible', 'sin')).mapNode).toBeUndefined()
+
+    const invalid = readNavigation('?view=map&focus=missing-question&group=unknown&node=not-linked')
+    expect(invalid.mapFocus?.id).toBe(questions[0].id)
+    expect(invalid.mapGroup).toBe('all')
+    expect(invalid.mapNode).toBeUndefined()
+    expect(invalid.notice).toContain('지도의 질문')
+    expect(invalid.notice).toContain('자료 종류')
+    expect(invalid.notice).toContain('선택한 자료')
+
+    const nonQuestion = readNavigation('?view=map&focus=sin&group=all')
+    expect(nonQuestion.mapFocus?.id).toBe(questions[0].id)
+    expect(nonQuestion.notice).toContain('지도의 질문')
+
+    const legacyDocWins = readNavigation('?view=map&focus=sin-question&group=concepts&node=sin&doc=acceptance')
+    expect(legacyDocWins.document?.publicId).toBe('acceptance')
+    expect(legacyDocWins.mapFocus).toBeUndefined()
   })
 })
 

@@ -19,3 +19,5 @@
 .term-help{font-size:.8rem;color:var(--muted);margin:0 0 24px}
 
 .concept-preview-sources>div{scroll-margin-top:130px}
+
+.map-invitation{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px;background:#edf2e7;border:1px solid var(--line);margin-bottom:36px}.map-invitation h2{font-size:1.5rem;margin:8px 0}.map-invitation p{font-size:.88rem;margin-bottom:0}.map-invitation .text-link{flex-shrink:0}.question-map-link{margin:0 0 20px}@media(max-width:700px){.map-invitation{display:block;padding:20px}.map-invitation .text-link{margin-top:18px}}

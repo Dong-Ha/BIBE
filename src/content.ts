@@ -17,8 +17,37 @@ export const typeLabels: Record<string, string> = {
   Question: '삶과 신앙의 질문', 'Study Series': '책과 함께 읽기', 'Reading Guide': '하루씩 읽기', 'Bible Passage': '성경 본문', 'Reading Path': '성경 읽기 경로',
   'Learning Experience': '직접 탐색', Concept: '쉬운 용어 설명', Reference: '원자료 안내', Author: '저자와 자료', Relationship: '본문 연결의 근거',
 }
+export const mapGroups = ['all', 'bible', 'concepts', 'sources', 'experiences', 'questions', 'reading'] as const
+export type MapGroup = typeof mapGroups[number]
+export const mapGroupLabels: Record<MapGroup, string> = {
+  all: '모든 자료', bible: '성경 본문', concepts: '용어', sources: '출처', experiences: '직접 탐색', questions: '다른 질문', reading: '이어 읽기',
+}
+export function readingLinkGroup(doc: ContentSummary): Exclude<MapGroup, 'all'> {
+  switch (doc.type) {
+    case 'Bible Passage': return 'bible'
+    case 'Concept': return 'concepts'
+    case 'Reference': case 'Author': return 'sources'
+    case 'Learning Experience': return 'experiences'
+    case 'Question': return 'questions'
+    default: return 'reading'
+  }
+}
+// Navigation associations are authored reading links, not biblical relation claims.
+export function readingLinksFor(question: ContentSummary, group: MapGroup = 'all'): ContentSummary[] {
+  const ids = [...new Set(question.links)]
+  return ids.map(id => documentById.get(id)).filter((doc): doc is ContentSummary => !!doc && doc.id !== question.id && (group === 'all' || readingLinkGroup(doc) === group))
+    .sort((a, b) => mapGroups.indexOf(readingLinkGroup(a)) - mapGroups.indexOf(readingLinkGroup(b)) || a.title.localeCompare(b.title, 'ko'))
+}
+export function mapHref(focusPublicId: string, group: MapGroup = 'all', nodePublicId?: string) {
+  const params = new URLSearchParams({ view: 'map', focus: focusPublicId, group })
+  if (nodePublicId) params.set('node', nodePublicId)
+  return `?${params}`
+}
 export interface NavigationState {
-  view: 'home' | 'guides' | 'library' | 'scripture' | 'experiences' | 'glossary' | 'sources' | 'search'
+  view: 'home' | 'guides' | 'library' | 'scripture' | 'experiences' | 'glossary' | 'sources' | 'search' | 'map'
+  mapFocus?: ContentSummary
+  mapGroup?: MapGroup
+  mapNode?: ContentSummary
   document?: ContentSummary
   stateId?: string
   dayId?: string
@@ -45,7 +74,24 @@ export function readNavigation(search: string): NavigationState {
   if (requestedDay && doc?.dayIds && !validDay) notice = '읽을 날을 찾을 수 없어 첫날로 열었습니다.'
   const dayId = validDay ? requestedDay! : doc?.dayIds?.[0]
   const view = params.get('view')
-  return { view: ['home', 'guides', 'library', 'scripture', 'experiences', 'glossary', 'sources', 'search'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, dayId, stateId: validState ? requestedState! : doc?.experienceState ?? experience?.defaultState, query: params.get('q') ?? '', notice }
+  let mapFocus: ContentSummary | undefined, mapGroup: MapGroup | undefined, mapNode: ContentSummary | undefined
+  if (view === 'map' && !doc) {
+    const focus = params.get('focus'), requestedFocus = documentByPublicId.get(focus ?? '')
+    mapFocus = requestedFocus?.type === 'Question' ? requestedFocus : questions[0]
+    const mapNotices: string[] = []
+    if (focus && requestedFocus?.type !== 'Question') mapNotices.push('지도의 질문을 찾을 수 없어 첫 질문으로 열었습니다.')
+    const group = params.get('group')
+    mapGroup = mapGroups.includes(group as MapGroup) ? group as MapGroup : 'all'
+    if (group && !mapGroups.includes(group as MapGroup)) mapNotices.push('자료 종류를 찾을 수 없어 모든 연결을 보여 드립니다.')
+    const node = params.get('node')
+    mapNode = mapFocus ? readingLinksFor(mapFocus, mapGroup).find(doc => doc.publicId === node) : undefined
+    if (node && !mapNode) {
+      const linked = mapFocus && readingLinksFor(mapFocus).some(doc => doc.publicId === node)
+      mapNotices.push(linked ? '선택한 자료가 현재 자료 종류에 포함되지 않아 자료 선택을 해제했습니다.' : '선택한 자료가 이 질문의 연결에 없어 자료 선택을 해제했습니다.')
+    }
+    notice = [notice, ...mapNotices].filter(Boolean).join(' ') || undefined
+  }
+  return { mapFocus, mapGroup, mapNode, view: ['home', 'guides', 'library', 'scripture', 'experiences', 'glossary', 'sources', 'search', 'map'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, dayId, stateId: validState ? requestedState! : doc?.experienceState ?? experience?.defaultState, query: params.get('q') ?? '', notice }
 }
 export function documentHref(doc: { publicId: string }, stateId?: string, dayId?: string) {
   const params = new URLSearchParams({ doc: doc.publicId })

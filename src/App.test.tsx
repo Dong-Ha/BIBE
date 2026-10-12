@@ -26,6 +26,14 @@ describe('question and reading experience', () => {
     expect(screen.getByRole('link', { name: /예수의 십자가는 무엇을 바꾸나요/ })).toBeInTheDocument()
   })
 
+  it('opens the question-centered knowledge map from the main navigation', async () => {
+    render(<App />)
+    fireEvent.click(within(screen.getByRole('navigation', { name: '주요 메뉴' })).getByRole('link', { name: '연결 따라 읽기' }))
+    await waitFor(() => expect(window.location.search).toContain('view=map'))
+    expect(await screen.findByRole('heading', { level: 1, name: '한 질문에서, 연결을 따라 읽기' })).toBeInTheDocument()
+    expect(screen.getByLabelText('지도의 질문')).toHaveValue('acceptance')
+  })
+
   it('opens a question with deep reading and source links, previews a concept in place and follows its full page', async () => {
     setUrl('/BIBE/?doc=acceptance')
     render(<App />)
