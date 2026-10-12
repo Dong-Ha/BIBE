@@ -16,10 +16,11 @@ describe('question and reading experience', () => {
     vi.stubGlobal('scrollTo', vi.fn())
   })
 
-  it('starts with the eight life and faith questions', () => {
+  it('starts with fourteen life and faith questions and six book reading paths', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: '지금의 질문에서, 다시 복음으로.' })).toBeInTheDocument()
-    expect(document.querySelectorAll('.question-card')).toHaveLength(8)
+    expect(document.querySelectorAll('#questions .question-card')).toHaveLength(14)
+    expect(document.querySelectorAll('[aria-label="책과 함께 읽기"] .question-card')).toHaveLength(6)
     expect(screen.getByRole('link', { name: /교회에 실망했는데 예수를 알아볼 수 있을까/ })).toBeInTheDocument()
   })
 

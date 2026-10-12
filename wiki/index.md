@@ -11,3 +11,4 @@ okf_version: "0.2"
 - [questions](questions/index.md) — 자료 묶음
 - [references](references/index.md) — 자료 묶음
 - [relationships](relationships/index.md) — 자료 묶음
+- [studies](studies/index.md) — 자료 묶음

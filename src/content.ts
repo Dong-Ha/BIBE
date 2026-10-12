@@ -9,14 +9,15 @@ export const questions = documents.filter(doc => doc.type === 'Question').sort((
 export const passages = documents.filter(doc => doc.type === 'Bible Passage')
 export const paths = documents.filter(doc => doc.type === 'Reading Path')
 export const experiences = documents.filter(doc => doc.type === 'Learning Experience')
+export const studies = documents.filter(doc => doc.type === 'Study Series')
 export const concepts = documents.filter(doc => doc.type === 'Concept')
 export const references = documents.filter(doc => ['Reference', 'Author'].includes(doc.type))
 export const typeLabels: Record<string, string> = {
-  Question: '삶과 신앙의 질문', 'Bible Passage': '성경 본문', 'Reading Path': '성경 읽기 경로',
+  Question: '삶과 신앙의 질문', 'Study Series': '책과 함께 읽기', 'Bible Passage': '성경 본문', 'Reading Path': '성경 읽기 경로',
   'Learning Experience': '직접 탐색', Concept: '쉬운 용어 설명', Reference: '원자료 안내', Author: '저자와 자료', Relationship: '본문 연결의 근거',
 }
 export interface NavigationState {
-  view: 'home' | 'scripture' | 'experiences' | 'glossary' | 'sources' | 'search'
+  view: 'home' | 'library' | 'scripture' | 'experiences' | 'glossary' | 'sources' | 'search'
   document?: ContentDocument
   stateId?: string
   query: string
@@ -39,7 +40,7 @@ export function readNavigation(search: string): NavigationState {
   const validState = definition?.states.some(s => s.id === requestedState)
   if (requestedState && definition && !validState) notice = '탐색 상태를 찾을 수 없어 처음 상태로 열었습니다.'
   const view = params.get('view')
-  return { view: ['home', 'scripture', 'experiences', 'glossary', 'sources', 'search'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, stateId: validState ? requestedState! : doc?.experienceState ?? definition?.defaultState, query: params.get('q') ?? '', notice }
+  return { view: ['home', 'library', 'scripture', 'experiences', 'glossary', 'sources', 'search'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, stateId: validState ? requestedState! : doc?.experienceState ?? definition?.defaultState, query: params.get('q') ?? '', notice }
 }
 export function documentHref(doc: ContentDocument, stateId?: string) {
   const params = new URLSearchParams({ doc: doc.publicId })

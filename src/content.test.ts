@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, searchDocuments } from './content'
+import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, searchDocuments, studies } from './content'
 
 describe('published content and navigation data', () => {
   it('publishes a complete home, passage, concept, path, and experience corpus', () => {
     expect(documents.length).toBeGreaterThanOrEqual(60)
-    expect(questions).toHaveLength(8)
+    expect(questions).toHaveLength(14)
     expect(Object.keys(bundle.legacy.passages)).toHaveLength(55)
     expect(Object.keys(bundle.legacy.threads)).toHaveLength(11)
     expect(paths).toHaveLength(11)
+    expect(studies).toHaveLength(6)
+    expect(passages).toHaveLength(83)
+    expect(experiences).toHaveLength(11)
     expect(passages.length).toBeGreaterThanOrEqual(55)
     expect(concepts.length).toBeGreaterThan(0)
     expect(experiences.length).toBeGreaterThanOrEqual(4)
@@ -48,5 +51,26 @@ describe('published content and navigation data', () => {
     const invalid = readNavigation('?doc=story&state=missing')
     expect(invalid.stateId).toBe('leaving')
     expect(invalid.notice).toContain('처음 상태로 열었습니다')
+  })
+})
+
+
+describe('book reading paths', () => {
+  it('preserves source scope and resolves linked books in the knowledge graph', () => {
+    expect(readNavigation('?view=library').view).toBe('library')
+    for (const study of studies) {
+      expect(study.books.length).toBeGreaterThan(0)
+      expect(study.passages.length).toBeGreaterThan(0)
+      for (const bookId of study.books) {
+        const book = documents.find(doc => doc.id === bookId)!
+        expect(book.type).toBe('Reference')
+        expect(book.backlinks).toContain(study.id)
+        expect(book.logos?.uri).toMatch(/^logosres:[a-z0-9]+$/)
+      }
+    }
+    const galatians = documentByPublicId.get('logosbook-keller-galatians')!
+    expect(galatians.logos?.access).toContain('local-body-excerpt')
+    expect(galatians.sections.map(section => section.html).join(' ')).toContain('한국어판 전체를 읽거나')
+    expect(searchDocuments('갈라디아서 5:13').some(doc => doc.publicId === 'gal-5-13')).toBe(true)
   })
 })

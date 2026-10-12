@@ -65,6 +65,8 @@ export interface ContentDocument {
   experience?: string
   experienceState?: string
   passages: string[]
+  books: string[]
+  logos?: { resource_id: string; uri: string; access: string }
   questions: string[]
   links: string[]
   backlinks: string[]

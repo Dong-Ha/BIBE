@@ -18,9 +18,9 @@ test('legacy passage links, Korean verse search, and invalid state recovery work
   await expect(page.getByRole('heading', { name: '떠남', exact: true })).toBeVisible()
 })
 
-test('home opens the eight question paths and a question reveals sources and deep reading', async ({ page }) => {
+test('home opens fourteen question paths and a question reveals sources and deep reading', async ({ page }) => {
   await page.goto('./')
-  await expect(page.locator('.question-card')).toHaveCount(8)
+  await expect(page.locator('#questions .question-card')).toHaveCount(14)
   await page.getByRole('link', { name: /잘해야만 사랑받을 수 있을까/ }).click()
   await expect(page.getByRole('heading', { level: 1, name: '잘해야만 사랑받을 수 있을까?' })).toBeVisible()
   await page.getByText('깊은 읽기와 해석의 근거').click()
@@ -99,17 +99,17 @@ test('layers support keyboard adjustment, text mode, and state restoration', asy
   await expect(page.getByRole('heading', { name: '믿음으로 받음' })).toBeVisible()
 })
 
-test('all five experience pages cover the four learning modes in the direct exploration collection', async ({ page }) => {
+test('all eleven experience pages cover the four learning modes in the direct exploration collection', async ({ page }) => {
   await page.goto('?view=experiences')
   await expect(page.getByRole('heading', { level: 1, name: '읽고, 움직이고, 발견하다' })).toBeVisible()
-  await expect(page.locator('.question-card')).toHaveCount(5)
+  await expect(page.locator('.question-card')).toHaveCount(11)
   for (const title of ['두 아들과 아버지의 이야기', '유월절과 예수의 십자가', '은혜와 변화의 관계', '실패와 비판, 용서를 바라보는 두 관점', '부활의 증언과 그 의미']) {
     await expect(page.getByRole('link', { name: new RegExp(title) })).toBeVisible()
   }
 })
 
 test('home, church hurt, and an interactive map fit the selected mobile or desktop viewport', async ({ page }) => {
-  for (const path of ['./', '?doc=church-hurt', '?doc=connections']) {
+  for (const path of ['./', '?doc=church-hurt', '?doc=connections', '?view=library', '?doc=study-galatians-freedom', '?doc=conscience-table']) {
     await page.goto(path)
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1)
   }
@@ -122,10 +122,53 @@ test('captures review screenshots for the main reading routes', async ({ page },
     ['?doc=acceptance', 'acceptance'],
     ['?doc=church-hurt', 'church-hurt'],
     ['?doc=evidence', 'evidence'],
+    ['?view=library', 'library'],
+    ['?doc=study-galatians-freedom', 'galatians-study'],
   ] as const
   for (const [path, name] of routes) {
     await page.goto(path)
     await expect(page.locator('main')).toBeVisible()
     await page.screenshot({ path: `artifacts/${testInfo.project.name}-${name}.png`, fullPage: true })
   }
+})
+
+
+test('book reading paths link to passages, source scope and the installed Logos resource', async ({ page }) => {
+  await page.goto('?view=library')
+  await expect(page.locator('.question-card')).toHaveCount(6)
+  await page.getByRole('link', { name: /갈라디아서: 은혜가 낳는 자유와 열매/ }).click()
+  await expect(page.getByRole('heading', { level: 1, name: '갈라디아서: 은혜가 낳는 자유와 열매' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '복음의 자유와 이웃 사랑' })).toBeVisible()
+  await page.getByRole('button', { name: '짐을 함께 나눔', exact: true }).click()
+  await expect(page).toHaveURL(/state=burden/)
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '짐을 함께 나눔', exact: true })).toBeVisible()
+  await page.getByRole('complementary').getByRole('link', { name: /팀 켈러, 당신을 위한 갈라디아서/ }).click()
+  await expect(page.getByRole('heading', { name: '한국어판에서 직접 확인한 범위' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Logos에서 책 열기' })).toHaveAttribute('href', 'logosres:gwfykor69ga')
+  await expect(page.getByText(/한국어판 전체를 읽거나/)).toBeVisible()
+})
+
+test('new scenarios can be adjusted and restored using every exploration mode', async ({ page }) => {
+  const cases = [
+    ['judges-cycle', '이야기 장면', '더 깊은 구원의 필요', 'need'],
+    ['story-timeline', '이야기 장면', '새 창조의 소망', 'renewal'],
+    ['belonging-practice', '상황과 관점 선택', '필요와 경계를 묻는 돌봄', 'care'],
+    ['conscience-table', '상황과 관점 선택', '이웃을 세우는 자유', 'love'],
+  ] as const
+  for (const [id, group, label, state] of cases) {
+    await page.goto(`?doc=${id}`)
+    await page.getByRole('group', { name: group }).getByRole('button', { name: new RegExp(label) }).click()
+    await expect(page).toHaveURL(new RegExp(`state=${state}`))
+    await page.reload()
+    await expect(page.getByRole('heading', { name: label, exact: true })).toBeVisible()
+    await page.getByRole('button', { name: '처음부터 다시 살펴보기' }).click()
+    await expect(page.getByRole('heading', { name: label, exact: true })).toHaveCount(0)
+  }
+  await page.goto('?doc=romans-grace')
+  await page.getByRole('slider').focus()
+  await page.getByRole('slider').press('End')
+  await expect(page).toHaveURL(/state=grace/)
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '그리스도 안의 의', exact: true })).toBeVisible()
 })

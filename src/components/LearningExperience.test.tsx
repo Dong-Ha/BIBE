@@ -31,7 +31,7 @@ describe('LearningExperience', () => {
     const onStateChange = vi.fn()
     const connectionDefinition = definition('connections', states, [edge])
     const { rerender } = render(<LearningExperience definition={connectionDefinition} stateId="start" onStateChange={onStateChange} />)
-    fireEvent.click(screen.getByRole('button', { name: '본문에서 직접 연결' }))
+    fireEvent.click(screen.getByRole('button', { name: '돌아옴' }))
     expect(onStateChange).toHaveBeenCalledWith('end')
     rerender(<LearningExperience definition={connectionDefinition} stateId="end" onStateChange={onStateChange} />)
     const nodeButton = screen.getByRole('button', { name: '첫 장면. 눅 15:11' })
@@ -71,4 +71,13 @@ describe('LearningExperience', () => {
     rerender(<LearningExperience definition={perspectiveDefinition} stateId="failure-grace" onStateChange={onStateChange} />)
     expect(screen.getAllByText('아버지가 아들을 맞이합니다.')).toHaveLength(3)
   })
+})
+
+
+it('exposes each cumulative connection stage even when it is not a single edge-kind filter', () => {
+  const onStateChange = vi.fn()
+  const cumulative = definition('connections', [states[0], { ...states[1], id: 'middle', label: '가운데' }, { ...states[1], id: 'complete', label: '함께 돌보기' }])
+  render(<LearningExperience definition={cumulative} stateId="start" onStateChange={onStateChange} />)
+  fireEvent.click(screen.getByRole('button', { name: '함께 돌보기' }))
+  expect(onStateChange).toHaveBeenCalledWith('complete')
 })

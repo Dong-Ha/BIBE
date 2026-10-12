@@ -1,0 +1,55 @@
+---
+type: Study Series
+title: "갈라디아서: 은혜가 낳는 자유와 열매"
+description: 복음의 선물에서 자유, 성령의 열매, 서로의 짐을 지는 삶으로 이어지는 갈라디아서를 읽는다.
+public_id: study-galatians-freedom
+status: stable
+published: true
+tags: [갈라디아서, 자유, 은혜, 성령]
+passages: [/passages/gal-1-6.md, /passages/gal-3-1.md, /passages/gal-5-13.md, /passages/gal-6-1.md]
+books: [/references/logos-keller-galatians.md]
+experience: /experiences/freedom-fruit.md
+sources:
+  - id: bible
+    resource: https://bible.bskorea.or.kr/
+    title: "갈라디아서 1:6–10; 3:1–5; 5:13–26; 6:1–5"
+    author: 대한성서공회
+  - id: keller-galatians
+    resource: /references/logos-keller-galatians.md
+    title: "팀 켈러, 당신을 위한 갈라디아서: 서지와 목차"
+generated:
+  by: codex/content-editor
+  at: 2026-10-12T15:05:35Z
+---
+
+## 함께 읽는 이유
+
+갈라디아서는 은혜로 시작한 공동체가 무엇으로 완성되려 하는지 묻습니다. 복음의 다른 기초와 성령을 통한 삶을 읽고, 자유가 사랑과 공동체 돌봄으로 표현되는 과정을 세 번에 걸쳐 살펴봅니다. 매 모임은 본문 자체의 논리를 따라가며, 갈라디아서를 도덕 점수표나 자유의 무제한 허가로 바꾸지 않습니다. 켈러 자료는 출판사 소개와 목차 확인 범위의 보조 참고입니다.[^keller-galatians]
+
+## 1. 복음을 떠나지 않기
+
+**읽기:** [갈라디아서 1:6–10](/passages/gal-1-6.md). 바울이 왜 다른 복음을 경계하는지, 복음의 중심을 무엇으로 두는지 본문 앞뒤에서 확인합니다. 사람의 인정을 구하는 일과 하나님께 충성하는 일을 대조하는 논지를 살핍니다.
+
+**대화:** 은혜를 받기 위해 추가 성취를 요구하는 메시지는 어떤 형태로 나타나는가? 반대로 책임과 변화를 전부 불필요하다고 말하면 복음의 어떤 면이 사라지는가?
+
+## 2. 성령으로 시작한 삶
+
+**읽기:** [갈라디아서 3:1–5](/passages/gal-3-1.md). 바울의 질문에서 시작과 지속의 근거가 어디에 놓이는지 관찰합니다. 공동체의 경험을 근거로 삼되, 경험 하나가 모든 사람의 신앙을 재는 기준이 되지 않도록 주의합니다.
+
+**대화:** 성령의 사역과 자기 노력은 어떻게 구별되고 함께 설명되는가? 성장을 성취 비교로 만들지 않으려면 서로 어떤 말을 피해야 하는가?
+
+## 3. 사랑으로 섬기고 짐을 나누기
+
+**읽기:** [갈라디아서 5:13–26](/passages/gal-5-13.md), [6:1–5](/passages/gal-6-1.md). 자유와 사랑의 섬김, 육체의 일과 성령의 열매, 온유한 회복과 상호 책임의 흐름을 살핍니다.
+
+**대화와 작은 실천:** 누군가의 짐을 함께 나누면서도 그 사람의 존엄과 책임을 존중하는 구체적 도움을 하나 정합니다. 피해가 있으면 안전과 책임을 먼저 다루고, 용서를 강요하지 않습니다. [자유와 열매의 연결](/experiences/freedom-fruit.md)을 활용해 열매를 점수가 아니라 관계의 방향으로 읽습니다.
+
+## 대화와 작은 실천
+
+모임 후 각자 은혜를 조건부 성취로 바꾸는 익숙한 말을 하나 적고, 그것을 복음의 언어로 다시 표현합니다. 다음 모임까지 한 가지 사랑의 실천을 선택하고, 성과를 보고하기보다 그 실천이 이웃에게 어떤 도움이 되었는지 돌아봅니다.
+
+## 깊은 읽기
+
+[자유롭게 살면서 어떻게 이웃을 사랑할까?](/questions/freedom-love.md), [은혜](/concepts/grace.md), [성화](/concepts/sanctification.md)를 함께 읽으세요. [갈라디아서 참고자료](/references/logos-keller-galatians.md)는 출판사 목차와 서지에 근거한 조사입니다.[^keller-galatians]
+
+[^keller-galatians]: [갈라디아서 참고자료](/references/logos-keller-galatians.md)

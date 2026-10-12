@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "catalog_source": "Logos LibraryCatalog/catalog.db + ResourceManager/ResourceManager.db",
+  "access": "local SQLite read-only; raw metadata only",
+  "checked_at": "2026-10-12T14:57:31Z",
+  "counts": {
+    "catalog_records": 152,
+    "installed_resources": 148
+  },
+  "description": "Descriptions below summarize local catalog metadata in our own words; they are not book text or author quotations. Local paths and account identifiers are omitted.",
+  "resources": [
+    {
+      "resource_id": "LLS:GWFYKOR07JDG",
+      "title": "팀 켈러, 당신을 위한 사사기",
+      "author": "팀 켈러",
+      "publisher": "두란노서원",
+      "language": "ko",
+      "edition": "logosresearch",
+      "publication_year": "2015",
+      "series": "당신을 위한 시리즈",
+      "installed": true,
+      "resource_version": "2021-10-07T21:12:24Z",
+      "catalog_metadata_version": "2026-06-17T14:18:14Z",
+      "summary": "Catalog description: Judges depicts Israel's failure to know, love, and obey God, half-hearted obedience, and God's persistent rescue despite rebellion."
+    },
+    {
+      "resource_id": "LLS:GWFYKOR66RO1",
+      "title": "팀 켈러, 당신을 위한 로마서 1",
+      "author": "팀 켈러",
+      "publisher": "두란노서원",
+      "language": "ko",
+      "edition": "logosresearch",
+      "publication_year": "2014",
+      "series": "당신을 위한 시리즈",
+      "installed": true,
+      "resource_version": "2021-10-07T21:12:25Z",
+      "catalog_metadata_version": "2026-06-17T14:18:15Z",
+      "summary": "Catalog description: human effort, religious standards, and moral achievement cannot make sinners righteous; the gospel brings freedom and joy."
+    },
+    {
+      "resource_id": "LLS:GWFYKOR66RO2",
+      "title": "팀 켈러, 당신을 위한 로마서 2",
+      "author": "팀 켈러",
+      "publisher": "두란노서원",
+      "language": "ko",
+      "edition": "logosresearch",
+      "publication_year": "2015",
+      "series": "당신을 위한 시리즈",
+      "installed": true,
+      "resource_version": "2021-10-07T21:12:24Z",
+      "catalog_metadata_version": "2026-06-17T14:18:16Z",
+      "summary": "Catalog description: the gospel changes character and how people see others and the world, restoring relations involving sin, church, state, and neighbor."
+    },
+    {
+      "resource_id": "LLS:GWFYKOR69GA",
+      "title": "팀 켈러, 당신을 위한 갈라디아서",
+      "author": "팀 켈러",
+      "publisher": "두란노서원",
+      "language": "ko",
+      "edition": "logosresearch",
+      "publication_year": "2018",
+      "series": "당신을 위한 시리즈",
+      "installed": true,
+      "resource_version": "2021-10-07T21:12:22Z",
+      "catalog_metadata_version": "2026-06-17T14:18:17Z",
+      "summary": "Catalog description: adding works to grace distorts the gospel; Paul calls the Galatians back from law-based approval to gospel freedom."
+    },
+    {
+      "resource_id": "LLS:CSKTMPTYOTSG",
+      "title": "구약을 읽다",
+      "author": "캐롤 카민스키",
+      "publisher": "죠이북스",
+      "language": "ko",
+      "edition": "logosresearch",
+      "publication_year": "2016",
+      "series": "성경을 읽다",
+      "installed": true,
+      "resource_version": "2019-12-04T00:38:26Z",
+      "catalog_metadata_version": "2026-06-17T10:08:52Z",
+      "summary": "Catalog description: Old Testament overview in the CASKET EMPTY project, which aims to trace the biblical story of redemption from Genesis through Revelation."
+    },
+    {
+      "resource_id": "LLS:CSKTMPTYNTSG",
+      "title": "신약을 읽다",
+      "author": "데이비드 파머",
+      "publisher": "죠이북스",
+      "language": "ko",
+      "edition": "logosresearch",
+      "publication_year": "2017",
+      "series": "성경을 읽다",
+      "installed": true,
+      "resource_version": "2019-12-04T00:38:29Z",
+      "catalog_metadata_version": "2026-06-17T10:08:51Z",
+      "summary": "Catalog description: New Testament overview in the CASKET EMPTY project, from the promised Messiah's birth through death, resurrection, and new creation."
+    },
+    {
+      "resource_id": "LLS:NWCTYCTCHDEVO",
+      "title": "뉴시티 교리문답 해설: 우리의 신앙을 굳건히 세워 줄 하나님의 진리",
+      "author": "복음 연합; 리디머장로교회",
+      "publisher": "죠이북스",
+      "language": "ko",
+      "edition": "logosresearch",
+      "publication_year": "2018",
+      "series": "",
+      "installed": true,
+      "resource_version": "2025-06-19T21:44:17Z",
+      "catalog_metadata_version": "2026-06-17T16:58:22Z",
+      "summary": "Catalog description: 52 catechism questions explain core doctrines and prepare readers to interpret the world and experience through a biblical framework."
+    }
+  ]
+}

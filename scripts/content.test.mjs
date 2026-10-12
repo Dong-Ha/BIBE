@@ -40,3 +40,18 @@ test('Markdown output strips active HTML and rewrites bundle links without losin
   assert.match(html, /data-doc="concepts\/grace"/)
   assert.match(html, /href="#source-bible"/)
 })
+
+
+test('book links are validated and contribute backlinks; Logos launch URI matches the resource', () => {
+  const book = { ...doc({ type: 'Reference', public_id: 'book', logos: { resource_id: 'LLS:EXAMPLE', uri: 'logosres:example', access: 'catalog' } }), id: 'references/book', path: 'references/book.md' }
+  const reader = doc({ books: ['/references/book.md'] })
+  assert.deepEqual(publicationErrors([reader, book]), [])
+  const bundle = compileBundle([reader, book])
+  assert.deepEqual(bundle.documents[0].books, ['references/book'])
+  assert.deepEqual(bundle.documents[1].backlinks, ['concepts/grace'])
+  assert.match(publicationErrors([doc({ books: ['/references/missing.md'] })]).join(), /missing target/)
+  assert.match(publicationErrors([doc({ books: 'references/book' })]).join(), /books must be an array/)
+  assert.match(publicationErrors([doc({ books: [null] })]).join(), /book paths must be strings/)
+  assert.match(publicationErrors([{ ...book, meta: { ...book.meta, logos: { ...book.meta.logos, uri: 'javascript:alert(1)' } } }]).join(), /invalid Logos resource/)
+  assert.match(publicationErrors([doc({ type: 'Study Series' })]).join(), /study needs/)
+})

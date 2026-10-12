@@ -112,13 +112,14 @@ export function LearningExperience({ definition, stateId, onStateChange }: {
       </div>
       <button className="le-secondary-button" type="button" aria-pressed={playing} onClick={() => setPlaying((value) => !value)}>{playing ? '이야기 멈추기' : '장면 이어 보기'}</button>
     </div>}
-    {definition.kind === 'connections' && <div className="le-controls" role="group" aria-label="본문 연결 종류">
-      <button className="le-filter" type="button" aria-pressed={current.id === definition.defaultState} onClick={() => chooseState(definition.states.find((state) => state.id === definition.defaultState) ?? current)}>모든 연결</button>
-      {([...new Set(definition.edges.map((edge) => edge.kind))] as ExperienceEdge['kind'][]).map((kind) => {
-        const matching = definition.edges.filter((edge) => edge.kind === kind).map((edge) => edge.id)
-        const state = definition.states.find((item) => item.activeEdges?.length === matching.length && matching.every((id) => item.activeEdges?.includes(id)))
-        if (!state) return null
-        return <button className="le-filter" key={kind} type="button" aria-pressed={current.id === state.id} onClick={() => chooseState(state)}>{relationLabels[kind]}</button>
+    {definition.kind === 'connections' && <div className="le-controls le-state-buttons" role="group" aria-label="본문 연결 종류">
+      {definition.states.map(state => {
+        const matchingKind = definition.defaultState === 'all' && (Object.keys(relationLabels) as ExperienceEdge['kind'][]).find(kind => {
+          const ids = definition.edges.filter(edge => edge.kind === kind).map(edge => edge.id)
+          return ids.length > 0 && ids.length === state.activeEdges?.length && ids.every(id => state.activeEdges?.includes(id))
+        })
+        const label = state.id === 'all' ? '모든 연결' : matchingKind ? relationLabels[matchingKind] : state.label
+        return <button className="le-filter" key={state.id} type="button" aria-pressed={current.id === state.id} onClick={() => chooseState(state)}>{label}</button>
       })}
     </div>}
     {definition.kind === 'layers' && <div className="le-layer-control"><label htmlFor={`le-range-${definition.id}`}>살펴볼 단계 <strong>{current.label}</strong></label><input id={`le-range-${definition.id}`} type="range" min="0" max={definition.states.length - 1} step="1" value={stateIndex} onChange={(event) => chooseState(definition.states[Number(event.target.value)])} aria-valuetext={current.label} /><div className="le-range-labels"><span>{definition.states[0]?.label}</span><span>{definition.states.at(-1)?.label}</span></div></div>}

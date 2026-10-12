@@ -85,11 +85,21 @@ export function publicationErrors(concepts) {
       if (!sourceIds.has(citation[1])) fail(`citation without source ${citation[1]}`)
       if (!footnoteDefinitions.has(citation[1])) fail(`citation without footnote definition ${citation[1]}`)
     }
-    const references = [...linksIn(body, id), ...(meta.passages ?? []), ...(meta.questions ?? []), ...(meta.experience ? [meta.experience] : [])]
+    const books = Array.isArray(meta.books) ? meta.books : []
+    if (meta.books !== undefined && !Array.isArray(meta.books)) fail('books must be an array')
+    if (books.some(book => typeof book !== 'string')) fail('book paths must be strings')
+    const bookPaths = books.filter(book => typeof book === 'string')
+    const references = [...linksIn(body, id), ...(meta.passages ?? []), ...(meta.questions ?? []), ...bookPaths, ...(meta.experience ? [meta.experience] : [])]
     for (const link of references) {
       const target = link.replace(/^\//, '').replace(/\.md$/, '')
       if (!byId.has(target)) fail(`unpublished or missing target ${target}`)
     }
+    for (const book of bookPaths) {
+      const target = byId.get(book.replace(/^\//, '').replace(/\.md$/, ''))
+      if (target && target.meta.type !== 'Reference') fail('book must reference a source document')
+    }
+    if (meta.logos && (!/^LLS:[A-Z0-9]+$/.test(meta.logos.resource_id ?? '') || meta.logos.uri !== `logosres:${meta.logos.resource_id.slice(4).toLowerCase()}` || !meta.logos.access)) fail('invalid Logos resource metadata')
+    if (meta.type === 'Study Series' && (!meta.books?.length || !meta.passages?.length || !meta.experience || !body.includes('## 대화와 작은 실천'))) fail('study needs books, passages, experience and practice')
     if (meta.type === 'Question') {
       for (const heading of ['본문과 맥락', '복음으로 읽기', '남는 질문', '오늘의 응답']) {
         if (!body.includes(`## ${heading}`)) fail(`missing editorial section ${heading}`)
@@ -147,7 +157,7 @@ export function renderMarkdown(body, doc, byId) {
 export function compileBundle(concepts) {
   const docs = concepts.filter(d => d.meta.published === true && d.meta.status === 'stable')
   const byId = new Map(docs.map(d => [d.id, d]))
-  const links = new Map(docs.map(d => [d.id, [...new Set([...linksIn(d.body, d.id), ...(d.meta.sources ?? []).map(source => resolveConceptLink(source.resource, d.id)).filter(Boolean), ...(d.meta.passages ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.questions ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.experience ? [d.meta.experience.replace(/^\//, '').replace(/\.md$/, '')] : [])])]]))
+  const links = new Map(docs.map(d => [d.id, [...new Set([...linksIn(d.body, d.id), ...(d.meta.sources ?? []).map(source => resolveConceptLink(source.resource, d.id)).filter(Boolean), ...(d.meta.passages ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.questions ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.books ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), ...(d.meta.experience ? [d.meta.experience.replace(/^\//, '').replace(/\.md$/, '')] : [])])]]))
   const legacy = { passages: {}, threads: {}, connections: {} }
   const documents = docs.map(doc => {
     const { meta, id, body } = doc
@@ -162,6 +172,7 @@ export function compileBundle(concepts) {
       id, publicId: meta.public_id, type: meta.type, title: meta.title, description: meta.description,
       reference: meta.reference, order: meta.order, tags: meta.tags ?? [], aliases: meta.aliases ?? [],
       passages: (meta.passages ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')),
+      books: (meta.books ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')), logos: meta.logos,
       questions: (meta.questions ?? []).map(p => p.replace(/^\//, '').replace(/\.md$/, '')),
       experience: meta.experience?.replace(/^\//, '').replace(/\.md$/, ''), experienceState: meta.experience_state, sources: meta.sources ?? [],
       links: links.get(id), backlinks: docs.filter(other => links.get(other.id).includes(id)).map(other => other.id), sections,
