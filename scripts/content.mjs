@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises'
+import { readdir, readFile, writeFile, mkdir, rm, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
@@ -199,6 +199,78 @@ export function compileBundle(concepts) {
   return { documents, legacy }
 }
 
+function sha256(value) { return createHash('sha256').update(value).digest('hex') }
+function plainText(html) {
+  return html.replace(/<[^>]*>/g, ' ')
+    .replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (_, key) => ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' })[key] ?? '')
+    .replace(/&#(x[0-9a-f]+|[0-9]+);/gi, (_, code) => {
+      const value = code[0].toLowerCase() === 'x' ? Number.parseInt(code.slice(1), 16) : Number(code)
+      return value >= 0 && value <= 0x10ffff ? String.fromCodePoint(value) : ''
+    })
+}
+function searchTextFor(doc) {
+  const definition = doc.definition
+  const definitionText = definition ? [definition.goal, definition.before, definition.after, definition.transfer,
+    ...(definition.states ?? []).flatMap(state => [state.label, state.description, ...(state.evidence ?? [])]),
+    ...(definition.nodes ?? []).flatMap(node => [node.label, node.detail, node.reference]),
+    ...(definition.edges ?? []).flatMap(edge => [edge.explanation, ...(edge.evidence ?? [])])].filter(Boolean) : []
+  return [doc.searchText, ...doc.sections.flatMap(section => [section.title, plainText(section.html)]),
+    ...(doc.days ?? []).flatMap(day => [day.title, day.focus, day.reflection, day.practice]), ...definitionText].filter(Boolean).join(' ')
+}
+
+// Keep compileBundle as the compatibility/full-detail API. This projection is the
+// separate runtime publication contract used by the browser's lazy loader.
+export function compilePublication(bundle) {
+  const details = new Map()
+  const documents = bundle.documents.map(doc => {
+    const serialized = JSON.stringify(doc)
+    const detailHash = sha256(serialized)
+    details.set(detailHash, serialized)
+    const definition = doc.definition
+    return {
+      id: doc.id, publicId: doc.publicId, type: doc.type, title: doc.title, description: doc.description,
+      tags: doc.tags, aliases: doc.aliases, reference: doc.reference, order: doc.order,
+      experience: doc.experience, experienceState: doc.experienceState,
+      ...(definition ? { experienceKind: definition.kind, defaultState: definition.defaultState, stateIds: definition.states.map(state => state.id) } : {}),
+      dayIds: doc.days?.map(day => day.id), passages: doc.passages, questions: doc.questions, books: doc.books,
+      links: doc.links, backlinks: doc.backlinks, nodeIds: doc.nodeIds, connectionIds: doc.connectionIds,
+      ...(doc.relationship ? { relationship: { source: doc.relationship.source, target: doc.relationship.target, kind: doc.relationship.kind } } : {}),
+      detailHash,
+    }
+  })
+  const search = { schemaVersion: 1, rows: bundle.documents.map(doc => ({ id: doc.id, text: searchTextFor(doc) })) }
+  const searchSerialized = JSON.stringify(search)
+  const searchHash = sha256(searchSerialized)
+  return {
+    manifest: { schemaVersion: 1, documents, legacy: bundle.legacy, searchHash },
+    details,
+    search: { hash: searchHash, serialized: searchSerialized },
+  }
+}
+
+export async function writePublication(publication, root = projectRoot) {
+  const output = path.join(root, 'public', 'generated-content')
+  const marker = path.join(output, '.bibe-generated')
+  try {
+    const info = await stat(output)
+    if (!info.isDirectory()) throw new Error(`Refusing to replace non-directory ${output}`)
+    try { await readFile(marker, 'utf8') }
+    catch {
+      const entries = await readdir(output)
+      if (entries.length) throw new Error(`Refusing to clean unmarked generated-content directory ${output}`)
+    }
+    await rm(output, { recursive: true, force: true })
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+  }
+  await mkdir(output, { recursive: true })
+  await writeFile(marker, 'bibe generated publication artifacts\n')
+  for (const [hash, serialized] of publication.details) await writeFile(path.join(output, `${hash}.json`), serialized)
+  await writeFile(path.join(output, `${publication.search.hash}.json`), publication.search.serialized)
+  await mkdir(path.join(root, 'src/generated'), { recursive: true })
+  await writeFile(path.join(root, 'src/generated/manifest.json'), JSON.stringify(publication.manifest))
+}
+
 export async function syncWiki(concepts, entry) {
   const dirs = new Set(['', ...concepts.map(d => path.posix.dirname(d.path))])
   for (const dir of dirs) {
@@ -236,7 +308,9 @@ async function main() {
   } else if (command === 'sync') await syncWiki(concepts, process.argv.slice(3).join(' ') || '문서 목록과 연결을 점검하고 인덱스를 갱신했다.')
   else if (command === 'build') {
     await mkdir(path.join(projectRoot, 'src/generated'), { recursive: true })
-    await writeFile(path.join(projectRoot, 'src/generated/content.json'), JSON.stringify(compileBundle(concepts)))
+    const bundle = compileBundle(concepts)
+    await writeFile(path.join(projectRoot, 'src/generated/content.json'), JSON.stringify(bundle))
+    await writePublication(compilePublication(bundle))
   }
   process.stdout.write(`OKF 문서 ${concepts.length}개 · 공개 문서 ${concepts.filter(d => d.meta.published === true && d.meta.status === 'stable').length}개 · 출판 검사 통과\n`)
 }

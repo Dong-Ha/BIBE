@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises'
 test('legacy passage links, Korean verse search, and invalid state recovery work at the deployment base', async ({ page }) => {
   await page.goto('?thread=cross&passage=jn-20-24')
   await expect(page.getByRole('heading', { level: 1, name: '나의 주, 나의 하나님' })).toBeVisible()
-  await expect(page.getByRole('status')).toContainText('이전에 공유한 본문')
+  await expect(page.locator('.navigation-notice')).toContainText('이전에 공유한 본문')
   const search = page.getByRole('searchbox')
   await search.fill('요한복음 20:24')
   await search.press('Enter')
@@ -14,7 +14,7 @@ test('legacy passage links, Korean verse search, and invalid state recovery work
   await page.reload()
   await expect(page.getByRole('heading', { level: 1, name: '나의 주, 나의 하나님' })).toBeVisible()
   await page.goto('?doc=story&state=not-a-scene')
-  await expect(page.getByRole('status')).toContainText('처음 상태로 열었습니다')
+  await expect(page.locator('.navigation-notice')).toContainText('처음 상태로 열었습니다')
   await expect(page.getByRole('heading', { name: '떠남', exact: true })).toBeVisible()
 })
 
@@ -230,4 +230,154 @@ test('guides allow keyboard selection, recover invalid dates, and keep read mark
   await page.goto('?doc=church-disappointed-cautious-7-days&day=day-6')
   await expect(page.locator('.guide-reflection')).toContainText('용서와 신뢰 회복')
   await expect(page.locator('.guide-day-content')).toContainText('강제된 관계 회복')
+})
+
+test('home loads no article or search payload and search fetches one shared index', async ({ page }) => {
+  const payloads: string[] = []
+  page.on('request', request => { if (request.url().includes('/generated-content/')) payloads.push(request.url()) })
+  await page.goto('./')
+  await expect(page.locator('#questions .question-card')).toHaveCount(14)
+  expect(payloads).toEqual([])
+  await page.getByRole('searchbox').fill('은혜')
+  await page.getByRole('searchbox').press('Enter')
+  await expect(page.locator('.document-row').first()).toBeVisible()
+  expect(payloads).toHaveLength(1)
+  await page.getByRole('searchbox').fill('부활')
+  await page.getByRole('searchbox').press('Enter')
+  await expect(page.getByRole('heading', { name: '“부활” 찾기' })).toBeVisible()
+  await expect(page.locator('.document-row').first()).toBeVisible()
+  expect(payloads).toHaveLength(1)
+})
+
+test('a delayed article cannot replace a newer reading selection or a collection', async ({ page }) => {
+  let release!: () => void
+  let entered!: () => void
+  const requested = new Promise<void>(resolve => { entered = resolve })
+  const gate = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch()
+    const value = await response.json()
+    if (value.publicId === 'acceptance') { entered(); await gate }
+    await route.fulfill({ response })
+  })
+  await page.goto('?doc=acceptance')
+  await requested
+  await page.getByRole('link', { name: '자료와 출처', exact: true }).first().click()
+  await expect(page.getByRole('heading', { name: '근거를 따라 더 깊이 읽다' })).toBeVisible()
+  release()
+  await expect(page.locator('.reading-body')).toHaveCount(0)
+  await page.evaluate(() => { history.pushState({}, '', '?doc=church-hurt'); dispatchEvent(new PopStateEvent('popstate')) })
+  await expect(page.locator('.reading-body h1')).toHaveText('교회에 실망했는데 예수를 알아볼 수 있을까?')
+  await expect(page.locator('.reading-body')).not.toContainText('잘해야만 사랑받을 수 있을까?')
+})
+
+test('failed detail and search requests show retry and recover without losing the address', async ({ page }) => {
+  let failures = 0
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch(), value = await response.json()
+    if (value.publicId === 'story' && failures++ === 0) return route.fulfill({ status: 503, body: 'unavailable' })
+    await route.fulfill({ response })
+  })
+  await page.goto('?doc=story&state=resentment')
+  await expect(page.getByRole('alert')).toContainText('자료를 불러오지 못했습니다')
+  await expect(page.getByRole('button', { name: '페이지 새로고침' })).toBeVisible()
+  await page.getByRole('button', { name: '다시 시도', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '형의 분노', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(/state=resentment/)
+  await page.unrouteAll()
+  let indexFailures = 0
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch(), value = await response.json()
+    if (value.rows && indexFailures++ === 0) return route.fulfill({ status: 503, body: 'unavailable' })
+    await route.fulfill({ response })
+  })
+  await page.getByRole('searchbox').fill('은혜')
+  await page.getByRole('searchbox').press('Enter')
+  await expect(page.getByRole('alert')).toBeVisible()
+  await page.getByRole('button', { name: '다시 시도', exact: true }).click()
+  await expect(page.locator('.document-row').first()).toBeVisible()
+})
+
+test('experience state changes preserve text mode and do not fetch details again', async ({ page }) => {
+  const requests: string[] = []
+  page.on('request', request => { if (request.url().includes('/generated-content/')) requests.push(request.url()) })
+  await page.goto('?doc=story')
+  await page.getByRole('button', { name: '글로 보기', exact: true }).click()
+  const count = requests.length
+  await page.getByRole('group', { name: '이야기 장면' }).getByRole('button', { name: /형의 분노/ }).click()
+  await expect(page.getByRole('button', { name: '그림 보기', exact: true })).toBeVisible()
+  await expect(page.locator('.le-visual-panel')).toHaveCount(0)
+  expect(requests).toHaveLength(count)
+  expect(new Set(requests).size).toBe(requests.length)
+})
+
+test('late article responses cannot overwrite the next article', async ({ page }) => {
+  let release!: () => void, entered!: () => void, delayedUrl = ''
+  const waiting = new Promise<void>(resolve => { entered = resolve }), gate = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch(), value = await response.json()
+    if (value.publicId === 'acceptance') { delayedUrl = route.request().url(); entered(); await gate }
+    await route.fulfill({ response })
+  })
+  await page.goto('?doc=acceptance')
+  await waiting
+  await page.evaluate(() => { history.pushState({}, '', '?doc=church-hurt'); dispatchEvent(new PopStateEvent('popstate')) })
+  await expect(page.locator('.reading-body h1')).toHaveText('교회에 실망했는데 예수를 알아볼 수 있을까?')
+  const late = page.waitForResponse(response => response.url() === delayedUrl)
+  release()
+  await (await late).finished()
+  await expect(page.locator('.reading-body h1')).toHaveText('교회에 실망했는데 예수를 알아볼 수 있을까?')
+})
+
+test('changing query while the shared index loads shows only the current results', async ({ page }) => {
+  let release!: () => void, entered!: () => void
+  const waiting = new Promise<void>(resolve => { entered = resolve }), gate = new Promise<void>(resolve => { release = resolve })
+  let requests = 0
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch(), value = await response.json()
+    if (value.rows) { requests++; entered(); await gate }
+    await route.fulfill({ response })
+  })
+  await page.goto('?view=search&q=은혜')
+  await waiting
+  await page.getByRole('searchbox').fill('필요와 경계를 묻는 돌봄')
+  await page.getByRole('searchbox').press('Enter')
+  await expect(page.getByRole('heading', { name: '“필요와 경계를 묻는 돌봄” 찾기' })).toBeVisible()
+  release()
+  await expect(page.locator('.document-row').first()).toBeVisible()
+  expect(requests).toBe(1)
+  await expect(page.locator('.document-row')).toHaveCount(1)
+  await expect(page.locator('.document-row')).toHaveAttribute('href', '?doc=belonging-practice')
+})
+
+
+test('reading paths load their complete connection evidence without fetching linked passage bodies', async ({ page }) => {
+  const requests: string[] = []
+  page.on('request', request => { if (request.url().includes('/generated-content/')) requests.push(request.url()) })
+  await page.goto('?doc=path-cross')
+  await expect(page.getByRole('heading', { name: '연결을 따라 읽기' })).toBeVisible()
+  const relations = page.locator('.relation-options button')
+  const count = await relations.count()
+  expect(count).toBeGreaterThan(0)
+  expect(requests).toHaveLength(count + 1)
+  await relations.first().click()
+  await expect(page.locator('.relation-detail')).toContainText('근거:')
+  await page.locator('.relation-detail a').click()
+  await expect(page.locator('.source-section')).toBeVisible()
+  await page.goBack()
+  await expect(page.getByRole('heading', { name: '연결을 따라 읽기' })).toBeVisible()
+})
+
+
+test('losing the connection after opening home fails safely and retries after reconnection', async ({ page, context }) => {
+  await page.goto('./')
+  await expect(page.locator('#questions .question-card')).toHaveCount(14)
+  await context.setOffline(true)
+  await page.getByRole('link', { name: /잘해야만 사랑받을 수 있을까/ }).click()
+  await expect(page.getByRole('alert')).toBeVisible()
+  await expect(page.locator('.reading-body')).toHaveCount(0)
+  await context.setOffline(false)
+  await page.getByRole('button', { name: '다시 시도', exact: true }).click()
+  await expect(page.locator('.reading-body h1')).toHaveText('잘해야만 사랑받을 수 있을까?')
+  await expect(page.getByRole('heading', { name: '복음으로 읽기' })).toBeVisible()
 })

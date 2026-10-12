@@ -1,6 +1,10 @@
 import { test } from 'node:test'
+import { mkdtemp, mkdir, readFile, readdir, writeFile, rm } from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+import { createHash } from 'node:crypto'
 import assert from 'node:assert/strict'
-import { readConcept, publicationErrors, compileBundle, renderMarkdown } from './content.mjs'
+import { readConcept, publicationErrors, compileBundle, compilePublication, writePublication, renderMarkdown } from './content.mjs'
 
 const base = { type: 'Concept', title: '은혜', description: '설명', public_id: 'grace', status: 'stable', published: true, sources: [{ id: 'bible', resource: 'https://example.org/source' }] }
 function doc(meta = {}, body = '## 설명\n\n근거를 확인합니다.[^bible]\n\n[^bible]: 원자료') { return { id: 'concepts/grace', path: 'concepts/grace.md', meta: { ...base, ...meta }, body } }
@@ -69,4 +73,48 @@ test('daily guide publication checks unique days and target document types', () 
   assert.match(publicationErrors([{ ...guide, meta: { ...guide.meta, days: days.slice(0, 6) } }]).join(), /seven unique days/)
   assert.match(publicationErrors([{ ...guide, meta: { ...guide.meta, days: [...days.slice(0, 6), days[0]] } }]).join(), /seven unique days/)
   assert.match(publicationErrors([{ ...guide, meta: { ...guide.meta, days: days.map(day => ({ ...day, question: '/passages/p.md' })) } }, passage]).join(), /published Question/)
+})
+
+
+test('publication splits compact manifest, hashed details and complete search text deterministically', () => {
+  const definition = { kind: 'story', goal: '목표 검색어', before: '시작', after: '마침', transfer: '옮김', defaultState: 'one', states: [
+    { id: 'one', label: '처음', description: '첫 설명', evidence: ['증거 본문'] },
+    { id: 'two', label: '다음', description: '둘 설명', evidence: ['둘 근거'] },
+  ], nodes: [{ id: 'n', label: '노드 검색', detail: '노드 내용', reference: '창세기 1:1' }], edges: [] }
+  const sourceDoc = doc({ definition, days: Array.from({ length: 7 }, (_, i) => ({ id: `day-${i + 1}`, title: `날 ${i + 1}`, question: 'questions/q', passage: 'passages/p', focus: '날 초점 검색', reflection: '날 성찰', practice: '날 실천' })) }, '## 설명\n\n본문검색어[^bible]')
+  const bundle = compileBundle([sourceDoc])
+  const output = compilePublication(bundle)
+  const summary = output.manifest.documents[0]
+  assert.equal(summary.detailHash, createHash('sha256').update(JSON.stringify(bundle.documents[0])).digest('hex'))
+  assert.equal(summary.defaultState, 'one')
+  assert.deepEqual(summary.stateIds, ['one', 'two'])
+  assert.deepEqual(summary.dayIds, Array.from({ length: 7 }, (_, i) => `day-${i + 1}`))
+  assert.equal('sections' in summary, false)
+  assert.equal('sources' in summary, false)
+  assert.equal('definition' in summary, false)
+  assert.equal('days' in summary, false)
+  assert.ok(output.details.has(summary.detailHash))
+  const search = JSON.parse(output.search.serialized)
+  for (const term of ['본문검색어', '목표 검색어', '증거 본문', '날 초점 검색', '날 성찰', '날 실천']) assert.ok(search.rows[0].text.includes(term), term)
+  assert.deepEqual(compilePublication(bundle), output)
+  assert.deepEqual(output.manifest.legacy, bundle.legacy)
+})
+
+test('publication writer refuses to clean unmarked files and writes artifacts when directory is owned', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'bibe-publication-'))
+  try {
+    const outputDir = path.join(root, 'public', 'generated-content')
+    await mkdir(outputDir, { recursive: true })
+    await writeFile(path.join(outputDir, 'keep.txt'), 'user data')
+    const publication = compilePublication(compileBundle([doc()]))
+    await assert.rejects(writePublication(publication, root), /unmarked generated-content/)
+    assert.equal(await readFile(path.join(outputDir, 'keep.txt'), 'utf8'), 'user data')
+    await rm(path.join(outputDir, 'keep.txt'))
+    await writePublication(publication, root)
+    const entries = await readdir(outputDir)
+    assert.ok(entries.includes('.bibe-generated'))
+    assert.ok(entries.includes(`${publication.search.hash}.json`))
+    assert.ok(entries.includes(`${publication.manifest.documents[0].detailHash}.json`))
+    assert.equal(JSON.parse(await readFile(path.join(root, 'src/generated/manifest.json'), 'utf8')).schemaVersion, 1)
+  } finally { await rm(root, { recursive: true, force: true }) }
 })

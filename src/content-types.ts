@@ -101,3 +101,24 @@ export interface ContentBundle {
     connections: Record<string, string>
   }
 }
+
+
+export type ContentSummary = Omit<ContentDocument, 'sections' | 'sources' | 'searchText' | 'definition' | 'days' | 'logos' | 'generated' | 'verified' | 'relationship'> & {
+  detailHash: string
+  experienceKind?: ExperienceKind
+  defaultState?: string
+  stateIds?: string[]
+  dayIds?: string[]
+  relationship?: Pick<ExperienceEdge, 'source' | 'target' | 'kind'>
+}
+export interface PublicationManifest {
+  schemaVersion: number
+  documents: ContentSummary[]
+  legacy: ContentBundle['legacy']
+  searchHash: string
+}
+export interface ReadingPayload {
+  document: ContentDocument
+  experience?: InteractiveDefinition
+  relationships: ContentDocument[]
+}

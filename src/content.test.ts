@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, searchDocuments, studies, guides } from './content'
+import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
 
 describe('published content and navigation data', () => {
-  it('publishes a complete home, passage, concept, path, and experience corpus', () => {
+  it('publishes compact summaries and supports asynchronous detail loading', async () => {
     expect(documents.length).toBeGreaterThanOrEqual(60)
     expect(questions).toHaveLength(14)
     expect(Object.keys(bundle.legacy.passages)).toHaveLength(55)
@@ -11,11 +11,21 @@ describe('published content and navigation data', () => {
     expect(studies).toHaveLength(6)
     expect(passages).toHaveLength(84)
     expect(experiences).toHaveLength(11)
-    expect(passages.length).toBeGreaterThanOrEqual(55)
     expect(concepts.length).toBeGreaterThan(0)
-    expect(experiences.length).toBeGreaterThanOrEqual(4)
-    expect(new Set(experiences.map(doc => doc.definition?.kind))).toEqual(new Set(['story', 'connections', 'layers', 'perspectives']))
+    expect(guides).toHaveLength(3)
+    expect(new Set(experiences.map(doc => doc.experienceKind))).toEqual(new Set(['story', 'connections', 'layers', 'perspectives']))
     expect(new Set(documents.map(doc => doc.publicId)).size).toBe(documents.length)
+    for (const summary of documents) {
+      expect(summary).not.toHaveProperty('sections')
+      expect(summary).not.toHaveProperty('sources')
+      expect(summary).not.toHaveProperty('searchText')
+      expect(summary).not.toHaveProperty('definition')
+      expect(summary).not.toHaveProperty('days')
+      expect(summary).not.toHaveProperty('logos')
+    }
+    const detail = await loadDocument(documentByPublicId.get('acceptance')!.id)
+    expect(detail.sections.length).toBeGreaterThan(0)
+    expect(detail.sources.length).toBeGreaterThan(0)
   })
 
   it('maps all legacy passage and thread links to current documents', () => {
@@ -30,14 +40,14 @@ describe('published content and navigation data', () => {
     }
   })
 
-  it('searches Korean aliases and full Bible references', () => {
+  it('searches Korean aliases and full Bible references', async () => {
     const justification = documentByPublicId.get('justification')
     expect(justification?.aliases).toContain('의롭다 하심')
-    expect(searchDocuments('의롭다 하심').some(doc => doc.publicId === 'justification')).toBe(true)
+    expect((await searchDocuments('의롭다 하심')).some(doc => doc.publicId === 'justification')).toBe(true)
 
     const passage = passages.find(doc => doc.reference === '요한복음 20:24–29')
     expect(passage).toBeDefined()
-    expect(searchDocuments('요한복음 20:24–29').some(doc => doc.id === passage!.id)).toBe(true)
+    expect((await searchDocuments('요한복음 20:24–29')).some(doc => doc.id === passage!.id)).toBe(true)
   })
 
   it('resolves the historic cross thread and passage URL to the same Scripture document', () => {
@@ -54,9 +64,8 @@ describe('published content and navigation data', () => {
   })
 })
 
-
 describe('book reading paths', () => {
-  it('preserves source scope and resolves linked books in the knowledge graph', () => {
+  it('preserves source scope and resolves linked books in the knowledge graph', async () => {
     expect(readNavigation('?view=library').view).toBe('library')
     for (const study of studies) {
       expect(study.books.length).toBeGreaterThan(0)
@@ -65,29 +74,30 @@ describe('book reading paths', () => {
         const book = documents.find(doc => doc.id === bookId)!
         expect(book.type).toBe('Reference')
         expect(book.backlinks).toContain(study.id)
-        expect(book.logos?.uri).toMatch(/^logosres:[a-z0-9]+$/)
+        const fullBook = await loadDocument(book.id)
+        expect(fullBook.logos?.uri).toMatch(/^logosres:[a-z0-9]+$/)
       }
     }
-    const galatians = documentByPublicId.get('logosbook-keller-galatians')!
+    const galatians = await loadDocument(documentByPublicId.get('logosbook-keller-galatians')!.id)
     expect(galatians.logos?.access).toContain('local-body-excerpt')
     expect(galatians.sections.map(section => section.html).join(' ')).toContain('한국어판 전체를 읽은 것은 아니며')
-    expect(searchDocuments('갈라디아서 5:13').some(doc => doc.publicId === 'gal-5-13')).toBe(true)
+    expect((await searchDocuments('갈라디아서 5:13')).some(doc => doc.publicId === 'gal-5-13')).toBe(true)
   })
 })
 
-
-it('finds article body text and interactive states after eliminating duplicate generated text', () => {
-  expect(searchDocuments('인정·편안함·통제').some(doc => doc.publicId === 'logosbook-keller-galatians')).toBe(true)
-  expect(searchDocuments('정죄하지').some(doc => doc.publicId === 'conscience')).toBe(true)
-  expect(searchDocuments('필요와 경계를 묻는 돌봄').some(doc => doc.publicId === 'belonging-practice')).toBe(true)
+it('finds article body text and interactive states after eliminating duplicate generated text', async () => {
+  expect((await searchDocuments('인정·편안함·통제')).some(doc => doc.publicId === 'logosbook-keller-galatians')).toBe(true)
+  expect((await searchDocuments('정죄하지')).some(doc => doc.publicId === 'conscience')).toBe(true)
+  expect((await searchDocuments('필요와 경계를 묻는 돌봄')).some(doc => doc.publicId === 'belonging-practice')).toBe(true)
 })
 
-
-it('validates guide day addresses, links and searches their authored prompts', () => {
+it('validates guide day addresses, links and searches their authored prompts', async () => {
   expect(guides).toHaveLength(3)
   for (const guide of guides) {
-    expect(guide.days).toHaveLength(7)
-    for (const day of guide.days!) {
+    expect(guide.dayIds).toHaveLength(7)
+    const fullGuide = await loadDocument(guide.id)
+    expect(fullGuide.days).toHaveLength(7)
+    for (const day of fullGuide.days!) {
       expect(documents.find(doc => doc.id === day.question)?.type).toBe('Question')
       expect(documents.find(doc => doc.id === day.passage)?.backlinks).toContain(guide.id)
     }
@@ -97,5 +107,29 @@ it('validates guide day addresses, links and searches their authored prompts', (
   const invalid = readNavigation('?doc=return-to-grace-7-days&day=missing')
   expect(invalid.dayId).toBe('day-1')
   expect(invalid.notice).toContain('첫날')
-  expect(searchDocuments('선한 창조').some(doc => doc.publicId === 'explore-christianity-7-days')).toBe(true)
+  expect((await searchDocuments('선한 창조')).some(doc => doc.publicId === 'explore-christianity-7-days')).toBe(true)
+})
+
+it('loads the reading experience and its related documents as one payload', async () => {
+  const story = documentByPublicId.get('story')!
+  const payload = await loadReadingPayload(story.id)
+  expect(payload.document.publicId).toBe('story')
+  expect(payload.experience?.states.some(state => state.id === 'resentment')).toBe(true)
+  expect(payload.experience?.kind).toBe('story')
+  const path = documentByPublicId.get('path-cross')!
+  const pathPayload = await loadReadingPayload(path.id)
+  expect(pathPayload.relationships.length).toBeGreaterThan(0)
+  expect(pathPayload.relationships.every(relation => relation.type === 'Relationship')).toBe(true)
+})
+
+
+it('loads every published detail with matching guide and experience navigation metadata', async () => {
+  const loaded = await Promise.all(documents.map(summary => loadDocument(summary.id)))
+  expect(loaded).toHaveLength(237)
+  for (let i = 0; i < documents.length; i++) {
+    expect(loaded[i].publicId).toBe(documents[i].publicId)
+    expect(loaded[i].backlinks).toEqual(documents[i].backlinks)
+    expect(loaded[i].days?.map(day => day.id)).toEqual(documents[i].dayIds)
+    expect(loaded[i].definition?.states.map(state => state.id)).toEqual(documents[i].stateIds)
+  }
 })

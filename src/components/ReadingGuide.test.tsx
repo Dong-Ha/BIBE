@@ -1,10 +1,16 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { beforeEach, expect, it, vi } from 'vitest'
-import { documentByPublicId } from '../content'
+import { beforeAll, beforeEach, expect, it, vi } from 'vitest'
+import { documentByPublicId, loadDocument } from '../content'
+import type { ContentDocument } from '../content-types'
 import ReadingGuide from './ReadingGuide'
 
-const doc = documentByPublicId.get('return-to-grace-7-days')!
-const storageKey = `bibe-reading-guide:${doc.publicId}`
+const summary = documentByPublicId.get('return-to-grace-7-days')!
+let doc: ContentDocument
+let storageKey: string
+beforeAll(async () => {
+  doc = await loadDocument(summary.id)
+  storageKey = `bibe-reading-guide:${doc.publicId}`
+})
 beforeEach(() => { localStorage.clear(); vi.restoreAllMocks() })
 
 it('selects a day without locking later days and persists only explicit read marks', () => {

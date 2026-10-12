@@ -16,7 +16,7 @@ export default function ReadingGuide({ doc, dayId, onDayChange, onOpen }: {
   doc: ContentDocument
   dayId?: string
   onDayChange: (id: string) => void
-  onOpen: (doc: ContentDocument) => void
+  onOpen: (doc: { publicId: string }) => void
 }) {
   const days = doc.days!
   const index = Math.max(0, days.findIndex(day => day.id === dayId)), day = days[index]

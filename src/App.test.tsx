@@ -28,18 +28,18 @@ describe('question and reading experience', () => {
     setUrl('/BIBE/?doc=acceptance')
     render(<App />)
     expect(screen.getByRole('heading', { level: 1, name: '잘해야만 사랑받을 수 있을까?' })).toBeInTheDocument()
-    const source = screen.getByRole('link', { name: /The Prodigal Sons/ })
+    const source = await screen.findByRole('link', { name: /The Prodigal Sons/ })
     expect(source).toHaveAttribute('href', expect.stringContaining('doc=keller-prodigal'))
     expect(screen.getByRole('link', { name: /누가복음 15:1–32/ })).toHaveAttribute('href', expect.stringContaining('bible.bskorea.or.kr'))
-    const deepReading = screen.getByText('깊은 읽기와 해석의 근거').closest('details')!
+    const deepReading = (await screen.findByText('깊은 읽기와 해석의 근거')).closest('details')!
     fireEvent.click(within(deepReading).getByText('깊은 읽기와 해석의 근거'))
     expect(within(deepReading).getByText(/저자 자료 요약은/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('link', { name: /칭의/ }))
+    await waitFor(() => expect(window.location.search).toContain('doc=justification'))
     expect(await screen.findByRole('heading', { level: 1, name: '칭의' })).toBeInTheDocument()
-    expect(window.location.search).toContain('doc=justification')
   })
 
-  it('handles an invalid document and invalid experience state with a useful notice', () => {
+  it('handles an invalid document and invalid experience state with a useful notice', async () => {
     setUrl('/BIBE/?doc=not-a-page')
     const { unmount } = render(<App />)
     expect(screen.getByRole('status')).toHaveTextContent('찾을 수 없는 주소')
@@ -48,25 +48,27 @@ describe('question and reading experience', () => {
 
     setUrl('/BIBE/?doc=story&state=not-a-scene')
     render(<App />)
-    expect(screen.getByRole('status')).toHaveTextContent('탐색 상태를 찾을 수 없어 처음 상태로 열었습니다.')
-    expect(screen.getByRole('heading', { level: 1, name: '두 아들과 아버지의 이야기' })).toBeInTheDocument()
+    expect(await screen.findByText('탐색 상태를 찾을 수 없어 처음 상태로 열었습니다.')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: '두 아들과 아버지의 이야기' })).toBeInTheDocument()
   })
 
   it('restores a document after browser popstate navigation', async () => {
     render(<App />)
     fireEvent.click(screen.getByRole('link', { name: /잘해야만 사랑받을 수 있을까/ }))
+    await waitFor(() => expect(window.location.search).toContain('doc=acceptance'))
     expect(await screen.findByRole('heading', { level: 1, name: '잘해야만 사랑받을 수 있을까?' })).toBeInTheDocument()
     window.history.pushState({}, '', '/BIBE/?doc=church-hurt')
-    window.dispatchEvent(new PopStateEvent('popstate'))
+    fireEvent(window, new PopStateEvent('popstate'))
+    await waitFor(() => expect(window.location.search).toContain('doc=church-hurt'))
     expect(await screen.findByRole('heading', { level: 1, name: '교회에 실망했는데 예수를 알아볼 수 있을까?' })).toBeInTheDocument()
   })
 
   it('copies the current document and selected experience state to the clipboard', async () => {
     setUrl('/BIBE/?doc=story')
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: /형의 분노/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /형의 분노/ }))
     expect(window.location.search).toContain('state=resentment')
-    fireEvent.click(screen.getByRole('button', { name: /이 페이지 공유/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /이 페이지 공유/ }))
     await waitFor(() => expect(clipboardWrite).toHaveBeenCalledWith(expect.stringContaining('doc=story')))
     expect(clipboardWrite.mock.calls[0][0]).toContain('state=resentment')
     expect(await screen.findByRole('button', { name: /링크 복사됨/ })).toBeInTheDocument()

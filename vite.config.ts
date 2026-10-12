@@ -9,7 +9,6 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.indexOf('/node_modules/') !== -1) return 'vendor'
-          if (/\/src\/generated\/content\.json$/.test(id)) return 'content'
         },
       },
     },
