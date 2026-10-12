@@ -77,7 +77,7 @@ test('daily guide publication checks unique days and target document types', () 
 
 
 test('publication splits compact manifest, hashed details and complete search text deterministically', () => {
-  const definition = { kind: 'story', goal: '목표 검색어', before: '시작', after: '마침', transfer: '옮김', defaultState: 'one', states: [
+  const definition = { kind: 'story', title: '체험 제목 검색', goal: '목표 검색어', before: '시작', after: '마침', transfer: '옮김', defaultState: 'one', states: [
     { id: 'one', label: '처음', description: '첫 설명', evidence: ['증거 본문'] },
     { id: 'two', label: '다음', description: '둘 설명', evidence: ['둘 근거'] },
   ], nodes: [{ id: 'n', label: '노드 검색', detail: '노드 내용', reference: '창세기 1:1' }], edges: [] }
@@ -95,7 +95,7 @@ test('publication splits compact manifest, hashed details and complete search te
   assert.equal('days' in summary, false)
   assert.ok(output.details.has(summary.detailHash))
   const search = JSON.parse(output.search.serialized)
-  for (const term of ['본문검색어', '목표 검색어', '증거 본문', '날 초점 검색', '날 성찰', '날 실천']) assert.ok(search.rows[0].text.includes(term), term)
+  for (const term of ['체험 제목 검색', '본문검색어', '목표 검색어', '증거 본문', '날 초점 검색', '날 성찰', '날 실천']) assert.ok(search.rows[0].text.includes(term), term)
   assert.deepEqual(compilePublication(bundle), output)
   assert.deepEqual(output.manifest.legacy, bundle.legacy)
 })
@@ -117,4 +117,17 @@ test('publication writer refuses to clean unmarked files and writes artifacts wh
     assert.ok(entries.includes(`${publication.manifest.documents[0].detailHash}.json`))
     assert.equal(JSON.parse(await readFile(path.join(root, 'src/generated/manifest.json'), 'utf8')).schemaVersion, 1)
   } finally { await rm(root, { recursive: true, force: true }) }
+})
+
+
+test('publication rejects numeric scripture evidence before it reaches the browser', () => {
+  const definition = { kind: 'story', goal: '목표', before: '시작', after: '마침', transfer: '적용', defaultState: 'one', nodes: [{ id: 'n' }], edges: [], states: [
+    { id: 'one', label: '첫째', description: '설명', evidence: ['마태복음 6:8', 13] },
+    { id: 'two', label: '둘째', description: '설명', evidence: ['마태복음 6:13'] },
+  ] }
+  assert.match(publicationErrors([doc({ definition })]).join(), /needs explanation and evidence/)
+  definition.states[0].evidence = ['마태복음 6:8, 13']
+  assert.deepEqual(publicationErrors([doc({ definition })]), [])
+  definition.edges = [{ id: 'e', source: 'n', target: 'n', kind: 'direct', explanation: '연결', evidence: [13] }]
+  assert.match(publicationErrors([doc({ definition })]).join(), /invalid experience edge/)
 })

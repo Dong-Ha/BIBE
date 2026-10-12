@@ -67,9 +67,10 @@ function SvgMap({
   </svg>
 }
 
-export function LearningExperience({ definition, stateId, onStateChange }: {
+export function LearningExperience({ definition, stateId, resetStateId, onStateChange }: {
   definition: InteractiveDefinition
   stateId: string
+  resetStateId?: string
   onStateChange: (id: string) => void
 }) {
   const [textMode, setTextMode] = useState(false)
@@ -142,7 +143,7 @@ export function LearningExperience({ definition, stateId, onStateChange }: {
         <div className="le-evidence"><span>본문에서 확인하기</span><ul>{evidence.map((item) => <li key={item}>{item}</li>)}</ul></div>
         <div className="le-reflection"><span>발견 돌아보기</span><p>{definition.after}</p></div>
         <div className="le-transfer"><span>새 상황에 옮겨 보기</span><p>{definition.transfer}</p></div>
-        <button className="le-reset" type="button" onClick={() => { setPlaying(false); setSelectedNode(null); setSelectedEdge(null); setPerspective('both'); onStateChange(definition.defaultState) }}>처음부터 다시 살펴보기</button>
+        <button className="le-reset" type="button" onClick={() => { setPlaying(false); setSelectedNode(null); setSelectedEdge(null); setPerspective('both'); onStateChange(definition.states.some(state => state.id === resetStateId) ? resetStateId! : definition.defaultState) }}>처음부터 다시 살펴보기</button>
       </div>
     </div>
     <details className="le-text-alternative"><summary>그림 없이 내용 전체 읽기</summary><ol>{definition.states.map((state) => <li key={state.id}><strong>{state.label}</strong><p>{state.description}</p><p>본문: {state.evidence.join(' · ')}</p></li>)}</ol><ul>{definition.nodes.map((node) => <li key={node.id}><strong>{node.label} ({node.reference})</strong> — {node.detail}</li>)}</ul></details>

@@ -18,9 +18,9 @@ test('legacy passage links, Korean verse search, and invalid state recovery work
   await expect(page.getByRole('heading', { name: '떠남', exact: true })).toBeVisible()
 })
 
-test('home opens fourteen question paths and a question reveals sources and deep reading', async ({ page }) => {
+test('home opens seventeen question paths and a question reveals sources and deep reading', async ({ page }) => {
   await page.goto('./')
-  await expect(page.locator('#questions .question-card')).toHaveCount(14)
+  await expect(page.locator('#questions .question-card')).toHaveCount(17)
   await page.getByRole('link', { name: /잘해야만 사랑받을 수 있을까/ }).click()
   await expect(page.getByRole('heading', { level: 1, name: '잘해야만 사랑받을 수 있을까?' })).toBeVisible()
   await page.getByText('깊은 읽기와 해석의 근거').click()
@@ -99,11 +99,11 @@ test('layers support keyboard adjustment, text mode, and state restoration', asy
   await expect(page.getByRole('heading', { name: '믿음으로 받음' })).toBeVisible()
 })
 
-test('all eleven experience pages cover the four learning modes in the direct exploration collection', async ({ page }) => {
+test('all thirteen experience pages cover the four learning modes in the direct exploration collection', async ({ page }) => {
   await page.goto('?view=experiences')
   await expect(page.getByRole('heading', { level: 1, name: '읽고, 움직이고, 발견하다' })).toBeVisible()
-  await expect(page.locator('.question-card')).toHaveCount(11)
-  for (const title of ['두 아들과 아버지의 이야기', '유월절과 예수의 십자가', '은혜와 변화의 관계', '실패와 비판, 용서를 바라보는 두 관점', '부활의 증언과 그 의미']) {
+  await expect(page.locator('.question-card')).toHaveCount(13)
+  for (const title of ['두 아들과 아버지의 이야기', '유월절과 예수의 십자가', '은혜와 변화의 관계', '실패와 비판, 용서를 바라보는 두 관점', '부활의 증언과 그 의미', '주기도문의 흐름 따라 읽기', '기다림과 말없음의 두 관점']) {
     await expect(page.getByRole('link', { name: new RegExp(title) })).toBeVisible()
   }
 })
@@ -136,7 +136,7 @@ test('captures review screenshots for the main reading routes', async ({ page },
 
 test('book reading paths link to passages, source scope and the installed Logos resource', async ({ page }) => {
   await page.goto('?view=library')
-  await expect(page.locator('.question-card')).toHaveCount(6)
+  await expect(page.locator('.question-card')).toHaveCount(7)
   await page.getByRole('link', { name: /갈라디아서: 은혜가 낳는 자유와 열매/ }).click()
   await expect(page.getByRole('heading', { level: 1, name: '갈라디아서: 은혜가 낳는 자유와 열매' })).toBeVisible()
   await expect(page.getByRole('heading', { name: '복음의 자유와 이웃 사랑' })).toBeVisible()
@@ -236,7 +236,7 @@ test('home loads no article or search payload and search fetches one shared inde
   const payloads: string[] = []
   page.on('request', request => { if (request.url().includes('/generated-content/')) payloads.push(request.url()) })
   await page.goto('./')
-  await expect(page.locator('#questions .question-card')).toHaveCount(14)
+  await expect(page.locator('#questions .question-card')).toHaveCount(17)
   expect(payloads).toEqual([])
   await page.getByRole('searchbox').fill('은혜')
   await page.getByRole('searchbox').press('Enter')
@@ -371,7 +371,7 @@ test('reading paths load their complete connection evidence without fetching lin
 
 test('losing the connection after opening home fails safely and retries after reconnection', async ({ page, context }) => {
   await page.goto('./')
-  await expect(page.locator('#questions .question-card')).toHaveCount(14)
+  await expect(page.locator('#questions .question-card')).toHaveCount(17)
   await context.setOffline(true)
   await page.getByRole('link', { name: /잘해야만 사랑받을 수 있을까/ }).click()
   await expect(page.getByRole('alert')).toBeVisible()
@@ -380,4 +380,46 @@ test('losing the connection after opening home fails safely and retries after re
   await page.getByRole('button', { name: '다시 시도', exact: true }).click()
   await expect(page.locator('.reading-body h1')).toHaveText('잘해야만 사랑받을 수 있을까?')
   await expect(page.getByRole('heading', { name: '복음으로 읽기' })).toBeVisible()
+})
+
+
+test('prayer questions open their intended state, share and restore exploration, and link the three-session study', async ({ page, context }, testInfo) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('?doc=prayer-start')
+  await expect(page.getByRole('heading', { level: 1, name: '기도를 어떻게 시작할 수 있을까?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '아버지께 나아감', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: '주기도문의 여섯 초점' })).toBeVisible()
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1)
+  const viewportName = testInfo.project.name.startsWith('mobile') ? 'mobile' : 'desktop'
+  await page.screenshot({ path: `/tmp/bibe-prayer-${viewportName}.png`, fullPage: true })
+  const prayerSteps = page.getByRole('group', { name: '이야기 장면' })
+  await prayerSteps.getByRole('button', { name: /나라와 뜻을 구함/ }).click()
+  await expect(page).toHaveURL(/state=kingdom/)
+  await page.getByRole('button', { name: '이 페이지 공유' }).click()
+  await expect(page.getByRole('button', { name: '링크 복사됨' })).toBeVisible()
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('state=kingdom')
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '나라와 뜻을 구함', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '처음부터 다시 살펴보기' }).click()
+  await expect(page).toHaveURL(/state=father/)
+
+  await page.goto('?doc=unanswered-prayer')
+  await expect(page.getByRole('heading', { name: '기다림 · 관계 안에서 말함', exact: true })).toBeVisible()
+  const perspectives = page.getByRole('group', { name: '상황과 관점 선택' })
+  await perspectives.getByRole('button', { name: '기다림 · 거래처럼 느껴짐' }).click()
+  await expect(page).toHaveURL(/state=waiting-bargain/)
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '기다림 · 거래처럼 느껴짐', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '처음부터 다시 살펴보기' }).click()
+  await expect(page).toHaveURL(/state=waiting-relationship/)
+  await page.goto('?doc=prayer-silence')
+  await expect(page.getByRole('heading', { name: '말없음 · 연약함을 맡김', exact: true })).toBeVisible()
+
+  await page.goto('?doc=study-prayer-with-scripture')
+  for (const title of ['예수께서 가르치신 기도의 방향', '기다림과 겟세마네의 기도', '말로 다 못 하는 연약함']) {
+    await expect(page.getByRole('heading', { level: 2, name: new RegExp(title) })).toBeVisible()
+  }
+  await page.goto('?view=search&q=성령의%20도우심')
+  await expect(page.getByRole('heading', { name: '“성령의 도우심” 찾기' })).toBeVisible()
+  await expect(page.locator('.document-row').filter({ hasText: '말이 나오지 않을 때도 기도할 수 있을까?' })).toBeVisible()
 })

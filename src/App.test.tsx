@@ -16,11 +16,11 @@ describe('question and reading experience', () => {
     vi.stubGlobal('scrollTo', vi.fn())
   })
 
-  it('starts with fourteen life and faith questions and six book reading paths', () => {
+  it('starts with seventeen life and faith questions and seven book reading paths', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: '지금의 질문에서, 다시 복음으로.' })).toBeInTheDocument()
-    expect(document.querySelectorAll('#questions .question-card')).toHaveLength(14)
-    expect(document.querySelectorAll('[aria-label="책과 함께 읽기"] .question-card')).toHaveLength(6)
+    expect(document.querySelectorAll('#questions .question-card')).toHaveLength(17)
+    expect(document.querySelectorAll('[aria-label="책과 함께 읽기"] .question-card')).toHaveLength(7)
     expect(screen.getByRole('link', { name: /교회에 실망했는데 예수를 알아볼 수 있을까/ })).toBeInTheDocument()
   })
 
@@ -80,5 +80,44 @@ describe('question and reading experience', () => {
     fireEvent.click(screen.getByRole('button', { name: /이 페이지 공유/ }))
     const fallback = await screen.findByRole('textbox', { name: '현재 주소를 복사하세요' })
     expect(fallback).toHaveValue(window.location.href)
+  })
+})
+
+
+describe('prayer reading and state links', () => {
+  beforeEach(() => {
+    setUrl('/BIBE/')
+    clipboardWrite.mockReset().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: clipboardWrite } })
+  })
+
+  it('opens the Lord’s Prayer experience, shares its state, restores it on reload, and resets', async () => {
+    setUrl('/BIBE/?doc=prayer-start')
+    const { unmount } = render(<App />)
+    expect(await screen.findByRole('heading', { level: 2, name: '주기도문의 여섯 초점' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: '기도를 어떻게 시작할 수 있을까?' })).toBeInTheDocument()
+    const scenes = await screen.findByRole('group', { name: '이야기 장면' })
+    fireEvent.click(within(scenes).getByRole('button', { name: /나라와 뜻을 구함/ }))
+    expect(window.location.search).toContain('state=kingdom')
+    fireEvent.click(screen.getByRole('button', { name: /이 페이지 공유/ }))
+    await waitFor(() => expect(clipboardWrite).toHaveBeenCalledWith(expect.stringContaining('state=kingdom')))
+
+    unmount()
+    setUrl('/BIBE/?doc=prayer-start&state=kingdom')
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: '나라와 뜻을 구함' })).toBeInTheDocument()
+    fireEvent.click(await screen.findByRole('button', { name: '처음부터 다시 살펴보기' }))
+    expect(window.location.search).toContain('state=father')
+    expect(await screen.findByRole('heading', { name: '아버지께 나아감' })).toBeInTheDocument()
+  })
+
+  it('starts waiting and silence questions in their selected perspective states', async () => {
+    setUrl('/BIBE/?doc=unanswered-prayer')
+    const { unmount } = render(<App />)
+    expect(await screen.findByRole('heading', { name: '기다림 · 관계 안에서 말함' })).toBeInTheDocument()
+    unmount()
+    setUrl('/BIBE/?doc=prayer-silence')
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: '말없음 · 연약함을 맡김' })).toBeInTheDocument()
   })
 })

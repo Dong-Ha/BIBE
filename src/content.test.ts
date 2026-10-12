@@ -3,14 +3,14 @@ import { bundle, concepts, documentByPublicId, documents, experiences, passages,
 
 describe('published content and navigation data', () => {
   it('publishes compact summaries and supports asynchronous detail loading', async () => {
-    expect(documents.length).toBeGreaterThanOrEqual(60)
-    expect(questions).toHaveLength(14)
+    expect(documents).toHaveLength(251)
+    expect(questions).toHaveLength(17)
     expect(Object.keys(bundle.legacy.passages)).toHaveLength(55)
     expect(Object.keys(bundle.legacy.threads)).toHaveLength(11)
     expect(paths).toHaveLength(11)
-    expect(studies).toHaveLength(6)
-    expect(passages).toHaveLength(84)
-    expect(experiences).toHaveLength(11)
+    expect(studies).toHaveLength(7)
+    expect(passages).toHaveLength(89)
+    expect(experiences).toHaveLength(13)
     expect(concepts.length).toBeGreaterThan(0)
     expect(guides).toHaveLength(3)
     expect(new Set(experiences.map(doc => doc.experienceKind))).toEqual(new Set(['story', 'connections', 'layers', 'perspectives']))
@@ -125,11 +125,46 @@ it('loads the reading experience and its related documents as one payload', asyn
 
 it('loads every published detail with matching guide and experience navigation metadata', async () => {
   const loaded = await Promise.all(documents.map(summary => loadDocument(summary.id)))
-  expect(loaded).toHaveLength(237)
+  expect(loaded).toHaveLength(251)
   for (let i = 0; i < documents.length; i++) {
     expect(loaded[i].publicId).toBe(documents[i].publicId)
     expect(loaded[i].backlinks).toEqual(documents[i].backlinks)
     expect(loaded[i].days?.map(day => day.id)).toEqual(documents[i].dayIds)
     expect(loaded[i].definition?.states.map(state => state.id)).toEqual(documents[i].stateIds)
   }
+})
+
+
+it('publishes prayer questions with matching experience defaults and three-session study links', async () => {
+  const prayerStart = documentByPublicId.get('prayer-start')!
+  const unanswered = documentByPublicId.get('unanswered-prayer')!
+  const prayerSilence = documentByPublicId.get('prayer-silence')!
+  expect([prayerStart.order, unanswered.order, prayerSilence.order]).toEqual([15, 16, 17])
+  expect(prayerStart.experienceState).toBeUndefined()
+  expect(readNavigation('?doc=prayer-start').stateId).toBe('father')
+  expect(readNavigation('?doc=unanswered-prayer').stateId).toBe('waiting-relationship')
+  expect(readNavigation('?doc=prayer-silence').stateId).toBe('honest-heart')
+
+  const startPayload = await loadReadingPayload(prayerStart.id)
+  expect(startPayload.experience?.id).toBe('prayer-pattern')
+  expect(startPayload.experience?.states.map(state => state.id)).toEqual(['father', 'name', 'kingdom', 'bread', 'forgiveness', 'help'])
+  const waitingPayload = await loadReadingPayload(unanswered.id)
+  expect(waitingPayload.experience?.id).toBe('prayer-perspectives')
+  expect(waitingPayload.experience?.states.map(state => state.id)).toEqual(['waiting-bargain', 'waiting-relationship', 'words-blocked', 'honest-heart'])
+  const silencePayload = await loadReadingPayload(prayerSilence.id)
+  expect(silencePayload.experience?.defaultState).toBe('waiting-bargain')
+
+  const study = await loadDocument(documentByPublicId.get('study-prayer-with-scripture')!.id)
+  expect(study.passages.map(id => documents.find(doc => doc.id === id)?.type)).toEqual(Array(6).fill('Bible Passage'))
+  expect(study.books.map(id => documents.find(doc => doc.id === id)?.type)).toEqual(['Reference'])
+  expect(study.sections.filter(section => /^\d\. /.test(section.title))).toHaveLength(3)
+  for (const title of ['예수께서 가르치신 기도의 방향', '기다림과 겟세마네의 기도', '말로 다 못 하는 연약함']) {
+    expect(study.sections.find(section => section.title.includes(title))?.html).toContain('?doc=')
+  }
+})
+
+it('searches new prayer article and experience prose through the shared index', async () => {
+  expect((await searchDocuments('말이 나오지 않을 때도 기도할 수 있을까')).some(doc => doc.publicId === 'prayer-silence')).toBe(true)
+  expect((await searchDocuments('주기도문의 여섯 초점')).some(doc => doc.publicId === 'prayer-pattern')).toBe(true)
+  expect((await searchDocuments('성령의 도우심')).some(doc => doc.publicId === 'prayer-silence')).toBe(true)
 })

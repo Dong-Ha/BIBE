@@ -81,3 +81,15 @@ it('exposes each cumulative connection stage even when it is not a single edge-k
   fireEvent.click(screen.getByRole('button', { name: '함께 돌보기' }))
   expect(onStateChange).toHaveBeenCalledWith('complete')
 })
+
+
+it('resets to the reading page’s initial state and falls back for unknown overrides', () => {
+  const onStateChange = vi.fn()
+  const def = definition('story', states)
+  const { rerender } = render(<LearningExperience definition={def} stateId="start" resetStateId="end" onStateChange={onStateChange} />)
+  fireEvent.click(screen.getByRole('button', { name: '처음부터 다시 살펴보기' }))
+  expect(onStateChange).toHaveBeenLastCalledWith('end')
+  rerender(<LearningExperience definition={def} stateId="end" resetStateId="missing" onStateChange={onStateChange} />)
+  fireEvent.click(screen.getByRole('button', { name: '처음부터 다시 살펴보기' }))
+  expect(onStateChange).toHaveBeenLastCalledWith('start')
+})

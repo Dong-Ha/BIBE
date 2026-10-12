@@ -59,6 +59,8 @@ export async function loadConcepts(root = wikiRoot) {
 const relationKinds = ['direct', 'promise', 'theme', 'application']
 const experienceKinds = ['story', 'connections', 'layers', 'perspectives']
 
+const validEvidence = value => Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && item.trim())
+
 export function publicationErrors(concepts) {
   const errors = []
   const publicDocs = concepts.filter(d => d.meta.published === true && d.meta.status === 'stable')
@@ -125,7 +127,7 @@ export function publicationErrors(concepts) {
     if (meta.type === 'Bible Passage' && (!meta.reference || !body.includes('## 본문과 맥락') || !body.includes('## 복음으로 읽기'))) fail('passage needs reference, context and gospel explanation')
     if (meta.relationship) {
       const relation = meta.relationship
-      if (!relationKinds.includes(relation.kind) || !relation.explanation || !relation.evidence?.length) fail('relationship requires kind, explanation and evidence')
+      if (!relationKinds.includes(relation.kind) || !relation.explanation || !validEvidence(relation.evidence)) fail('relationship requires kind, explanation and evidence')
       for (const target of [relation.from, relation.to]) if (!byId.has(target?.replace(/^\//, '').replace(/\.md$/, ''))) fail(`missing relationship endpoint ${target}`)
     }
     if (meta.definition) {
@@ -138,11 +140,11 @@ export function publicationErrors(concepts) {
       if (new Set(states.map(s => s.id)).size !== states.length) fail('duplicate experience state')
       if (nodeIds.size !== (def.nodes ?? []).length || edgeIds.size !== (def.edges ?? []).length) fail('duplicate experience node or edge')
       for (const state of states) {
-        if (!state.label || !state.description || !state.evidence?.length) fail(`state ${state.id} needs explanation and evidence`)
+        if (!state.label || !state.description || !validEvidence(state.evidence)) fail(`state ${state.id} needs explanation and evidence`)
         for (const node of state.activeNodes ?? []) if (!nodeIds.has(node)) fail(`unknown active node ${node}`)
         for (const edge of state.activeEdges ?? []) if (!edgeIds.has(edge)) fail(`unknown active edge ${edge}`)
       }
-      for (const edge of def.edges ?? []) if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target) || !relationKinds.includes(edge.kind) || !edge.explanation || !edge.evidence?.length) fail(`invalid experience edge ${edge.id}`)
+      for (const edge of def.edges ?? []) if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target) || !relationKinds.includes(edge.kind) || !edge.explanation || !validEvidence(edge.evidence)) fail(`invalid experience edge ${edge.id}`)
     }
     for (const actor of [meta.generated, ...([meta.verified].flat())].filter(Boolean)) {
       if (!actor.by || !/^(human:|process:|[^/]+\/)/.test(actor.by) || !actor.at || !/T.*(?:Z|[+-]\d\d:\d\d)$/.test(actor.at)) fail('invalid actor or timestamp')
@@ -210,7 +212,7 @@ function plainText(html) {
 }
 function searchTextFor(doc) {
   const definition = doc.definition
-  const definitionText = definition ? [definition.goal, definition.before, definition.after, definition.transfer,
+  const definitionText = definition ? [definition.title, definition.goal, definition.before, definition.after, definition.transfer,
     ...(definition.states ?? []).flatMap(state => [state.label, state.description, ...(state.evidence ?? [])]),
     ...(definition.nodes ?? []).flatMap(node => [node.label, node.detail, node.reference]),
     ...(definition.edges ?? []).flatMap(edge => [edge.explanation, ...(edge.evidence ?? [])])].filter(Boolean) : []
