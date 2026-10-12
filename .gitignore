@@ -4,3 +4,8 @@ graphify-out/
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+src/generated/
+test-results/
+playwright-report/
+raw/snapshots/
+artifacts/

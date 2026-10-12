@@ -1,0 +1,26 @@
+# references
+
+- [Peace – Overcoming Anxiety](keller-anxiety.md) — Gospel in Life 공식 설교 목록에서 발견한 불안 관련 자료. 상세 페이지와 설교 내용은 미확인이다.
+- [Cross: The Way to Freedom](keller-cross.md) — Gospel in Life의 Tim Keller 설교 기록과 개요. 갈라디아서 5:10–13, 6:14–16을 다룬다.
+- [Second Lost Son (and the Dance of God)](keller-elder-brother.md) — Gospel in Life의 Tim Keller 설교 기록과 개요. 누가복음 15:20–32를 다룬다.
+- [Faith in Jesus](keller-faith.md) — Gospel in Life에 게시된 Tim Keller 설교 기록과 개요. 누가복음 7:1–10, 36–50을 다룬다.
+- [Forgiveness and Reconciliation](keller-forgiveness.md) — Gospel in Life에 게시된 Tim Keller 설교 기록과 개요. 마태복음 18:15–17, 23–35를 다룬다.
+- [God, Freedom, and Love](keller-god-freedom-love.md) — Tim Keller가 고린도전서 8–10장을 통해 문화 참여와 양심, 사랑의 관계를 설명한 글.
+- [The Gospel in All Its Forms](keller-gospel-all-forms.md) — Tim Keller의 2008년 글에서 하나의 복음을 여러 청중과 성경 본문에 맞게 제시하는 방식을 요약한다.
+- [Why Does God Do Nothing?](keller-habakkuk.md) — Gospel in Life의 Tim Keller 설교 기록과 개요. 하박국 1:1–17을 다룬다.
+- [The Gospel in a Pluralist Society](keller-pluralist.md) — Gospel in Life에 게시된 Tim Keller 설교 기록과 개요. 사도행전 4:1–13을 다룬다.
+- [Lemonade on the Porch: The Gospel in a Post-Christendom Society](keller-post-christendom.md) — Tim Keller가 기독교에 낯선 이들과 복음을 나누는 관계적 공간을 제안한 글.
+- [The Prodigal Sons](keller-prodigal.md) — Gospel in Life에 게시된 Tim Keller 설교 기록과 소개. 누가복음 15장 1–2, 11–32절을 다룬다.
+- [Reconstructing Faith: Christianity in a New World](keller-reconstructing-faith.md) — Tim Keller가 신앙의 재검토와 재구성, 복음의 은혜를 다룬 글.
+- [The Resurrection](keller-resurrection.md) — Gospel in Life에 게시된 Tim Keller 설교 기록과 개요. 마태복음 28:1–20을 다룬다.
+- [Social Media, Identity, and the Church](keller-social-media-identity.md) — Tim Keller가 소셜 미디어와 자기 정체성을 복음의 관점에서 해석한 직접 저술.
+- [Wisdom from the Letters of John Newton](keller-wisdom-grace.md) — Tim Keller가 자기 성찰과 성령의 열매, 은혜가 주는 변화를 다룬 글.
+- [시광교리문답 소개](lee-catechism.md) — 이정규가 시광교리문답의 목적과 활용, 현대 독자의 질문을 소개한 글.
+- [마가복음 강해](lee-mark-20.md) — 이정규의 마가복음 설교 전사로 색인된 일부. 원문 확인 전에는 보조 자료로만 사용한다.
+- [마가복음 강해](lee-mark-31.md) — 이정규의 마가복음 설교 전사로 색인된 일부. 신원과 주제의 보조 확인에만 사용한다.
+- [그리스도인과 심리학 – 일과 신앙 프로젝트](lee-psychology.md) — 이정규의 심리학과 기독교 상담에 관한 개관 글. 과도한 수용과 거부를 함께 경계한다.
+- [시광교회의 공예배 철학](lee-public-worship.md) — 이정규가 예배의 복음 중심과 목적, 정서, 문화적 다양성을 정리한 목회서신.
+- [설교자의 정서 1 – 왜 우리는 설교시의 정서 표현을 다루어야 하는가](lee-sermon-emotion-1.md) — 설교의 정서와 분위기가 청중의 하나님 이해에 미치는 영향을 다룬 이정규의 글.
+- [설교자의 정서 2 – 설교자들이 표현하는 네 가지 정서](lee-sermon-emotion-2.md) — 설교가 어떤 정서를 드러내는지 묻는 이정규의 연속 글.
+- [결혼식 방법에 대한 새로운 제안](lee-wedding-gospel.md) — 이정규가 복음의 조건 없는 은혜를 예배와 공동체의 실천에 연결한 목회서신.
+- [조사와 인용 방법](research-method.md) — 저자 원문, 설교 개요, 성경 본문을 구분하고 실제 확인 범위를 기록한다.

@@ -1,0 +1,546 @@
+{
+  "passages": [
+    {
+      "old": "jn-1-1",
+      "new": "passages/jn-1-1",
+      "publicId": "jn-1-1"
+    },
+    {
+      "old": "gen-1-1",
+      "new": "passages/gen-1-1",
+      "publicId": "gen-1-1"
+    },
+    {
+      "old": "jn-1-5",
+      "new": "passages/jn-1-5",
+      "publicId": "jn-1-5"
+    },
+    {
+      "old": "jn-3-19",
+      "new": "passages/jn-3-19",
+      "publicId": "jn-3-19"
+    },
+    {
+      "old": "jn-8-12",
+      "new": "passages/jn-8-12",
+      "publicId": "jn-8-12"
+    },
+    {
+      "old": "jn-12-35",
+      "new": "passages/jn-12-35",
+      "publicId": "jn-12-35"
+    },
+    {
+      "old": "jn-3-3",
+      "new": "passages/jn-3-3",
+      "publicId": "jn-3-3"
+    },
+    {
+      "old": "ezk-36-25",
+      "new": "passages/ezk-36-25",
+      "publicId": "ezk-36-25"
+    },
+    {
+      "old": "jn-20-31",
+      "new": "passages/jn-20-31",
+      "publicId": "jn-20-31"
+    },
+    {
+      "old": "jn-10-11",
+      "new": "passages/jn-10-11",
+      "publicId": "jn-10-11"
+    },
+    {
+      "old": "ezk-34-11",
+      "new": "passages/ezk-34-11",
+      "publicId": "ezk-34-11"
+    },
+    {
+      "old": "jn-2-19",
+      "new": "passages/jn-2-19",
+      "publicId": "jn-2-19"
+    },
+    {
+      "old": "ex-40-34",
+      "new": "passages/ex-40-34",
+      "publicId": "ex-40-34"
+    },
+    {
+      "old": "jn-12-23",
+      "new": "passages/jn-12-23",
+      "publicId": "jn-12-23"
+    },
+    {
+      "old": "jn-7-30",
+      "new": "passages/jn-7-30",
+      "publicId": "jn-7-30"
+    },
+    {
+      "old": "jn-2-11",
+      "new": "passages/jn-2-11",
+      "publicId": "jn-2-11"
+    },
+    {
+      "old": "jn-1-14",
+      "new": "passages/jn-1-14",
+      "publicId": "jn-1-14"
+    },
+    {
+      "old": "jn-5-24",
+      "new": "passages/jn-5-24",
+      "publicId": "jn-5-24"
+    },
+    {
+      "old": "jn-11-25",
+      "new": "passages/jn-11-25",
+      "publicId": "jn-11-25"
+    },
+    {
+      "old": "jn-6-14",
+      "new": "passages/jn-6-14",
+      "publicId": "jn-6-14"
+    },
+    {
+      "old": "jn-11-43",
+      "new": "passages/jn-11-43",
+      "publicId": "jn-11-43"
+    },
+    {
+      "old": "ps-23-1",
+      "new": "passages/ps-23-1",
+      "publicId": "ps-23-1"
+    },
+    {
+      "old": "jn-10-27",
+      "new": "passages/jn-10-27",
+      "publicId": "jn-10-27"
+    },
+    {
+      "old": "jn-2-4",
+      "new": "passages/jn-2-4",
+      "publicId": "jn-2-4"
+    },
+    {
+      "old": "jn-13-1",
+      "new": "passages/jn-13-1",
+      "publicId": "jn-13-1"
+    },
+    {
+      "old": "jn-17-1",
+      "new": "passages/jn-17-1",
+      "publicId": "jn-17-1"
+    },
+    {
+      "old": "1ki-8-27",
+      "new": "passages/1ki-8-27",
+      "publicId": "1ki-8-27"
+    },
+    {
+      "old": "jn-4-21",
+      "new": "passages/jn-4-21",
+      "publicId": "jn-4-21"
+    },
+    {
+      "old": "isa-55-1",
+      "new": "passages/isa-55-1",
+      "publicId": "isa-55-1"
+    },
+    {
+      "old": "jn-4-10",
+      "new": "passages/jn-4-10",
+      "publicId": "jn-4-10"
+    },
+    {
+      "old": "jn-7-37",
+      "new": "passages/jn-7-37",
+      "publicId": "jn-7-37"
+    },
+    {
+      "old": "jn-19-34",
+      "new": "passages/jn-19-34",
+      "publicId": "jn-19-34"
+    },
+    {
+      "old": "deut-19-15",
+      "new": "passages/deut-19-15",
+      "publicId": "deut-19-15"
+    },
+    {
+      "old": "jn-1-6",
+      "new": "passages/jn-1-6",
+      "publicId": "jn-1-6"
+    },
+    {
+      "old": "jn-5-31",
+      "new": "passages/jn-5-31",
+      "publicId": "jn-5-31"
+    },
+    {
+      "old": "isa-52-13",
+      "new": "passages/isa-52-13",
+      "publicId": "isa-52-13"
+    },
+    {
+      "old": "jn-1-29",
+      "new": "passages/jn-1-29",
+      "publicId": "jn-1-29"
+    },
+    {
+      "old": "jn-19-16",
+      "new": "passages/jn-19-16",
+      "publicId": "jn-19-16"
+    },
+    {
+      "old": "jn-20-1",
+      "new": "passages/jn-20-1",
+      "publicId": "jn-20-1"
+    },
+    {
+      "old": "jn-20-24",
+      "new": "passages/jn-20-24",
+      "publicId": "jn-20-24"
+    },
+    {
+      "old": "gen-12-1",
+      "new": "passages/gen-12-1",
+      "publicId": "gen-12-1"
+    },
+    {
+      "old": "ex-19-4",
+      "new": "passages/ex-19-4",
+      "publicId": "ex-19-4"
+    },
+    {
+      "old": "deut-30-6",
+      "new": "passages/deut-30-6",
+      "publicId": "deut-30-6"
+    },
+    {
+      "old": "2sa-7-12",
+      "new": "passages/2sa-7-12",
+      "publicId": "2sa-7-12"
+    },
+    {
+      "old": "jer-31-31",
+      "new": "passages/jer-31-31",
+      "publicId": "jer-31-31"
+    },
+    {
+      "old": "gen-15-5",
+      "new": "passages/gen-15-5",
+      "publicId": "gen-15-5"
+    },
+    {
+      "old": "ex-24-3",
+      "new": "passages/ex-24-3",
+      "publicId": "ex-24-3"
+    },
+    {
+      "old": "isa-55-3",
+      "new": "passages/isa-55-3",
+      "publicId": "isa-55-3"
+    },
+    {
+      "old": "lk-22-19",
+      "new": "passages/lk-22-19",
+      "publicId": "lk-22-19"
+    },
+    {
+      "old": "isa-53-4",
+      "new": "passages/isa-53-4",
+      "publicId": "isa-53-4"
+    },
+    {
+      "old": "jn-19-28",
+      "new": "passages/jn-19-28",
+      "publicId": "jn-19-28"
+    },
+    {
+      "old": "jn-20-19",
+      "new": "passages/jn-20-19",
+      "publicId": "jn-20-19"
+    },
+    {
+      "old": "1co-15-20",
+      "new": "passages/1co-15-20",
+      "publicId": "1co-15-20"
+    },
+    {
+      "old": "jn-6-35",
+      "new": "passages/jn-6-35",
+      "publicId": "jn-6-35"
+    },
+    {
+      "old": "rom-6-3",
+      "new": "passages/rom-6-3",
+      "publicId": "rom-6-3"
+    }
+  ],
+  "threads": [
+    {
+      "old": "word",
+      "new": "paths/word",
+      "publicId": "path-word"
+    },
+    {
+      "old": "light",
+      "new": "paths/light",
+      "publicId": "path-light"
+    },
+    {
+      "old": "life",
+      "new": "paths/life",
+      "publicId": "path-life"
+    },
+    {
+      "old": "sign",
+      "new": "paths/sign",
+      "publicId": "path-sign"
+    },
+    {
+      "old": "shepherd",
+      "new": "paths/shepherd",
+      "publicId": "path-shepherd"
+    },
+    {
+      "old": "hour",
+      "new": "paths/hour",
+      "publicId": "path-hour"
+    },
+    {
+      "old": "temple",
+      "new": "paths/temple",
+      "publicId": "path-temple"
+    },
+    {
+      "old": "cross",
+      "new": "paths/cross",
+      "publicId": "path-cross"
+    },
+    {
+      "old": "water",
+      "new": "paths/water",
+      "publicId": "path-water"
+    },
+    {
+      "old": "witness",
+      "new": "paths/witness",
+      "publicId": "path-witness"
+    },
+    {
+      "old": "covenant",
+      "new": "paths/covenant",
+      "publicId": "path-covenant"
+    }
+  ],
+  "connections": [
+    {
+      "old": "word-genesis",
+      "new": "relationships/word-genesis"
+    },
+    {
+      "old": "word-light",
+      "new": "relationships/word-light"
+    },
+    {
+      "old": "light-creation",
+      "new": "relationships/light-creation"
+    },
+    {
+      "old": "light-judgment",
+      "new": "relationships/light-judgment"
+    },
+    {
+      "old": "light-i-am",
+      "new": "relationships/light-i-am"
+    },
+    {
+      "old": "light-last-call",
+      "new": "relationships/light-last-call"
+    },
+    {
+      "old": "newbirth-ezekiel",
+      "new": "relationships/newbirth-ezekiel"
+    },
+    {
+      "old": "newbirth-purpose",
+      "new": "relationships/newbirth-purpose"
+    },
+    {
+      "old": "sign-purpose",
+      "new": "relationships/sign-purpose"
+    },
+    {
+      "old": "shepherd-promise",
+      "new": "relationships/shepherd-promise"
+    },
+    {
+      "old": "temple-tabernacle",
+      "new": "relationships/temple-tabernacle"
+    },
+    {
+      "old": "hour-not-yet",
+      "new": "relationships/hour-not-yet"
+    },
+    {
+      "old": "word-incarnation",
+      "new": "relationships/word-incarnation"
+    },
+    {
+      "old": "life-present",
+      "new": "relationships/life-present"
+    },
+    {
+      "old": "life-resurrection",
+      "new": "relationships/life-resurrection"
+    },
+    {
+      "old": "sign-bread",
+      "new": "relationships/sign-bread"
+    },
+    {
+      "old": "sign-lazarus",
+      "new": "relationships/sign-lazarus"
+    },
+    {
+      "old": "sign-written-purpose",
+      "new": "relationships/sign-written-purpose"
+    },
+    {
+      "old": "shepherd-psalm",
+      "new": "relationships/shepherd-psalm"
+    },
+    {
+      "old": "shepherd-kept",
+      "new": "relationships/shepherd-kept"
+    },
+    {
+      "old": "hour-first",
+      "new": "relationships/hour-first"
+    },
+    {
+      "old": "hour-love",
+      "new": "relationships/hour-love"
+    },
+    {
+      "old": "hour-prayer",
+      "new": "relationships/hour-prayer"
+    },
+    {
+      "old": "temple-house",
+      "new": "relationships/temple-house"
+    },
+    {
+      "old": "temple-worship",
+      "new": "relationships/temple-worship"
+    },
+    {
+      "old": "cross-servant-lamb",
+      "new": "relationships/cross-servant-lamb"
+    },
+    {
+      "old": "cross-lamb-finished",
+      "new": "relationships/cross-lamb-finished"
+    },
+    {
+      "old": "cross-death-morning",
+      "new": "relationships/cross-death-morning"
+    },
+    {
+      "old": "cross-witness-confession",
+      "new": "relationships/cross-witness-confession"
+    },
+    {
+      "old": "water-invitation",
+      "new": "relationships/water-invitation"
+    },
+    {
+      "old": "water-newbirth",
+      "new": "relationships/water-newbirth"
+    },
+    {
+      "old": "water-river",
+      "new": "relationships/water-river"
+    },
+    {
+      "old": "water-cross",
+      "new": "relationships/water-cross"
+    },
+    {
+      "old": "witness-law",
+      "new": "relationships/witness-law"
+    },
+    {
+      "old": "witness-john",
+      "new": "relationships/witness-john"
+    },
+    {
+      "old": "witness-cross",
+      "new": "relationships/witness-cross"
+    },
+    {
+      "old": "witness-purpose",
+      "new": "relationships/witness-purpose"
+    },
+    {
+      "old": "covenant-abraham-sinai",
+      "new": "relationships/covenant-abraham-sinai"
+    },
+    {
+      "old": "covenant-sinai-heart",
+      "new": "relationships/covenant-sinai-heart"
+    },
+    {
+      "old": "covenant-heart-david",
+      "new": "relationships/covenant-heart-david"
+    },
+    {
+      "old": "covenant-david-new",
+      "new": "relationships/covenant-david-new"
+    },
+    {
+      "old": "covenant-new-christ",
+      "new": "relationships/covenant-new-christ"
+    },
+    {
+      "old": "covenant-faith-promise",
+      "new": "relationships/covenant-faith-promise"
+    },
+    {
+      "old": "covenant-sinai-blood",
+      "new": "relationships/covenant-sinai-blood"
+    },
+    {
+      "old": "covenant-david-mercy",
+      "new": "relationships/covenant-david-mercy"
+    },
+    {
+      "old": "covenant-new-table",
+      "new": "relationships/covenant-new-table"
+    },
+    {
+      "old": "cross-servant-sin",
+      "new": "relationships/cross-servant-sin"
+    },
+    {
+      "old": "cross-lamb-finished-node",
+      "new": "relationships/cross-lamb-finished-node"
+    },
+    {
+      "old": "cross-finished-witness",
+      "new": "relationships/cross-finished-witness"
+    },
+    {
+      "old": "cross-resurrection-firstfruit",
+      "new": "relationships/cross-resurrection-firstfruit"
+    },
+    {
+      "old": "life-bread-resurrection",
+      "new": "relationships/life-bread-resurrection"
+    },
+    {
+      "old": "life-union-newwalk",
+      "new": "relationships/life-union-newwalk"
+    }
+  ]
+}

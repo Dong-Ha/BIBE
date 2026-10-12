@@ -33,6 +33,12 @@ jobs:
       - name: Test and build
         run: npm run check
 
+      - name: Install browser for interaction checks
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify desktop and mobile interactions
+        run: npx playwright test
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

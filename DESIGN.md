@@ -1,83 +1,29 @@
-# Design
+# 말씀의 결 디자인과 제품 기준
 
-## Source of truth
-- Status: Draft
-- Last refreshed: 2026-07-30
-- Primary product surfaces: single-page Bible study web app connecting John’s Gospel with Old Testament backgrounds and covenant themes
-- Evidence reviewed: `README.md` only; no existing UI assets, components, or design docs were present
+## 제품의 역할
 
-## Brand
-- Personality: reverent, sturdy, text-centered, contemplative, and confident without being ornate
-- Trust signals: exact passage references, clear separation between observation and theological interpretation, public links to confessional sources
-- Avoid: novelty-for-novelty’s-sake, purple-heavy defaults, speculative commentary, and dense paragraph walls
+`말씀의 결`은 기독교 용어와 성경 본문이 낯선 사람도 자신의 질문에서 시작해 복음의 내용을 따라 읽도록 돕는 한국어 학습 사이트다. 매일 다시 은혜가 필요한 신자, 기독교를 부정적으로 보거나 교회에 상처를 입은 사람, 기독교에 관심은 있지만 낯선 표현 때문에 어려움을 겪는 사람을 함께 고려한다. 질문을 서둘러 교리 문답으로 닫지 않고, 성경 문맥과 그리스도의 구체적인 사역을 살핀 다음 오늘의 응답으로 이어간다.
 
-## Product goals
-- Goals: help users trace Johannine themes and the Old Testament covenant story through representative passages and Reformed confessional framing
-- Non-goals: full Bible text hosting, commentary database, user accounts, community features, or broad denomination comparison
-- Success signals: a user can move from one theme to another, inspect a passage, open a confessional reference, and share the current view
+## 콘텐츠 구조와 근거
 
-## Personas and jobs
-- Primary personas: Reformed Bible readers, small-group leaders, and catechetical learners
-- User jobs: find a motif quickly, compare passages, connect John to the OT, and see a concise Reformed reading
-- Key contexts of use: desktop study, mobile reading between sessions, and shared-link review in a group
+`wiki/`의 YAML frontmatter가 자료의 종류·공개 상태·출처·연결 관계를 정의하고 Markdown 본문이 설명을 제공한다. 질문은 관련 본문과 학습 경험을 연결한다. 읽기 경로는 성경 본문을, 관계 문서는 본문 사이의 연결과 근거를, 개념 문서는 낯선 용어의 쉬운 설명을 제공한다. 참고 자료와 저자 문서는 원자료에서 확인한 범위를 기록한다.
 
-## Information architecture
-- Primary navigation: eleven motif threads in a persistent sidebar, including an Old Testament-focused covenant path
-- Core routes/screens: theme overview, passage detail, OT background, confessional references, shareable state
-- Content hierarchy: thread summary and expandable reading guide first, then passage map, then supporting references and confessional notes
+출처의 권위와 확인 범위를 문장마다 구분한다. 성경 본문의 관찰은 본문 문맥에 근거하며, 이 위키의 신학적 읽기는 해설로 표시한다. 저자가 직접 쓴 글의 전문, 설교 페이지가 제공하는 개요, 검색 색인의 일부는 서로 다른 확인 단계다. 저자 자료를 그 저자의 모든 설교를 대표하는 방식론으로 확대하지 않는다. 죄와 고통, 교회 상처를 개인의 믿음 부족으로 단정하지 않으며 애도·책임·안전을 건너뛰지 않는다.
 
-## Design principles
-- Principle 1: observation before interpretation
-- Principle 2: keep Scripture references and confessional references visibly separate
-- Tradeoffs: use a compact dataset and client-side rendering instead of a heavier content system
+각 공개 문서는 출처와 근거로 이어지고, 본문에 붙은 인용 표시는 문서의 실제 출처 ID를 가리킨다. 연결된 참고 문서에서 원자료와 확인 상태를 살펴볼 수 있다. 성경 본문 전문은 저장하지 않고, 구절과 직접 쓴 설명을 제공한 뒤 대한성서공회로 연결한다.
 
-## Visual language
-- Color: deep ink, parchment, muted gold, and sage accents on layered dark backgrounds
-- Typography: expressive serif headings with a readable sans-serif body stack
-- Spacing/layout rhythm: generous outer padding, compact data cards, and clear vertical group separation
-- Shape/radius/elevation: rounded panels with restrained elevation and thin borders
-- Motion: minimal, purposeful transitions for selection and copy feedback
-- Imagery/iconography: no stock imagery; use SVG relationship nodes and simple geometric cues
+## 화면 구성과 시각 언어
 
-## Components
-- Existing components to reuse: none
-- New/changed components: sidebar thread list, hero summary, SVG passage map, passage detail panel, OT background panel, confessional panel, copy-link action
-- Variants and states: active/inactive thread, selected/unselected passage node, copied/not copied link state, mobile stacked layout
-- Token/component ownership: CSS custom properties own colors, spacing, and typography; data objects own content and references
+앱은 React와 TypeScript로 만든 단일 페이지 사이트다. 화면은 종이빛 배경, 짙은 녹색 글자와 절제한 초록 강조색, 한국어 본문 가독성을 위한 세리프 제목과 산세리프 본문을 사용한다. 삶의 질문이 담긴 홈, 성경 읽기, 직접 탐색, 쉬운 용어, 자료와 출처 화면을 제공한다. 검색은 질문·본문·개념·출처 문서를 함께 찾는다.
 
-## Accessibility
-- Target standard: WCAG 2.2 AA as a practical baseline
-- Keyboard/focus behavior: all interactive thread and passage items must be reachable and visibly focused
-- Contrast/readability: high-contrast text on dark surfaces, no meaning carried by color alone
-- Screen-reader semantics: buttons for selection, labeled SVG nodes, and headings in document order
-- Reduced motion and sensory considerations: avoid continuous animation and keep transitions subtle
+상호작용 학습은 네 가지 자료 유형에 맞춘다. 이야기형은 장면을 선택하거나 차례로 재생한다. 연결형은 본문 관계를 필터링하고 연결 근거를 확인한다. 층위형은 설명의 단계를 움직여 살핀다. 관점형은 상황의 두 관점을 비교한다. 모든 경험에는 먼저 예상하기, 조작하기, 본문 확인하기, 발견 돌아보기, 새 상황에 옮기기가 있다. 그림을 글로 바꿔 볼 수 있고, URL로 선택 상태를 공유할 수 있다.
 
-## Responsive behavior
-- Supported breakpoints/devices: mobile, tablet, and desktop
-- Layout adaptations: sidebar collapses into a top rail on small screens; detail cards stack vertically
-- Touch/hover differences: larger tap targets on mobile, hover polish only as a progressive enhancement
+## 상호작용과 접근성
 
-## Interaction states
-- Loading: initial static render with no async loading state required
-- Empty: fallback copy if a thread or passage cannot be resolved from the URL
-- Error: safe default to the first thread when query parameters are invalid
-- Success: copy-link confirmation and visible selection changes
-- Disabled: inactive buttons should appear muted but remain readable
-- Offline/slow network, if applicable: app should remain usable as a static local file after load
+탐색 상태와 현재 문서는 URL에 반영되므로 뒤로 가기와 공유 링크가 작동한다. SVG 지도는 텍스트 설명과 키보드 조작을 지원하고, 상호작용 버튼은 선택 상태와 초점을 표시한다. 작은 화면에서는 콘텐츠와 시각화가 한 열로 쌓이며 조작 영역을 유지한다. 모션은 학습에 필요한 경우에만 쓰고, 시스템의 동작 줄이기 설정을 따른다. 질문·논쟁·고통을 다룰 때는 결론을 강요하는 인터페이스 대신 본문 근거와 다른 질문을 함께 보여 준다.
 
-## Content voice
-- Tone: concise, theological, and observational
-- Terminology: prefer standard Reformed labels such as revelation, regeneration, covenant, assurance, and means of grace
-- Microcopy rules: short sentences, explicit verse citations, and no slang
+## 기술 및 검증 기준
 
-## Implementation constraints
-- Framework/styling system: vanilla HTML, CSS, and ES modules; no runtime dependency on external packages
-- Design-token constraints: use CSS variables for palette and spacing; no hard-coded ad hoc colors in component logic
-- Performance constraints: keep the app static, lightweight, and fully client-rendered without build tooling
-- Compatibility constraints: modern evergreen browsers with basic SVG and `URLSearchParams` support
-- Test/screenshot expectations: data integrity checks for thread content and a simple local smoke test for the static app
+위키 Markdown은 빌드 때 검증·렌더링되어 정적 콘텐츠 JSON으로 변환된다. 배포 사이트는 계정, 서버 API, 상시 네트워크 요청이나 생성형 모델에 의존하지 않는다. 새 문서 공개 전에는 `npm run content:check`로 메타데이터·인용·링크·학습 데이터의 정합성을 검사한다. `npm run check`는 콘텐츠 검사와 테스트, TypeScript 검사 및 프로덕션 빌드를 실행한다.
 
-## Open questions
-- [ ] Should later releases add direct Bible text rendering for public-domain translations, or keep the app reference-only?
-- [ ] Should the motif set remain John-only, or expand to a broader canonical reading plan after MVP validation?
-- [ ] Should confessional references stay grouped by tradition, or be reorganized by theological topic in a future version?
+이전 `passage`와 `thread` 주소는 기존 공유 링크를 보존하는 호환 경로로 유지한다. 새 콘텐츠의 공유 주소는 안정적인 `public_id`와 선택한 학습 상태를 사용한다.

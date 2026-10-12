@@ -1,477 +1,71 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  connectionById,
-  getInitialSelection,
-  nodeById,
-  nodes,
-  threadById,
-  threads,
-} from './data'
-import type { Connection, PassageNode, Thread } from './types'
+import { useEffect, useRef, useState } from 'react'
+import type { FormEvent, MouseEvent } from 'react'
+import type { ContentDocument } from './content-types'
+import { concepts, documentById, documentHref, experiences, passages, paths, questions, readNavigation, references, searchDocuments, typeLabels } from './content'
+import LearningExperience from './components/LearningExperience'
 
-function writeSelection(threadId: string, passageId: string, replace = false) {
-  const url = new URL(window.location.href)
-  url.searchParams.set('thread', threadId)
-  url.searchParams.set('passage', passageId)
-  if (!replace && url.href === window.location.href) return
-  window.history[replace ? 'replaceState' : 'pushState']({}, '', url)
+const navigation = [['home', '질문으로 시작하기'], ['scripture', '성경으로 살펴보기'], ['experiences', '직접 탐색하기'], ['glossary', '용어 이해하기'], ['sources', '자료와 출처']] as const
+function Arrow() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth="1.5" /></svg> }
+function GraceDiagram() {
+  return <svg className="grace-diagram" viewBox="0 0 440 280" role="img" aria-label="예수의 찾아오심에서 받은 사랑과 삶의 응답으로 이어지는 흐름"><defs><pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".7" fill="#cbd2c3" /></pattern></defs><rect width="440" height="280" fill="url(#dots)" /><path d="M76 150 Q160 12 252 115 T393 178" fill="none" stroke="#b6c5ac" strokeWidth="1.2" strokeDasharray="4 5" /><circle cx="110" cy="139" r="73" fill="#edf1e6" stroke="#9eb097" /><circle cx="229" cy="139" r="73" fill="#dce6d3" fillOpacity=".65" stroke="#8b9f82" /><circle cx="348" cy="139" r="73" fill="#f7f3e7" fillOpacity=".8" stroke="#c1b78f" /><text x="110" y="129" textAnchor="middle">찾아오신</text><text x="110" y="152" textAnchor="middle">예수</text><text x="229" y="129" textAnchor="middle">먼저 받은</text><text x="229" y="152" textAnchor="middle">사랑</text><text x="348" y="129" textAnchor="middle">삶으로</text><text x="348" y="152" textAnchor="middle">응답</text><text x="220" y="256" textAnchor="middle" className="diagram-caption">은혜에서 시작되는 새로운 흐름</text></svg>
 }
-
-function ThreadRail({
-  selectedThread,
-  onSelect,
-}: {
-  selectedThread: Thread
-  onSelect: (thread: Thread) => void
-}) {
-  return (
-    <nav className="thread-rail" aria-label="성경 주제 실타래">
-      <p className="rail-label">{threads.length}개의 실타래</p>
-      <div className="thread-list">
-        {threads.map((thread) => {
-          const isSelected = selectedThread.id === thread.id
-          return (
-            <button
-              key={thread.id}
-              className="thread-button"
-              data-active={isSelected}
-              aria-current={isSelected ? 'true' : undefined}
-              style={{ '--thread-color': thread.color } as React.CSSProperties}
-              onClick={() => onSelect(thread)}
-            >
-              <span className="thread-number">{thread.number}</span>
-              <span>
-                <strong>{thread.name}</strong>
-                <small>{thread.premise}</small>
-              </span>
-            </button>
-          )
-        })}
-      </div>
-    </nav>
-  )
+function DocumentCards({ items, onOpen, compact = false }: { items: ContentDocument[]; onOpen: (doc: ContentDocument) => void; compact?: boolean }) {
+  return <div className={compact ? 'document-list' : 'document-grid'}>{items.map((doc, i) => <a className={compact ? 'document-row' : 'question-card'} href={documentHref(doc)} key={doc.id} onClick={event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onOpen(doc) } }}><div className="card-meta"><span>{doc.reference ?? typeLabels[doc.type] ?? '자료'}</span><span>{String(doc.order ?? i + 1).padStart(2, '0')}</span></div><h3>{doc.title}</h3><p>{doc.description}</p><span className="card-bottom"><span>{doc.tags.slice(0, 2).join(' · ')}</span><Arrow /></span></a>)}</div>
 }
-
-function InsightMap({
-  thread,
-  selectedNode,
-  onSelect,
-}: {
-  thread: Thread
-  selectedNode: PassageNode
-  onSelect: (node: PassageNode) => void
-}) {
-  const threadNodes = useMemo(() => thread.nodeIds
-    .map((id) => nodeById.get(id))
-    .filter((node): node is PassageNode => Boolean(node)), [thread])
-  const threadConnections = useMemo(() => thread.connectionIds
-    .map((id) => connectionById.get(id))
-    .filter((connection): connection is Connection => Boolean(connection)), [thread])
-  // Position shared passages within each thread instead of using global coordinates.
-  const positions = useMemo(() => new Map(threadNodes.map((node, index) => {
-    const row = Math.floor(index / 4)
-    const column = row % 2 === 0 ? index % 4 : 3 - index % 4
-    return [node.id, { x: 110 + column * 233, y: 140 + row * 180 }]
-  })), [threadNodes])
-  const mapHeight = Math.max(400, Math.ceil(threadNodes.length / 4) * 180 + 90)
-
-  return (
-    <section
-      className="map-shell"
-      aria-labelledby="map-heading"
-      style={{ '--thread-color': thread.color } as React.CSSProperties}
-    >
-      <div className="map-heading-row">
-        <div>
-          <p className="overline">현재 실타래 · {thread.number}</p>
-          <h2 id="map-heading">{thread.name}</h2>
-        </div>
-        <span className="map-count">{threadNodes.length}개의 본문</span>
-      </div>
-      <p className="map-premise">{thread.premise}</p>
-
-      <details className="thread-guide">
-        <summary>이 실타래 더 깊이 읽기</summary>
-        <div className="thread-guide-content">
-          <p>{thread.guide.context}</p>
-          <dl>
-            <div>
-              <dt>읽기의 초점</dt>
-              <dd>{thread.guide.focus}</dd>
-            </div>
-            <div>
-              <dt>핵심 질문</dt>
-              <dd>{thread.guide.question}</dd>
-            </div>
-          </dl>
-        </div>
-      </details>
-
-      <div className="desktop-map">
-        <svg
-          viewBox={`0 0 920 ${mapHeight}`}
-          role="group"
-          aria-label={`${thread.name} 본문 연결 지도. 탭 키로 본문을 선택할 수 있습니다.`}
-        >
-          <defs>
-            <filter id="paper-shadow" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="7" stdDeviation="7" floodColor="#172337" floodOpacity=".1" />
-            </filter>
-          </defs>
-          {threadConnections.map((connection) => {
-            const source = positions.get(connection.source)
-            const target = positions.get(connection.target)
-            if (!source || !target) return null
-            const midX = (source.x + target.x) / 2
-            const midY = (source.y + target.y) / 2
-            const curve = Math.abs(target.x - source.x) > 250 ? 140 : 18
-            return (
-              <g key={connection.id} className="connection">
-                <path
-                  d={`M ${source.x} ${source.y} Q ${midX} ${midY - curve} ${target.x} ${target.y}`}
-                  style={{ '--thread-color': thread.color } as React.CSSProperties}
-                />
-                <g transform={`translate(${midX}, ${midY - curve / 2})`}>
-                  <rect x="-34" y="-13" width="68" height="26" rx="13" />
-                  <text textAnchor="middle" dominantBaseline="central">{connection.type}</text>
-                </g>
-              </g>
-            )
-          })}
-          {threadNodes.map((node, index) => {
-            const isSelected = node.id === selectedNode.id
-            return (
-              <g
-                key={node.id}
-                className="map-node"
-                data-active={isSelected}
-                transform={`translate(${positions.get(node.id)!.x}, ${positions.get(node.id)!.y})`}
-                role="button"
-                tabIndex={0}
-                aria-pressed={isSelected}
-                aria-label={`${node.reference}, ${node.title}${isSelected ? ', 선택됨' : ''}`}
-                onClick={() => onSelect(node)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    onSelect(node)
-                  }
-                }}
-              >
-                <circle
-                  r={isSelected ? 49 : 41}
-                  style={{ '--thread-color': thread.color } as React.CSSProperties}
-                  filter="url(#paper-shadow)"
-                />
-                <text className="node-index" textAnchor="middle" y="-6">
-                  {String(index + 1).padStart(2, '0')}
-                </text>
-                <text className="node-reference" textAnchor="middle" y="14">
-                  {node.reference.replace('요한복음 ', '요 ')}
-                </text>
-              </g>
-            )
-          })}
-        </svg>
-        <p className="map-hint"><span /> 선을 따라 본문이 어떻게 반복되고 성취되는지 살펴보세요.</p>
-      </div>
-
-      <div className="mobile-path" aria-label={`${thread.name} 본문 목록`}>
-        {threadNodes.map((node, index) => {
-          const previous = index > 0 ? threadNodes[index - 1] : null
-          const connection = previous
-            ? threadConnections.find((item) =>
-              (item.source === previous.id && item.target === node.id)
-              || (item.target === previous.id && item.source === node.id))
-            : null
-          return (
-            <div key={node.id}>
-              {connection && (
-                <div className="mobile-relation">
-                  <span>{connection.type}</span>
-                  <p>{connection.label}</p>
-                </div>
-              )}
-              <button
-                className="mobile-node"
-                data-active={selectedNode.id === node.id}
-                aria-pressed={selectedNode.id === node.id}
-                onClick={() => onSelect(node)}
-              >
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <span>
-                  <small>{node.eyebrow}</small>
-                  <strong>{node.reference}</strong>
-                  <em>{node.title}</em>
-                </span>
-              </button>
-            </div>
-          )
-        })}
-      </div>
-    </section>
-  )
+function ReadingMap({ doc, onOpen }: { doc: ContentDocument; onOpen: (doc: ContentDocument) => void }) {
+  const nodes = (doc.nodeIds ?? []).map(id => documentById.get(`passages/${id}`)).filter((d): d is ContentDocument => !!d)
+  const relations = (doc.connectionIds ?? []).map(id => documentById.get(`relationships/${id}`)).filter((d): d is ContentDocument => !!d)
+  const [selected, setSelected] = useState<ContentDocument | null>(null)
+  const position = (i: number) => ({ x: 100 + (i % 3) * 250, y: 60 + Math.floor(i / 3) * 110 })
+  return <section className="reading-map" aria-label="이 경로의 본문 연결 지도"><h2>연결을 따라 읽기</h2><p className="muted">아래 연결을 고르면 두 본문을 연결한 이유와 근거를 볼 수 있습니다.</p><svg viewBox={`0 0 740 ${Math.ceil(nodes.length / 3) * 110 + 20}`} role="img" aria-label={`${doc.title} 본문 지도`}>
+    {relations.map(relation => { const r = relation.relationship!; const from = nodes.findIndex(n => n.publicId === r.source), to = nodes.findIndex(n => n.publicId === r.target); if (from < 0 || to < 0) return null; const a = position(from), b = position(to); return <path key={relation.id} d={`M${a.x},${a.y} Q${(a.x + b.x) / 2 + 30},${(a.y + b.y) / 2 - 24} ${b.x},${b.y}`} fill="none" stroke={r.kind === 'promise' ? '#af8952' : '#afbfad'} strokeWidth="2" strokeDasharray={r.kind === 'promise' ? undefined : '5 5'} /> })}
+    {nodes.map((node, i) => { const p = position(i); return <g key={node.id} transform={`translate(${p.x} ${p.y})`}><rect x="-88" y="-28" width="176" height="58" rx="12" fill="#faf8f3" stroke="#b9c8b4" /><text textAnchor="middle" y="-3">{node.reference}</text><text textAnchor="middle" y="17" className="map-subtitle">{node.title.slice(0, 13)}</text></g> })}</svg>
+    <div className="relation-options">{relations.map(relation => <button key={relation.id} className={selected?.id === relation.id ? 'selected' : ''} aria-pressed={selected?.id === relation.id} onClick={() => setSelected(relation)}>{relation.title}<small>{relation.relationship?.kind === 'promise' ? '약속과 성취' : '주제적 연관'}</small></button>)}</div>
+    {selected && <div className="relation-detail" aria-live="polite"><h3>{selected.title}</h3><p>{selected.relationship?.explanation}</p><p className="muted">근거: {selected.relationship?.evidence.join(' · ')}</p><a href={documentHref(selected)} onClick={event => { event.preventDefault(); onOpen(selected) }}>연결 해설 읽기 <Arrow /></a></div>}</section>
 }
-
-function PassagePanel({
-  node,
-  thread,
-  onShare,
-  shareState,
-}: {
-  node: PassageNode
-  thread: Thread
-  onShare: () => void
-  shareState: 'idle' | 'copied' | 'failed'
-}) {
-  const [lensOpen, setLensOpen] = useState(false)
-  const [studyOpen, setStudyOpen] = useState(false)
-  const relatedConnections = thread.connectionIds
-    .map((id) => connectionById.get(id))
-    .filter((connection): connection is Connection => Boolean(connection))
-    .filter((connection) => connection.source === node.id || connection.target === node.id)
-
-  return (
-    <aside
-      className="passage-panel"
-      aria-label={`${node.reference} 상세`}
-      style={{ '--thread-color': thread.color } as React.CSSProperties}
-    >
-      <div className="passage-topline">
-        <span>{node.eyebrow}</span>
-        <button className="share-button" onClick={onShare}>
-          {shareState === 'copied' ? '링크 복사됨' : shareState === 'failed' ? '주소 표시됨' : '이 발견 공유'}
-          <span aria-hidden="true">↗</span>
-        </button>
-      </div>
-      <p className="passage-reference">{node.reference}</p>
-      <h2>{node.title}</h2>
-      <p className="passage-summary">{node.summary}</p>
-
-      <section className="observation-card">
-        <div className="section-kicker">
-          <span>01</span>
-          <p>본문 관찰</p>
-        </div>
-        <p>{node.observation}</p>
-      </section>
-
-      {relatedConnections.length > 0 && (
-        <section className="connection-card">
-          <div className="section-kicker">
-            <span>02</span>
-            <p>본문 사이의 결</p>
-          </div>
-          <div className="connection-details">
-            {relatedConnections.map((connection) => {
-              const peerId = connection.source === node.id ? connection.target : connection.source
-              const peer = nodeById.get(peerId)
-              return (
-                <article key={connection.id}>
-                  <div>
-                    <span>{connection.type}</span>
-                    <strong>{connection.label}</strong>
-                  </div>
-                  {peer && <small>{peer.reference} · {peer.title}</small>}
-                  <p>{connection.explanation}</p>
-                </article>
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      {node.study && (
-        <section className="study-section">
-          <button
-            className="study-disclosure"
-            aria-expanded={studyOpen}
-            aria-controls="study-guide"
-            onClick={() => setStudyOpen((open) => !open)}
-          >
-            <span>
-              <small>03 · 스스로 살펴보기</small>
-              <strong>더 깊이 읽기</strong>
-            </span>
-            <span className="disclosure-icon" aria-hidden="true">{studyOpen ? '−' : '+'}</span>
-          </button>
-          {studyOpen && (
-            <div id="study-guide" className="study-content">
-              <section>
-                <h3>이 장면의 문맥</h3>
-                <p>{node.study.context}</p>
-              </section>
-              <section>
-                <h3>본문에 묻기</h3>
-                <ol>
-                  {node.study.questions.map((question) => <li key={question}>{question}</li>)}
-                </ol>
-              </section>
-              <aside>
-                <strong>읽을 때 주의할 점</strong>
-                <p>{node.study.caution}</p>
-              </aside>
-            </div>
-          )}
-        </section>
-      )}
-
-      <section className="lens-section">
-        <button
-          className="lens-disclosure"
-          aria-expanded={lensOpen}
-          aria-controls="reformed-lens"
-          onClick={() => setLensOpen((open) => !open)}
-        >
-          <span className="lens-symbol" aria-hidden="true">R</span>
-          <span>
-            <small>{node.study ? '04' : '03'} · 해석의 자리</small>
-            <strong>개혁주의 렌즈</strong>
-          </span>
-          <span className="disclosure-icon" aria-hidden="true">{lensOpen ? '−' : '+'}</span>
-        </button>
-
-        {lensOpen && (
-          <div id="reformed-lens" className="lens-content">
-            <h3>{node.lens.title}</h3>
-            <p>{node.lens.summary}</p>
-            <div className="source-block">
-              <p>함께 읽을 말씀</p>
-              <ul>
-                {node.lens.scripture.map((reference) => <li key={reference}>{reference}</li>)}
-              </ul>
-            </div>
-            <div className="confession-block">
-              <p>신앙고백과 함께 읽기</p>
-              {node.lens.confessions.map((confession) => (
-                <a key={`${confession.document}-${confession.section}`} href={confession.url} target="_blank" rel="noreferrer">
-                  <span>
-                    <strong>{confession.document}</strong>
-                    <small>{confession.section}</small>
-                  </span>
-                  <em>{confession.summary}</em>
-                  <b aria-hidden="true">↗</b>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-
-      <a className="bible-link" href={node.externalUrl} target="_blank" rel="noreferrer">
-        대한성서공회에서 본문 읽기
-        <span aria-hidden="true">→</span>
-      </a>
-      {shareState === 'failed' && (
-        <label className="share-fallback">
-          현재 주소를 복사하세요
-          <input value={window.location.href} readOnly onFocus={(event) => event.currentTarget.select()} />
-        </label>
-      )}
-    </aside>
-  )
+function ReadingPage({ doc, stateId, onOpen, onStateChange }: { doc: ContentDocument; stateId?: string; onOpen: (doc: ContentDocument) => void; onStateChange: (id: string) => void }) {
+  const experienceDoc = doc.definition ? doc : doc.experience ? documentById.get(doc.experience) : undefined
+  const experience = experienceDoc?.definition
+  const relatedPassages = doc.passages.map(id => documentById.get(id)).filter((d): d is ContentDocument => !!d)
+  const relatedQuestions = doc.questions.map(id => documentById.get(id)).filter((d): d is ContentDocument => !!d)
+  const insertAfter = doc.sections.findIndex(section => section.title === '복음으로 읽기')
+  const showExperience = () => experience ? <LearningExperience key={experience.id} definition={experience} stateId={stateId ?? experience.defaultState} onStateChange={onStateChange} /> : null
+  return <div className="reading-layout"><article className="reading-body"><div className="page-kicker">{typeLabels[doc.type] ?? '자료'}{doc.reference ? ` / ${doc.reference}` : ''}</div><h1>{doc.title}</h1><p className="page-lede">{doc.description}</p>{doc.definition && showExperience()}
+    {doc.sections.map((section, i) => <div key={`${doc.id}-${i}`}>{section.title === '깊은 읽기' ? <details className="deep-reading" id={`section-${i}`}><summary>깊은 읽기와 해석의 근거 <span>＋</span></summary><div className="prose" dangerouslySetInnerHTML={{ __html: section.html }} /></details> : <section className="reading-section" id={`section-${i}`}><h2>{section.title}</h2><div className="prose" dangerouslySetInnerHTML={{ __html: section.html }} /></section>}{!doc.definition && i === insertAfter && showExperience()}</div>)}
+    {!doc.definition && insertAfter === -1 && showExperience()}{doc.type === 'Reading Path' && <ReadingMap key={doc.id} doc={doc} onOpen={onOpen} />}
+    <section className="source-section" id="sources"><h2>근거와 원자료</h2><p className="muted">성경의 관찰, 자료의 요약, 이 페이지의 해설을 구별해서 읽어 보세요.</p>{doc.sources.map((source, i) => { const internal = source.resource.startsWith('/') ? documentById.get(source.resource.slice(1).replace(/\.md$/, '')) : undefined; return <div className="source-row" key={source.id ?? i} id={`source-${source.id ?? i}`}><span className="source-number">{String(i + 1).padStart(2, '0')}</span><a href={internal ? documentHref(internal) : source.resource} onClick={internal ? event => { event.preventDefault(); onOpen(internal) } : undefined} rel="noopener noreferrer">{source.title ?? '원자료 열기'}<Arrow /></a></div> })}</section>
+    {doc.backlinks.length > 0 && <details className="deep-reading"><summary>이 자료를 함께 읽는 페이지 <span>{doc.backlinks.length}</span></summary><ul className="backlink-list">{doc.backlinks.map(id => documentById.get(id)).filter((d): d is ContentDocument => !!d).map(item => <li key={item.id}><a href={documentHref(item)} onClick={event => { event.preventDefault(); onOpen(item) }}>{item.reference ? `${item.reference} · ` : ''}{item.title}</a></li>)}</ul></details>}
+  </article><aside className="reading-aside" aria-label="읽기 안내"><div className="aside-sticky"><p className="page-kicker">이 페이지에서</p><nav aria-label="본문 목차">{doc.sections.map((section, i) => <a key={i} href={`#section-${i}`}>{section.title}</a>)}<a href="#sources">근거와 원자료</a></nav>{relatedPassages.length > 0 && <div className="aside-block"><h2>함께 읽을 본문</h2>{relatedPassages.map(item => <a key={item.id} href={documentHref(item)} onClick={event => { event.preventDefault(); onOpen(item) }}><small>{item.reference}</small>{item.title}<Arrow /></a>)}</div>}{relatedQuestions.length > 0 && <div className="aside-block"><h2>이어지는 질문</h2>{relatedQuestions.map(item => <a key={item.id} href={documentHref(item)} onClick={event => { event.preventDefault(); onOpen(item) }}>{item.title}<Arrow /></a>)}</div>}<div className="aside-note"><span>천천히 읽어도 괜찮습니다.</span><p>본문을 살피고, 이해되지 않는 질문을 남기고, 다시 돌아오세요.</p></div></div></aside></div>
 }
-
 export default function App() {
-  const [initial] = useState(() => getInitialSelection(window.location.search))
-  const [threadId, setThreadId] = useState(initial.threadId)
-  const [passageId, setPassageId] = useState(initial.passageId)
-  const shareRequest = useRef(0)
-  const [shareState, setShareState] = useState<'idle' | 'copied' | 'failed'>('idle')
-
-  const selectedThread = threadById.get(threadId) || threads[0]
-  const selectedNode = nodeById.get(passageId) || nodes[0]
-
-  const relationSummary = useMemo(() => {
-    const connections = selectedThread.connectionIds
-      .map((id) => connectionById.get(id))
-      .filter((connection): connection is Connection => Boolean(connection))
-    const related = connections.filter((connection) =>
-      connection.source === selectedNode.id || connection.target === selectedNode.id)
-    return related.map((connection) => connection.label).join(', ')
-  }, [selectedNode.id, selectedThread])
-
-  useEffect(() => {
-    writeSelection(selectedThread.id, selectedNode.id, true)
-    const onPopState = () => {
-      shareRequest.current += 1
-      setShareState('idle')
-      const next = getInitialSelection(window.location.search)
-      setThreadId(next.threadId)
-      setPassageId(next.passageId)
-    }
-    window.addEventListener('popstate', onPopState)
-    return () => {
-      shareRequest.current += 1
-      window.removeEventListener('popstate', onPopState)
-    }
-  }, [])
-
-  useEffect(() => {
-    setShareState('idle')
-    document.title = `${selectedNode.reference} · ${selectedThread.name} | 말씀의 결`
-  }, [selectedNode.reference, selectedThread.name])
-
-  const selectThread = (thread: Thread) => {
-    shareRequest.current += 1
-    setShareState('idle')
-    const nextPassage = thread.nodeIds[0]
-    setThreadId(thread.id)
-    setPassageId(nextPassage)
-    writeSelection(thread.id, nextPassage)
+  const [location, setLocation] = useState(() => readNavigation(window.location.search))
+  const [query, setQuery] = useState(location.query)
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'failed'>('idle')
+  const mainRef = useRef<HTMLElement>(null), shareGeneration = useRef(0)
+  useEffect(() => { const pop = () => { shareGeneration.current++; setShareStatus('idle'); const next = readNavigation(window.location.search); setLocation(next); setQuery(next.query) }; window.addEventListener('popstate', pop); return () => window.removeEventListener('popstate', pop) }, [])
+  useEffect(() => { document.title = `${location.document?.reference ? `${location.document.reference} · ` : ''}${location.document?.title ?? '질문에서 시작하는 복음'} — 말씀의 결` }, [location.document])
+  function navigate(href: string, focus = true) {
+    const url = new URL(href, window.location.href)
+    if (url.search === window.location.search && url.hash === window.location.hash) return
+    window.history.pushState({}, '', url.pathname + url.search + url.hash); shareGeneration.current++; setShareStatus('idle')
+    const next = readNavigation(url.search); setLocation(next); setQuery(next.query)
+    if (focus) { window.scrollTo({ top: 0, behavior: 'instant' }); mainRef.current?.focus({ preventScroll: true }) }
   }
-
-  const selectNode = (node: PassageNode) => {
-    shareRequest.current += 1
-    setShareState('idle')
-    setPassageId(node.id)
-    writeSelection(selectedThread.id, node.id)
-  }
-
-  const share = async () => {
-    const request = ++shareRequest.current
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      if (request === shareRequest.current) setShareState('copied')
-    } catch {
-      if (request === shareRequest.current) setShareState('failed')
-    }
-  }
-
-  return (
-    <div className="app-shell">
-      <header className="masthead">
-        <a className="brand" href={import.meta.env.BASE_URL} aria-label="말씀의 결 홈">
-          <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
-          <span>
-            <strong>말씀의 결</strong>
-            <small>LOGOS THREADS</small>
-          </span>
-        </a>
-        <div className="book-context">
-          <span>탐험 중인 범위</span>
-          <strong>요한복음과 성경 전체</strong>
-          <small>성경 · 언약과 성취</small>
-        </div>
-        <div className="view-principle">
-          <span aria-hidden="true">◌</span>
-          <p><small>읽기의 원칙</small><strong>본문에서 시작해, 그리스도께로</strong></p>
-        </div>
-      </header>
-
-      <main className="workspace">
-        <ThreadRail selectedThread={selectedThread} onSelect={selectThread} />
-        <InsightMap key={selectedThread.id} thread={selectedThread} selectedNode={selectedNode} onSelect={selectNode} />
-        <PassagePanel key={`${selectedThread.id}:${selectedNode.id}`} node={selectedNode} thread={selectedThread} onShare={share} shareState={shareState} />
-      </main>
-
-      <footer className="page-footer">
-        <p>본문 관찰과 신학적 해설을 구분하여 읽습니다.</p>
-        <span>{relationSummary ? `현재 연결 · ${relationSummary}` : '성경의 결을 따라가세요.'}</span>
-      </footer>
-      <div className="sr-only" aria-live="polite">
-        {shareState === 'copied' ? '현재 탐색 주소가 클립보드에 복사되었습니다.' : ''}
-      </div>
-    </div>
-  )
+  const openDocument = (doc: ContentDocument) => navigate(documentHref(doc))
+  const changeState = (stateId: string) => { if (location.document) navigate(documentHref(location.document, stateId), false) }
+  function followContentLink(event: MouseEvent<HTMLElement>) { if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[data-doc]'); const target = anchor?.dataset.doc && documentById.get(anchor.dataset.doc); if (target) { event.preventDefault(); openDocument(target) } }
+  async function share() { const generation = shareGeneration.current; try { const url = location.document ? new URL(documentHref(location.document, location.stateId), window.location.href).href : window.location.href; await navigator.clipboard.writeText(url); if (generation === shareGeneration.current) setShareStatus('copied') } catch { if (generation === shareGeneration.current) setShareStatus('failed') } }
+  function search(event: FormEvent) { event.preventDefault(); if (query.trim()) navigate(`?view=search&q=${encodeURIComponent(query.trim())}`) }
+  const collection = location.view === 'scripture' ? passages : location.view === 'experiences' ? experiences : location.view === 'glossary' ? concepts : references
+  const viewTitle = location.view === 'scripture' ? '성경에서 이야기를 따라가다' : location.view === 'experiences' ? '읽고, 움직이고, 발견하다' : location.view === 'glossary' ? '낯선 말에 담긴 좋은 소식' : '근거를 따라 더 깊이 읽다'
+  const viewDescription = location.view === 'scripture' ? '본문의 맥락을 먼저 읽고, 예수와 복음의 의미를 함께 살펴보세요.' : location.view === 'experiences' ? '장면과 관점을 바꾸며 본문을 관찰하세요. 모든 탐색은 글로도 읽을 수 있습니다.' : location.view === 'glossary' ? '일상의 말로 시작해서 성경과 신학의 의미를 차근차근 알아봅니다.' : '저자의 원자료와 확인한 범위를 살펴보고, 각 페이지의 설명을 검토할 수 있습니다.'
+  return <div className="site-shell"><a className="skip-link" href="#main">본문으로 건너뛰기</a><header className="site-header"><div className="header-inner"><a className="brand" href={import.meta.env.BASE_URL} aria-label="말씀의 결 홈" onClick={event => { event.preventDefault(); navigate(import.meta.env.BASE_URL) }}><span className="brand-mark" aria-hidden="true">✳</span><span>말씀의 결<small>질문에서 시작하는 복음</small></span></a><span className="header-note">삶의 질문을 성경과 함께</span></div><nav className="primary-nav" aria-label="주요 메뉴">{navigation.map(([view, label]) => <a key={view} className={!location.document && location.view === view ? 'active' : ''} href={view === 'home' ? import.meta.env.BASE_URL : `?view=${view}`} aria-current={!location.document && location.view === view ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate(view === 'home' ? import.meta.env.BASE_URL : `?view=${view}`) }}>{label}</a>)}</nav></header>
+    <div className="utility-bar"><div className="utility-inner"><form className="search-form" onSubmit={search} role="search"><label htmlFor="site-search" className="visually-hidden">질문, 성경 본문, 용어 검색</label><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" /><path d="m15 15 5 5" stroke="currentColor" /></svg><input id="site-search" value={query} onChange={event => setQuery(event.target.value)} placeholder="질문, 성경 본문, 낯선 용어를 찾아보세요" type="search" /><button type="submit">찾기</button></form><button className="share-button" onClick={share}>{shareStatus === 'copied' ? '링크 복사됨' : '이 페이지 공유'}<Arrow /></button></div>{shareStatus === 'failed' && <label className="copy-fallback">현재 주소를 복사하세요<input aria-label="현재 주소를 복사하세요" readOnly value={location.document ? new URL(documentHref(location.document, location.stateId), window.location.href).href : window.location.href} onFocus={event => event.target.select()} /></label>}</div>
+    <main id="main" ref={mainRef} tabIndex={-1} onClick={followContentLink}>{location.notice && <p role="status" className="navigation-notice">{location.notice}</p>}{location.document ? <ReadingPage key={location.document.id} doc={location.document} stateId={location.stateId} onOpen={openDocument} onStateChange={changeState} /> : location.view === 'home' ? <>
+      <section className="home-hero"><div className="hero-copy"><p className="page-kicker"><span className="tiny-line" /> 일상에서 다시 만나는 좋은 소식</p><h1>지금의 질문에서,<br /><em>다시 복음으로.</em></h1><p className="hero-description">잘하고 싶은 마음, 실패의 무게, 믿음에 대한 의문.<br className="desktop-only" /> 그 질문을 가지고 예수의 이야기를 만나 보세요.</p><a className="primary-link" href="#questions">내 마음의 질문 찾기 <Arrow /></a><p className="hero-footnote">쉬운 설명에서 시작해, 본문과 근거로 깊어집니다.</p></div><div className="hero-visual"><span className="visual-label">THE GOOD NEWS, EVERY DAY</span><GraceDiagram /><p>우리가 하나님께 이르기 전에,<br /><strong>하나님이 우리에게 오셨다는 소식.</strong></p><a href={documentHref(questions[0])} onClick={event => { event.preventDefault(); openDocument(questions[0]) }}>은혜의 의미 살펴보기 <Arrow /></a></div></section>
+      <section className="home-questions" id="questions"><div className="section-heading"><div><p className="page-kicker">어디에서 시작할까요?</p><h2>마음에 머무는 질문 하나</h2></div><p>순서대로 읽지 않아도 괜찮습니다.<br />오늘 가까운 질문부터 시작하세요.</p></div><DocumentCards items={questions} onOpen={openDocument} /></section>
+      <section className="learning-invitation"><div><p className="page-kicker">직접 탐색하기</p><h2>한 번 움직여 보면,<br />다르게 보이는 이야기.</h2><p>두 아들의 장면을 따라가고, 본문 사이의 연결을 살피고,<br />같은 상황을 다른 관점으로 읽어 보세요.</p><a className="text-link" href="?view=experiences" onClick={event => { event.preventDefault(); navigate('?view=experiences') }}>네 가지 탐색 도구 열기 <Arrow /></a></div><div className="invitation-grid">{experiences.map(item => <a key={item.id} href={documentHref(item)} onClick={event => { event.preventDefault(); openDocument(item) }}><span className="experience-symbol" aria-hidden="true">{{ story: '↗', connections: '◎', layers: '≋', perspectives: '⇄' }[item.definition!.kind]}</span><span>{item.title}</span><Arrow /></a>)}</div></section>
+      <section className="return-reading"><p className="page-kicker">오늘 다시 읽기</p><h2>실패한 자리에도, 초대는 계속됩니다.</h2><p>두 아들과 아버지의 이야기에서 다시 시작할 길을 살펴보세요.</p><a href={documentHref(questions[1])} onClick={event => { event.preventDefault(); openDocument(questions[1]) }}>이 질문 읽기 <Arrow /></a></section>
+    </> : location.view === 'search' ? <section className="collection-page"><p className="page-kicker">자료 검색</p><h1>“{location.query}” 찾기</h1><p className="page-lede">{searchDocuments(location.query).length}개의 자료를 찾았습니다.</p>{searchDocuments(location.query).length ? <DocumentCards items={searchDocuments(location.query)} onOpen={openDocument} compact /> : <div className="empty-state"><h2>다른 말로 찾아볼까요?</h2><p>‘은혜’, ‘실패’, ‘요한복음 20:24’처럼 질문·용어·장절을 입력해 보세요.</p></div>}</section> : <section className="collection-page"><p className="page-kicker">{navigation.find(([view]) => view === location.view)?.[1]}</p><h1>{viewTitle}</h1><p className="page-lede">{viewDescription}</p>{location.view === 'scripture' && <section className="path-section"><h2>주제로 이어 읽기</h2><div className="path-chips">{paths.map(item => <a key={item.id} href={documentHref(item)} onClick={event => { event.preventDefault(); openDocument(item) }}>{item.title}<Arrow /></a>)}</div><h2>모든 본문 <small>{passages.length}</small></h2></section>}<DocumentCards items={collection} onOpen={openDocument} compact={location.view === 'scripture' || location.view === 'sources'} /></section>}</main>
+    <footer className="site-footer"><div><span className="footer-brand">말씀의 결</span><p>질문을 가지고, 본문을 살피고, 은혜를 다시 누리는 자리.</p></div><div><a href="https://bible.bskorea.or.kr/" rel="noopener noreferrer">성경 본문 읽기 ↗</a><a href="?view=sources" onClick={event => { event.preventDefault(); navigate('?view=sources') }}>자료와 출처</a><small>성경 장절과 직접 작성한 해설을 제공합니다.</small></div></footer></div>
 }
