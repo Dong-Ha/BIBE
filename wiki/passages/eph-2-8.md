@@ -10,13 +10,17 @@ tags:
   - 에베소서
 questions:
   - /questions/acceptance.md
+  - /questions/sin-question.md
 sources:
   - id: bible
-    resource: https://bible.bskorea.or.kr/
+    resource: https://bible.bskorea.or.kr/bible/NKRV/EPH.2
     title: 에베소서 2:1–10
 generated:
   by: codex/passage-editor
   at: 2026-10-12T14:05:41.941Z
+verified:
+  - by: codex/content-review
+    at: 2026-10-12T16:57:19.037558Z
 ---
 
 ## 핵심 설명

@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
+import { bundle, concepts, documentByPublicId, documents, experiences, passages, paths, questions, readNavigation, references, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
 
 describe('published content and navigation data', () => {
   it('publishes compact summaries and supports asynchronous detail loading', async () => {
-    expect(documents).toHaveLength(251)
-    expect(questions).toHaveLength(17)
+    expect(documents).toHaveLength(267)
+    expect(questions).toHaveLength(19)
     expect(Object.keys(bundle.legacy.passages)).toHaveLength(55)
     expect(Object.keys(bundle.legacy.threads)).toHaveLength(11)
     expect(paths).toHaveLength(11)
     expect(studies).toHaveLength(7)
-    expect(passages).toHaveLength(89)
+    expect(passages).toHaveLength(92)
     expect(experiences).toHaveLength(13)
-    expect(concepts.length).toBeGreaterThan(0)
+    expect(concepts).toHaveLength(24)
+    expect(references.filter(doc => doc.type === 'Reference')).toHaveLength(44)
+    expect(references.filter(doc => doc.type === 'Author')).toHaveLength(2)
     expect(guides).toHaveLength(3)
     expect(new Set(experiences.map(doc => doc.experienceKind))).toEqual(new Set(['story', 'connections', 'layers', 'perspectives']))
     expect(new Set(documents.map(doc => doc.publicId)).size).toBe(documents.length)
@@ -48,6 +50,79 @@ describe('published content and navigation data', () => {
     const passage = passages.find(doc => doc.reference === '요한복음 20:24–29')
     expect(passage).toBeDefined()
     expect((await searchDocuments('요한복음 20:24–29')).some(doc => doc.id === passage!.id)).toBe(true)
+  })
+
+  it('publishes the new doctrine concepts and verified New City references as separate documents', async () => {
+    const conceptSources = new Map([
+      ['sin', 'new-city-16'], ['salvation', 'new-city-20'], ['atonement', 'new-city-25'],
+      ['reconciliation', 'new-city-20'], ['trinity', 'new-city-3'], ['holy-spirit', 'new-city-36'],
+    ])
+    expect(concepts.map(doc => doc.publicId)).toEqual(expect.arrayContaining([...conceptSources.keys()]))
+
+    for (const [conceptId, referenceId] of conceptSources) {
+      const concept = documentByPublicId.get(conceptId)!
+      const reference = documentByPublicId.get(referenceId)!
+      expect(concept.type).toBe('Concept')
+      expect(concept.backlinks.length).toBeGreaterThan(0)
+      expect(reference.type).toBe('Reference')
+      const [fullConcept, fullReference] = await Promise.all([loadDocument(concept.id), loadDocument(reference.id)])
+      expect(fullConcept.sources.some(source => source.resource === `/references/${referenceId}.md`)).toBe(true)
+      expect(fullReference.sources.some(source => source.author === 'The Gospel Coalition' && source.resource.includes('thegospelcoalition.org'))).toBe(true)
+      expect(fullReference.sources.some(source => source.author === 'human:tim-keller')).toBe(false)
+      expect(fullReference.backlinks).toContain(concept.id)
+    }
+
+    const newReferenceTitles: Record<string, string> = {
+      'new-city-3': '뉴시티 교리문답 3번: 하나님 안에는 몇 위격이 있는가',
+      'new-city-16': '뉴시티 교리문답 16번: 죄란 무엇인가',
+      'new-city-20': '뉴시티 교리문답 20번: 구속자는 누구인가',
+      'new-city-25': '뉴시티 교리문답 25번: 그리스도의 죽음으로 모든 죄를 용서받을 수 있는가',
+      'new-city-36': '뉴시티 교리문답 36번: 성령에 관해 무엇을 믿는가',
+    }
+    for (const [id, title] of Object.entries(newReferenceTitles)) {
+      const reference = documentByPublicId.get(id)!
+      expect(reference.type).toBe('Reference')
+      expect(reference.title).toBe(title)
+      const detail = await loadDocument(reference.id)
+      expect(detail.sources).toContainEqual(expect.objectContaining({
+        title: `The New City Catechism, Question ${id.slice('new-city-'.length)}`,
+        author: 'The Gospel Coalition',
+      }))
+    }
+    expect(references.filter(doc => doc.type === 'Author').map(doc => doc.publicId).sort()).toEqual(['lee-jung-kyu', 'tim-keller'])
+    expect((await searchDocuments('보혜사')).some(doc => doc.publicId === 'holy-spirit')).toBe(true)
+    expect((await searchDocuments('삼위일체')).some(doc => doc.publicId === 'trinity')).toBe(true)
+  })
+
+  it('publishes the sin and cross questions with their authored embedded states, passages, sources and backlinks', async () => {
+    const cases = [
+      { id: 'sin-question', title: '왜 기독교는 죄를 말할까?', experience: 'layers', state: 'grace', passageIds: ['passages/rom-3-21', 'passages/eph-2-8'], referenceIds: ['new-city-16', 'new-city-20'] },
+      { id: 'cross-question', title: '예수의 십자가는 무엇을 바꾸나요?', experience: 'connections', state: 'all', passageIds: ['passages/rom-3-21', 'passages/2cor-5-14', 'passages/jn-1-29'], referenceIds: ['new-city-20', 'new-city-25'] },
+    ] as const
+
+    for (const item of cases) {
+      const question = documentByPublicId.get(item.id)!
+      expect(question.type).toBe('Question')
+      expect(question.title).toBe(item.title)
+      expect(question.experience).toBe(`experiences/${item.experience}`)
+      expect(question.experienceState).toBe(item.state)
+      expect(question.passages).toEqual(item.passageIds)
+      expect(question.links).toEqual(expect.arrayContaining(item.referenceIds.map(id => `references/${id}`)))
+      expect(readNavigation(`?doc=${item.id}`).stateId).toBe(item.state)
+
+      const payload = await loadReadingPayload(question.id)
+      expect(payload.experience?.kind).toBe(item.experience)
+      expect(payload.experience?.defaultState).toBe(item.state)
+      expect(payload.document.sources.map(source => source.resource)).toEqual(expect.arrayContaining(item.referenceIds.map(id => `/references/${id}.md`)))
+      expect(payload.document.passages).toEqual(item.passageIds)
+      for (const passageId of item.passageIds) expect(documentByPublicId.get(passageId.slice('passages/'.length))?.backlinks).toContain(question.id)
+    }
+
+    const sin = await loadDocument(documentByPublicId.get('sin')!.id)
+    const crossQuestion = documentByPublicId.get('cross-question')!
+    expect(sin.backlinks).toContain('questions/sin-question')
+    expect(documentByPublicId.get('2cor-5-14')?.backlinks).toContain(crossQuestion.id)
+    expect(documentByPublicId.get('2cor-13-11')?.backlinks).toContain('concepts/trinity')
   })
 
   it('resolves the historic cross thread and passage URL to the same Scripture document', () => {
@@ -125,7 +200,7 @@ it('loads the reading experience and its related documents as one payload', asyn
 
 it('loads every published detail with matching guide and experience navigation metadata', async () => {
   const loaded = await Promise.all(documents.map(summary => loadDocument(summary.id)))
-  expect(loaded).toHaveLength(251)
+  expect(loaded).toHaveLength(267)
   for (let i = 0; i < documents.length; i++) {
     expect(loaded[i].publicId).toBe(documents[i].publicId)
     expect(loaded[i].backlinks).toEqual(documents[i].backlinks)

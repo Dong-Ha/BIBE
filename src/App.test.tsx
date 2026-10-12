@@ -16,12 +16,14 @@ describe('question and reading experience', () => {
     vi.stubGlobal('scrollTo', vi.fn())
   })
 
-  it('starts with seventeen life and faith questions and seven book reading paths', () => {
+  it('starts with nineteen life and faith questions and seven book reading paths', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: '지금의 질문에서, 다시 복음으로.' })).toBeInTheDocument()
-    expect(document.querySelectorAll('#questions .question-card')).toHaveLength(17)
+    expect(document.querySelectorAll('#questions .question-card')).toHaveLength(19)
     expect(document.querySelectorAll('[aria-label="책과 함께 읽기"] .question-card')).toHaveLength(7)
     expect(screen.getByRole('link', { name: /교회에 실망했는데 예수를 알아볼 수 있을까/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /왜 기독교는 죄를 말할까/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /예수의 십자가는 무엇을 바꾸나요/ })).toBeInTheDocument()
   })
 
   it('opens a question with deep reading and source links, previews a concept in place and follows its full page', async () => {
@@ -82,6 +84,38 @@ describe('question and reading experience', () => {
     await waitFor(() => expect(clipboardWrite).toHaveBeenCalledWith(expect.stringContaining('doc=story')))
     expect(clipboardWrite.mock.calls[0][0]).toContain('state=resentment')
     expect(await screen.findByRole('button', { name: /링크 복사됨/ })).toBeInTheDocument()
+  })
+
+  it('starts new questions with their embedded layers and connections and previews linked concepts in place', async () => {
+    setUrl('/BIBE/?doc=sin-question')
+    const first = render(<App />)
+    expect(await screen.findByRole('heading', { level: 2, name: '은혜와 변화의 관계' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: '왜 기독교는 죄를 말할까?' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 3, name: '은혜로 주어짐' })).toBeInTheDocument()
+    const slider = screen.getByRole('slider')
+    fireEvent.change(slider, { target: { value: '3' } })
+    expect(window.location.search).toContain('state=response')
+    expect(await screen.findByRole('heading', { level: 3, name: '선한 일을 향한 삶' })).toBeInTheDocument()
+    const sinTerm = document.querySelector<HTMLAnchorElement>('.reading-body a[data-doc="concepts/sin"]')!
+    fireEvent.click(sinTerm)
+    expect(await screen.findByRole('dialog', { name: '죄' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '말뜻 설명 닫기' }))
+    expect(sinTerm).toHaveFocus()
+    expect(window.location.search).toContain('doc=sin-question')
+    expect(window.location.search).toContain('state=response')
+    first.unmount()
+
+    setUrl('/BIBE/?doc=cross-question')
+    render(<App />)
+    expect(await screen.findByRole('heading', { level: 2, name: '유월절과 예수의 십자가' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: '예수의 십자가는 무엇을 바꾸나요?' })).toBeInTheDocument()
+    const filters = screen.getByRole('group', { name: '본문 연결 종류' })
+    expect(within(filters).getByRole('button', { name: '모든 연결' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(within(filters).getByRole('button', { name: '주제의 연결' }))
+    expect(window.location.search).toContain('state=theme')
+    const map = await screen.findByRole('group', { name: '선택한 장면의 관계를 보여주는 그림' })
+    fireEvent.click(within(map).getByRole('button', { name: /주제의 연결/ }))
+    expect(within(document.querySelector('.le-evidence')!).getByText(/유월절 어린양/)).toBeInTheDocument()
   })
 
   it('offers a selectable address when clipboard access fails', async () => {
