@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bundle, concepts, documentById, documentByPublicId, documents, experiences, mapGroupLabels, mapGroups, mapHref, passages, paths, questions, readNavigation, readingLinkGroup, readingLinksFor, references, relationshipBasisLabels, relationshipKindLabels, searchDocuments, studies, guides, loadDocument, loadReadingPayload } from './content'
+import { bundle, concepts, documentById, documentByPublicId, documents, experiences, mapGroupLabels, mapGroups, mapHref, passages, paths, questions, readNavigation, readingLinkGroup, readingLinksFor, readingPathRelations, references, relationshipBasisLabels, relationshipKindLabels, searchDocuments, studies, guides, loadDocument, loadReadingPayload, documentHref } from './content'
 
 describe('published content and navigation data', () => {
   it('publishes compact summaries and supports asynchronous detail loading', async () => {
@@ -217,6 +217,85 @@ describe('published content and navigation data', () => {
     const legacyDocWins = readNavigation('?view=map&focus=sin-question&group=concepts&node=sin&doc=acceptance')
     expect(legacyDocWins.document?.publicId).toBe('acceptance')
     expect(legacyDocWins.mapFocus).toBeUndefined()
+  })
+
+  it('resolves every reading-path relationship by stable public ID and validates its path endpoints', () => {
+    for (const path of paths) {
+      const relations = readingPathRelations(path)
+      const nodeIds = new Set(path.nodeIds)
+      expect(new Set(relations.map(relation => relation.id)).size).toBe(relations.length)
+      expect(relations.length).toBeGreaterThan(0)
+      for (const relation of relations) {
+        expect(path.connectionIds).toContain(relation.id.slice('relationships/'.length))
+        expect(relation.relationship).toBeDefined()
+        expect(nodeIds.has(relation.relationship!.source)).toBe(true)
+        expect(nodeIds.has(relation.relationship!.target)).toBe(true)
+        const navigation = readNavigation(documentHref(path, undefined, undefined, relation.publicId))
+        expect(navigation.document?.id).toBe(path.id)
+        expect(navigation.relationId).toBe(relation.publicId)
+      }
+    }
+
+    const covenant = documentByPublicId.get('path-covenant')!
+    const pathConnection = readingPathRelations(covenant).find(relation => relation.publicId === 'relation-covenant-new-table')!
+    expect(documentById.get('relationships/covenant-new-table')?.id).toBe(pathConnection.id)
+    expect(documentByPublicId.get('covenant-new-table')).toBeUndefined()
+    expect(readingPathRelations(documentByPublicId.get('acceptance')!)).toEqual([])
+
+    const malformed = { ...covenant, nodeIds: ['gen-12-1'], connectionIds: ['covenant-new-table', 'covenant-new-table'] }
+    expect(readingPathRelations(malformed)).toEqual([])
+    const publicSlugInsteadOfInternalId = { ...covenant, connectionIds: ['relation-covenant-new-table'] }
+    expect(readingPathRelations(publicSlugInsteadOfInternalId)).toEqual([])
+    expect(documentHref({ publicId: covenant.publicId }, undefined, undefined, pathConnection.publicId)).toContain('relation=relation-covenant-new-table')
+    expect(documentHref(covenant, undefined, undefined, 'relation-water-invitation')).toBe('?doc=path-covenant')
+    expect(documentHref({ publicId: 'acceptance' }, undefined, undefined, pathConnection.publicId)).toBe('?doc=acceptance')
+  })
+
+  it('drops unrelated relation parameters while preserving document, legacy and map navigation priority', () => {
+    const invalid = readNavigation('?doc=path-covenant&relation=relation-water-invitation')
+    expect(invalid.document?.publicId).toBe('path-covenant')
+    expect(invalid.relationId).toBeUndefined()
+    expect(invalid.notice).toContain('본문 연결')
+
+    const nonRelation = readNavigation('?doc=path-covenant&relation=acceptance')
+    expect(nonRelation.document?.publicId).toBe('path-covenant')
+    expect(nonRelation.relationId).toBeUndefined()
+    expect(nonRelation.notice).toContain('본문 연결')
+
+    const wrongDocument = readNavigation('?doc=acceptance&relation=relation-covenant-new-table')
+    expect(wrongDocument.document?.publicId).toBe('acceptance')
+    expect(wrongDocument.relationId).toBeUndefined()
+    expect(wrongDocument.notice).toContain('본문 연결')
+
+    const legacy = readNavigation('?thread=covenant&relation=relation-covenant-new-table')
+    expect(legacy.document?.publicId).toBe('gen-12-1')
+    expect(legacy.relationId).toBeUndefined()
+    expect(legacy.notice).toContain('본문 연결')
+
+    const map = readNavigation('?view=map&focus=sin-question&group=concepts&node=sin&relation=relation-covenant-new-table')
+    expect(map.view).toBe('map')
+    expect(map.mapFocus?.publicId).toBe('sin-question')
+    expect(map.mapNode?.publicId).toBe('sin')
+    expect(map.relationId).toBeUndefined()
+  })
+
+  it('keeps legacy document state and day parameters when a relation is shared', () => {
+    const guide = documentByPublicId.get('return-to-grace-7-days')!
+    const href = documentHref(guide, undefined, 'day-4', 'relation-covenant-new-table')
+    expect(href).toBe('?doc=return-to-grace-7-days&day=day-4')
+    const navigation = readNavigation(href)
+    expect(navigation.document?.id).toBe(guide.id)
+    expect(navigation.dayId).toBe('day-4')
+    expect(navigation.relationId).toBeUndefined()
+    expect(navigation.notice).toBeUndefined()
+
+    const inappropriate = readNavigation('?doc=return-to-grace-7-days&day=day-4&relation=relation-covenant-new-table')
+    expect(inappropriate.dayId).toBe('day-4')
+    expect(inappropriate.relationId).toBeUndefined()
+    expect(inappropriate.notice).toContain('본문 연결')
+
+    expect(documentHref(guide, undefined, 'day-4')).toBe('?doc=return-to-grace-7-days&day=day-4')
+    expect(documentHref(documentByPublicId.get('story')!, 'resentment')).toBe('?doc=story&state=resentment')
   })
 })
 

@@ -46,6 +46,18 @@ export function readingLinksFor(question: ContentSummary, group: MapGroup = 'all
   return ids.map(id => documentById.get(id)).filter((doc): doc is ContentSummary => !!doc && doc.id !== question.id && (group === 'all' || readingLinkGroup(doc) === group))
     .sort((a, b) => mapGroups.indexOf(readingLinkGroup(a)) - mapGroups.indexOf(readingLinkGroup(b)) || a.title.localeCompare(b.title, 'ko'))
 }
+// Relationship choices are available only when their endpoints are nodes in
+// this path. The manifest summaries carry those endpoints, so URL validation
+// does not need to fetch the path payload.
+export function readingPathRelations(path: ContentSummary): ContentSummary[] {
+  if (path.type !== 'Reading Path') return []
+  const nodeIds = new Set(path.nodeIds ?? [])
+  const connectionIds = [...new Set(path.connectionIds ?? [])]
+  return connectionIds.map(id => documentById.get(`relationships/${id}`)).filter((relation): relation is ContentSummary => {
+    const edge = relation?.relationship
+    return relation?.type === 'Relationship' && !!edge && nodeIds.has(edge.source) && nodeIds.has(edge.target)
+  })
+}
 export function mapHref(focusPublicId: string, group: MapGroup = 'all', nodePublicId?: string) {
   const params = new URLSearchParams({ view: 'map', focus: focusPublicId, group })
   if (nodePublicId) params.set('node', nodePublicId)
@@ -57,6 +69,7 @@ export interface NavigationState {
   mapGroup?: MapGroup
   mapNode?: ContentSummary
   document?: ContentSummary
+  relationId?: string
   stateId?: string
   dayId?: string
   query: string
@@ -81,6 +94,14 @@ export function readNavigation(search: string): NavigationState {
   const requestedDay = params.get('day'), validDay = doc?.dayIds?.includes(requestedDay ?? '')
   if (requestedDay && doc?.dayIds && !validDay) notice = '읽을 날을 찾을 수 없어 첫날로 열었습니다.'
   const dayId = validDay ? requestedDay! : doc?.dayIds?.[0]
+  const requestedRelation = params.get('relation')
+  let relationId: string | undefined
+  if (requestedRelation) {
+    const allowed = requestedDoc && doc?.type === 'Reading Path' ? readingPathRelations(doc) : []
+    const relation = allowed.find(item => item.publicId === requestedRelation)
+    if (relation) relationId = relation.publicId
+    else notice = [notice, '선택한 본문 연결을 이 경로에서 찾을 수 없어 선택을 해제했습니다.'].filter(Boolean).join(' ')
+  }
   const view = params.get('view')
   let mapFocus: ContentSummary | undefined, mapGroup: MapGroup | undefined, mapNode: ContentSummary | undefined
   if (view === 'map' && !doc) {
@@ -99,12 +120,15 @@ export function readNavigation(search: string): NavigationState {
     }
     notice = [notice, ...mapNotices].filter(Boolean).join(' ') || undefined
   }
-  return { mapFocus, mapGroup, mapNode, view: ['home', 'guides', 'library', 'scripture', 'experiences', 'glossary', 'sources', 'search', 'map'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, dayId, stateId: validState ? requestedState! : doc?.experienceState ?? experience?.defaultState, query: params.get('q') ?? '', notice }
+  return { mapFocus, mapGroup, mapNode, view: ['home', 'guides', 'library', 'scripture', 'experiences', 'glossary', 'sources', 'search', 'map'].includes(view ?? '') ? view as NavigationState['view'] : 'home', document: doc, relationId, dayId, stateId: validState ? requestedState! : doc?.experienceState ?? experience?.defaultState, query: params.get('q') ?? '', notice }
 }
-export function documentHref(doc: { publicId: string }, stateId?: string, dayId?: string) {
+export function documentHref(doc: { publicId: string }, stateId?: string, dayId?: string, relationId?: string) {
   const params = new URLSearchParams({ doc: doc.publicId })
   if (stateId) params.set('state', stateId)
   if (dayId) params.set('day', dayId)
+  const summary = documentByPublicId.get(doc.publicId)
+  const path = summary?.type === 'Reading Path' ? summary : undefined
+  if (relationId && path && readingPathRelations(path).some(relation => relation.publicId === relationId)) params.set('relation', relationId)
   return `?${params}`
 }
 function normalize(value: string) { return value.normalize('NFKC').toLocaleLowerCase('ko').replace(/[\s:：–—.,·\-]/g, '') }
@@ -158,7 +182,9 @@ function usableDocument(value: unknown, summary: ContentSummary): value is Conte
     if (!Array.isArray(doc.days) || JSON.stringify(doc.days.map(day => day?.id)) !== JSON.stringify(summary.dayIds)) return false
     if (!doc.days.every(day => day && [day.title, day.focus, day.reflection, day.practice, day.question, day.passage].every(value => typeof value === 'string') && documentById.get(day.question)?.type === 'Question' && documentById.get(day.passage)?.type === 'Bible Passage' && (day.experience === undefined || documentById.get(day.experience)?.type === 'Learning Experience'))) return false
   }
-  if (summary.nodeIds && (!strings(doc.nodeIds) || !strings(doc.connectionIds))) return false
+  if (summary.nodeIds && (!strings(doc.nodeIds) || !strings(doc.connectionIds)
+    || JSON.stringify(doc.nodeIds) !== JSON.stringify(summary.nodeIds)
+    || JSON.stringify(doc.connectionIds) !== JSON.stringify(summary.connectionIds))) return false
   return true
 }
 export function loadDocument(id: string): Promise<ContentDocument> {

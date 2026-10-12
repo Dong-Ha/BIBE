@@ -355,17 +355,23 @@ test('reading paths load their complete connection evidence without fetching lin
   const requests: string[] = []
   page.on('request', request => { if (request.url().includes('/generated-content/')) requests.push(request.url()) })
   await page.goto('?doc=path-cross')
-  await expect(page.getByRole('heading', { name: '연결을 따라 읽기' })).toBeVisible()
-  const relations = page.locator('.relation-options button')
+  const map = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await expect(map).toBeVisible()
+  const relations = map.locator('.path-reading-map-relations button')
   const count = await relations.count()
   expect(count).toBeGreaterThan(0)
   expect(requests).toHaveLength(count + 1)
   await relations.first().click()
-  await expect(page.locator('.relation-detail')).toContainText('근거:')
-  await page.locator('.relation-detail a').click()
+  const detail = map.getByRole('complementary', { name: '선택한 본문 연결' })
+  await expect(detail.getByRole('group', { name: '본문에서 확인할 근거' })).toBeVisible()
+  await map.getByRole('button', { name: '글 목록으로 보기' }).click()
+  expect(requests).toHaveLength(count + 1)
+  await detail.locator('.path-map-relation-link').click()
   await expect(page.locator('.source-section')).toBeVisible()
   await page.goBack()
-  await expect(page.getByRole('heading', { name: '연결을 따라 읽기' })).toBeVisible()
+  await expect(map).toBeVisible()
+  await expect(map.locator('.path-reading-map-relations button').first()).toHaveAttribute('aria-pressed', 'true')
+  expect(requests).toHaveLength(count + 1)
 })
 
 
@@ -821,31 +827,166 @@ test('reading paths distinguish explicit declarations, allusions and editorial i
   await expect(readingMap).toBeVisible()
 
   await readingMap.getByRole('button', { name: /새 언약의 약속과 식탁/ }).click()
-  const detail = readingMap.locator('.relation-detail')
+  const detail = readingMap.getByRole('complementary', { name: '선택한 본문 연결' })
   await expect(detail).toBeVisible()
   await expect(detail.getByRole('group', { name: '해석의 성격' })).toContainText('본문의 명시적 선언 또는 인용')
   await expect(detail.getByRole('group', { name: '본문에서 확인할 근거' })).toContainText('누가복음 22:14–23')
-  await expect(detail.getByRole('link', { name: '연결 해설 읽기' })).toBeVisible()
-  await expect(readingMap.getByRole('button', { name: '약속과 성취의 해석', exact: false })).toBeVisible()
+  await expect(readingMap.getByRole('button', { name: /새 언약의 약속과 식탁/ })).toHaveAttribute('aria-pressed', 'true')
 
   await readingMap.getByRole('button', { name: /약속된 은혜가 그리스도 안에/ }).click()
-  await expect(detail.getByRole('group', { name: '해석의 성격' })).toContainText('함께 읽기 위한 편집 해석')
-  await expect(detail.getByRole('group', { name: '본문에서 확인할 근거' })).toContainText('예레미야 31:31–34')
+  const editorialDetail = readingMap.getByRole('complementary', { name: '선택한 본문 연결' })
+  await expect(editorialDetail.getByRole('group', { name: '해석의 성격' })).toContainText('함께 읽기 위한 편집 해석')
+  await expect(editorialDetail.getByRole('group', { name: '본문에서 확인할 근거' })).toContainText('예레미야 31:31–34')
 
   await page.goto('?doc=path-life')
   const lifeMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
   await lifeMap.getByRole('button', { name: /물과 성령의 약속/ }).click()
-  const lifeDetail = lifeMap.locator('.relation-detail')
+  const lifeDetail = lifeMap.getByRole('complementary', { name: '선택한 본문 연결' })
   await expect(lifeDetail.getByRole('group', { name: '해석의 성격' })).toContainText('본문의 표현과 문맥이 암시')
   await expect(lifeDetail).toContainText('직접 인용하거나 성취라고 선언하지 않습니다')
-  const explanationLink = lifeDetail.getByRole('link', { name: '연결 해설 읽기' })
-  const iconBox = await explanationLink.locator('svg').boundingBox()
+  const explanationLink = lifeDetail.getByRole('link', { name: /연결 해설 읽기/ })
   const linkBox = await explanationLink.boundingBox()
-  expect(iconBox?.width).toBeLessThanOrEqual(24)
   expect(linkBox?.height).toBeGreaterThanOrEqual(44)
-  expect(linkBox?.height).toBeLessThanOrEqual(64)
+  expect(linkBox?.height).toBeLessThanOrEqual(80)
   await explanationLink.click()
   await expect(page).toHaveURL(/doc=relation-newbirth-ezekiel/)
   await expect(page.locator('.reading-body')).toContainText('복음으로 함께 읽기')
   await expect(page.locator('.source-section')).toContainText('에스겔 36:16–32')
+})
+
+test('reading-path relation selection is shareable and returns after reload, history, and opening a passage', async ({ page, context }, testInfo) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('?doc=path-covenant')
+  const readingMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await expect(readingMap).toBeVisible()
+  const explicit = readingMap.getByRole('button', { name: /새 언약의 약속과 식탁/ })
+  await explicit.click()
+  await expect(explicit).toHaveAttribute('aria-pressed', 'true')
+  await expect(page).toHaveURL(/doc=path-covenant&relation=relation-covenant-new-table/)
+  const detail = readingMap.getByRole('complementary', { name: '선택한 본문 연결' })
+  await expect(detail.getByRole('group', { name: '본문에서 확인할 근거' })).toContainText('누가복음 22:14–23')
+
+  await page.getByRole('button', { name: '이 페이지 공유' }).click()
+  await expect(page.getByRole('button', { name: '링크 복사됨' })).toBeVisible()
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('doc=path-covenant&relation=relation-covenant-new-table')
+
+  await page.reload()
+  const restoredMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await expect(restoredMap.getByRole('button', { name: /새 언약의 약속과 식탁/ })).toHaveAttribute('aria-pressed', 'true')
+  await restoredMap.getByRole('button', { name: /약속된 은혜가 그리스도 안에/ }).click()
+  await expect(page).toHaveURL(/relation=relation-covenant-new-christ/)
+  await page.goBack()
+  await expect(page).toHaveURL(/relation=relation-covenant-new-table/)
+  await expect(page.getByRole('region', { name: '이 경로의 본문 연결 지도' }).getByRole('button', { name: /새 언약의 약속과 식탁/ })).toHaveAttribute('aria-pressed', 'true')
+  await page.goForward()
+  await expect(page).toHaveURL(/relation=relation-covenant-new-christ/)
+
+  const currentMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await currentMap.getByRole('button', { name: '글 목록으로 보기' }).click()
+  const endpoint = currentMap.getByRole('link', { name: /예레미야 31:31/ }).first()
+  await expect(endpoint).toBeVisible()
+  await endpoint.focus()
+  await endpoint.press('Enter')
+  await expect(page).toHaveURL(/doc=jer-31-31/)
+  await page.goBack()
+  await expect(page).toHaveURL(/doc=path-covenant&relation=relation-covenant-new-christ/)
+  const returnedMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await expect(returnedMap.getByRole('button', { name: /약속된 은혜가 그리스도 안에/ })).toHaveAttribute('aria-pressed', 'true')
+  const svgNode = returnedMap.locator('svg.path-reading-map-svg a.path-map-node').first()
+  await expect(svgNode).toBeVisible()
+  await svgNode.focus()
+  await expect(svgNode).toBeFocused()
+  await svgNode.press('Enter')
+  await expect(page).toHaveURL(/doc=gen-12-1/)
+  await page.goBack()
+  await expect(page).toHaveURL(/doc=path-covenant&relation=relation-covenant-new-christ/)
+  const keyboardReturnedMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await expect(keyboardReturnedMap.getByRole('button', { name: /약속된 은혜가 그리스도 안에/ })).toHaveAttribute('aria-pressed', 'true')
+
+  if (testInfo.project.name === 'desktop-chromium') {
+    const originalUrl = page.url()
+    const nativeNode = keyboardReturnedMap.locator('svg.path-reading-map-svg a.path-map-node').first()
+    const [popup] = await Promise.all([
+      context.waitForEvent('page'),
+      nativeNode.click({ modifiers: ['Control'] }),
+    ])
+    await popup.waitForLoadState()
+    await expect(popup).toHaveURL(/doc=gen-12-1/)
+    await expect(page).toHaveURL(originalUrl)
+    await expect(keyboardReturnedMap.getByRole('button', { name: /약속된 은혜가 그리스도 안에/ })).toHaveAttribute('aria-pressed', 'true')
+  }
+
+  if (testInfo.project.name === 'mobile-chromium') {
+    const dimensions = await page.evaluate(() => ({ document: document.documentElement.scrollWidth, viewport: document.documentElement.clientWidth }))
+    expect(dimensions.document).toBe(dimensions.viewport)
+  }
+  const finalMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await finalMap.getByRole('button', { name: '연결 선택 해제' }).click()
+  await expect(page).toHaveURL(/\?doc=path-covenant$/)
+  await expect(finalMap.getByRole('button', { name: /약속된 은혜가 그리스도 안에/ })).toBeFocused()
+  await expect(finalMap.getByRole('complementary', { name: '선택한 본문 연결' })).toHaveCount(0)
+  await page.goBack()
+  await expect(page).toHaveURL(/relation=relation-covenant-new-christ/)
+})
+
+test('reading-path share fallback keeps the selected relation in its copyable address', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: async () => { throw new Error('clipboard unavailable') } },
+    })
+  })
+  await page.goto('?doc=path-covenant')
+  const readingMap = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+  await readingMap.getByRole('button', { name: /새 언약의 약속과 식탁/ }).click()
+  await page.getByRole('button', { name: '이 페이지 공유' }).click()
+  const fallback = page.getByLabel('현재 주소를 복사하세요')
+  await expect(fallback).toBeVisible()
+  await expect(fallback).toHaveValue(/doc=path-covenant&relation=relation-covenant-new-table/)
+})
+
+test('all eleven reading paths render their published nodes and connections', async ({ page }, testInfo) => {
+  const publishedPaths = [
+    { id: 'path-covenant', nodes: 10, relations: 9 },
+    { id: 'path-cross', nodes: 9, relations: 8 },
+    { id: 'path-hour', nodes: 5, relations: 4 },
+    { id: 'path-life', nodes: 7, relations: 6 },
+    { id: 'path-light', nodes: 5, relations: 4 },
+    { id: 'path-shepherd', nodes: 4, relations: 3 },
+    { id: 'path-sign', nodes: 4, relations: 4 },
+    { id: 'path-temple', nodes: 4, relations: 3 },
+    { id: 'path-water', nodes: 5, relations: 4 },
+    { id: 'path-witness', nodes: 5, relations: 4 },
+    { id: 'path-word', nodes: 4, relations: 3 },
+  ]
+
+  for (const published of publishedPaths) {
+    await page.goto(`?doc=${published.id}`)
+    const map = page.getByRole('region', { name: '이 경로의 본문 연결 지도' })
+    await expect(map).toBeVisible()
+    if (testInfo.project.name === 'mobile-chromium') {
+      const dimensions = await page.evaluate(() => ({ document: document.documentElement.scrollWidth, viewport: document.documentElement.clientWidth }))
+      expect(dimensions.document).toBe(dimensions.viewport)
+    }
+    const svgNodes = map.locator('svg.path-reading-map-svg a.path-map-node')
+    const relationButtons = map.locator('.path-reading-map-relations button')
+    await expect(svgNodes).toHaveCount(published.nodes)
+    await expect(relationButtons).toHaveCount(published.relations)
+
+    const svgLabels = await svgNodes.evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label')))
+    await map.getByRole('button', { name: '글 목록으로 보기' }).click()
+    const listNodes = map.locator('.path-reading-map-node-list a')
+    await expect(listNodes).toHaveCount(published.nodes)
+    await expect(listNodes.first()).toBeVisible()
+    const listLabels = await listNodes.evaluateAll(nodes => nodes.map(node => node.textContent?.trim().replace(/\s+/g, ' ')))
+    expect(listLabels).toEqual(svgLabels)
+
+    await relationButtons.first().click()
+    await expect(relationButtons.first()).toHaveAttribute('aria-pressed', 'true')
+    await expect(map.locator('svg.path-reading-map-svg a.path-map-node.is-endpoint')).toHaveCount(2)
+    const endpointLinks = map.locator('.path-map-passage-links a')
+    await expect(endpointLinks).toHaveCount(2)
+    const endpointLabels = await endpointLinks.evaluateAll(nodes => nodes.map(node => node.textContent?.trim().replace(/\s+/g, ' ')))
+    for (const label of endpointLabels) expect(listLabels).toContain(label)
+  }
 })

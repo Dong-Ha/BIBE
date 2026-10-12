@@ -103,3 +103,23 @@ it('validates optional relationship basis and explanation pairs in loaded full p
   expect(valid.relationship?.basisExplanation).toContain('문맥')
   expect(fetcher).toHaveBeenCalledTimes(4)
 })
+
+it('rejects path payload node or connection IDs that disagree with the manifest summary and retries', async () => {
+  const original = fetch
+  let attempts = 0
+  const fetcher = vi.fn(async (url: RequestInfo | URL) => {
+    const response = await original(url), doc = await response.json()
+    if (doc.type !== 'Reading Path') return { ok: true, status: 200, json: async () => doc }
+    const next = structuredClone(doc)
+    if (attempts === 0) next.nodeIds = [...next.nodeIds].reverse()
+    else if (attempts === 1) next.connectionIds = [...next.connectionIds].reverse()
+    attempts++
+    return { ok: true, status: 200, json: async () => next }
+  })
+  vi.stubGlobal('fetch', fetcher)
+  const content = await import('./content'), summary = content.documentByPublicId.get('path-covenant')!
+  await expect(content.loadDocument(summary.id)).rejects.toThrow('Invalid content')
+  await expect(content.loadDocument(summary.id)).rejects.toThrow('Invalid content')
+  expect((await content.loadDocument(summary.id)).nodeIds).toEqual(summary.nodeIds)
+  expect(fetcher).toHaveBeenCalledTimes(3)
+})

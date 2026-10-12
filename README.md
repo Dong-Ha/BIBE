@@ -68,6 +68,12 @@ npm run wiki:sync -- "질문 문서의 출처 요약과 관련 링크를 갱신�
 
 새 문서는 `?doc=<public_id>`와 선택적 `&state=<상태>`로 공유합니다. 이전 주소의 `?passage=<legacy_id>`와 `?thread=<legacy_id>`도 계속 열리며, 예전 본문·주제 ID는 새 문서로 연결됩니다. 기존 공유 링크를 열면 새 읽기 화면에서 이어 읽을 수 있습니다.
 
+## 성경 본문을 연결해 읽기
+
+성경 읽기 경로 11개에서 본문 이름을 눌러 읽고, 연결을 골라 두 본문과 근거를 함께 살펴볼 수 있습니다. 휴대폰 지도는 한 열로 표시하며 글 목록에서도 같은 본문과 연결을 읽습니다. 연결의 종류와 해석 근거는 관계 문서에 기록한 내용을 사용합니다.
+
+`?doc=path-covenant&relation=relation-covenant-new-table`처럼 선택한 연결을 공유하고 새로고침·뒤로 가기에서 복원합니다. 해당 경로에 속한 연결만 허용하며, 선택을 바꾸거나 목록으로 전환할 때 상세 자료를 다시 요청하지 않습니다.
+
 ## 배포
 
 `main` 브랜치에 푸시하거나 Actions에서 수동 실행하면 GitHub Actions가 `npm run check`를 통과한 뒤 `dist/`를 GitHub Pages에 배포합니다. 저장소 Settings → Pages의 배포 소스가 GitHub Actions로 설정되어 있어야 합니다. 콘텐츠 검사와 데스크톱·모바일 브라우저 검사 모두 통과해야 배포됩니다. 현재 공개 주소는 <https://dong-ha.github.io/BIBE/> 입니다.
