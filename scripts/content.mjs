@@ -158,12 +158,12 @@ export function renderMarkdown(body, doc, byId) {
   const prepared = body.replace(/^\[\^[^\]]+\]:.*$/gm, '').replace(/\[\^([^\]]+)\]/g, (_, key) => sources.has(key) ? `[근거](#source-${key})` : '')
   return sanitizeHtml(marked.parse(prepared), {
     allowedTags: ['p', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'blockquote', 'h3', 'h4', 'code', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'br', 'hr'],
-    allowedAttributes: { a: ['href', 'rel', 'data-doc'], th: ['scope'] },
+    allowedAttributes: { a: ['href', 'rel', 'data-doc', 'aria-haspopup'], th: ['scope'] },
     allowedSchemes: ['https', 'http', 'mailto'],
     transformTags: {
       a: (_, attrs) => {
         const target = resolveConceptLink(attrs.href ?? '', doc.id)
-        if (target && byId.has(target)) return { tagName: 'a', attribs: { href: `?doc=${encodeURIComponent(byId.get(target).meta.public_id)}`, 'data-doc': target } }
+        if (target && byId.has(target)) return { tagName: 'a', attribs: { href: `?doc=${encodeURIComponent(byId.get(target).meta.public_id)}`, 'data-doc': target, ...(byId.get(target).meta.type === 'Concept' ? { 'aria-haspopup': 'dialog' } : {}) } }
         return { tagName: 'a', attribs: { href: attrs.href, rel: 'noopener noreferrer' } }
       },
     },

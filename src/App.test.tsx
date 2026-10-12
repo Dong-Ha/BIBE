@@ -24,7 +24,7 @@ describe('question and reading experience', () => {
     expect(screen.getByRole('link', { name: /교회에 실망했는데 예수를 알아볼 수 있을까/ })).toBeInTheDocument()
   })
 
-  it('opens a question with deep reading and source links, then follows an internal document link', async () => {
+  it('opens a question with deep reading and source links, previews a concept in place and follows its full page', async () => {
     setUrl('/BIBE/?doc=acceptance')
     render(<App />)
     expect(screen.getByRole('heading', { level: 1, name: '잘해야만 사랑받을 수 있을까?' })).toBeInTheDocument()
@@ -34,7 +34,17 @@ describe('question and reading experience', () => {
     const deepReading = (await screen.findByText('깊은 읽기와 해석의 근거')).closest('details')!
     fireEvent.click(within(deepReading).getByText('깊은 읽기와 해석의 근거'))
     expect(within(deepReading).getByText(/저자 자료 요약은/)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('link', { name: /칭의/ }))
+    const term = screen.getByRole('link', { name: /칭의/ })
+    fireEvent.click(term)
+    expect(await screen.findByRole('dialog', { name: '칭의' })).toBeInTheDocument()
+    expect(term).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '말뜻 설명 닫기' }))
+    expect(term).toHaveFocus()
+    expect(screen.getByRole('link', { name: /칭의/ })).toBe(term)
+    fireEvent.click(term)
+    expect(await screen.findByRole('dialog', { name: '칭의' })).toBeInTheDocument()
+    expect(window.location.search).toContain('doc=acceptance')
+    fireEvent.click(screen.getByRole('link', { name: '이 용어의 전체 페이지 읽기 →' }))
     await waitFor(() => expect(window.location.search).toContain('doc=justification'))
     expect(await screen.findByRole('heading', { level: 1, name: '칭의' })).toBeInTheDocument()
   })

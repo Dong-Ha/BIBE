@@ -423,3 +423,197 @@ test('prayer questions open their intended state, share and restore exploration,
   await expect(page.getByRole('heading', { name: '“성령의 도우심” 찾기' })).toBeVisible()
   await expect(page.locator('.document-row').filter({ hasText: '말이 나오지 않을 때도 기도할 수 있을까?' })).toBeVisible()
 })
+
+test('concept previews are modal, preserve the reading location, and restore focus', async ({ page }, testInfo) => {
+  await page.goto('?doc=acceptance&state=criticism-grace')
+  await expect(page.locator('.reading-body')).toBeVisible()
+  const conceptLink = page.locator('.reading-body a[data-doc="concepts/grace"][aria-haspopup="dialog"]').first()
+  await expect(conceptLink).toBeVisible()
+  await conceptLink.scrollIntoViewIfNeeded()
+  const originalUrl = page.url()
+  const originalScroll = await page.evaluate(() => window.scrollY)
+  const href = await conceptLink.getAttribute('href')
+  await conceptLink.focus()
+  await page.keyboard.press('Enter')
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  await expect(page.getByRole('button', { name: '말뜻 설명 닫기' })).toBeFocused()
+  await expect.poll(() => page.evaluate(() => window.location.href)).toBe(originalUrl)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(originalScroll)
+  await expect(dialog.getByRole('heading', { level: 2 })).toBeVisible()
+  await expect(dialog.locator('.concept-definition')).not.toBeEmpty()
+  await expect(dialog.getByText('설명의 근거와 원자료')).toBeVisible()
+  await page.keyboard.press('Tab')
+  await expect.poll(() => page.evaluate(() => document.activeElement?.closest('dialog') !== null)).toBe(true)
+  await page.keyboard.press('Shift+Tab')
+  await expect(page.getByRole('button', { name: '말뜻 설명 닫기' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toHaveCount(0)
+  await expect(conceptLink).toBeFocused()
+  expect(page.url()).toBe(originalUrl)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(originalScroll)
+  expect(href).toBe('?doc=grace')
+
+  await conceptLink.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1)
+  await page.screenshot({ path: `artifacts/concept-preview-${testInfo.project.name}.png` })
+  await page.getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  await expect(conceptLink).toBeFocused()
+
+  await page.goto('?doc=return-to-grace-7-days&day=day-4')
+  const guideConceptLink = page.locator('.reading-body a[data-doc="concepts/grace"][aria-haspopup="dialog"]').first()
+  await expect(guideConceptLink).toBeVisible()
+  const guideUrl = page.url()
+  await guideConceptLink.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog')).toBeVisible()
+  expect(page.url()).toBe(guideUrl)
+  await page.getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  await expect(guideConceptLink).toBeFocused()
+  expect(page.url()).toBe(guideUrl)
+})
+
+test('concept preview source footnotes reveal their matching source without navigation', async ({ page }) => {
+  await page.goto('?doc=acceptance&state=criticism-grace')
+  const conceptLink = page.locator('.reading-body a[data-doc="concepts/grace"][aria-haspopup="dialog"]').first()
+  await expect(conceptLink).toBeVisible()
+  const originalUrl = page.url()
+  await conceptLink.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.locator('.concept-preview-sources')).toBeVisible()
+  const footnote = dialog.locator('.prose a[href^="#concept-source-"]').first()
+  await expect(footnote).toBeVisible()
+  const sourceId = (await footnote.getAttribute('href'))!.slice(1)
+  await footnote.click()
+  await expect(dialog.locator('.concept-preview-sources[open]')).toBeVisible()
+  await expect(dialog.locator(`#${sourceId}`)).toBeFocused()
+  expect(page.url()).toBe(originalUrl)
+  const sourceLink = dialog.locator('#concept-source-keller-wisdom-grace a')
+  await expect(sourceLink).toHaveAttribute('href', '?doc=keller-wisdom-grace')
+  const popupPromise = page.waitForEvent('popup')
+  await sourceLink.click()
+  const popup = await popupPromise
+  await expect(popup.locator('.reading-body h1')).toHaveText('Wisdom from the Letters of John Newton')
+  await popup.close()
+  await expect(dialog).toBeVisible()
+  expect(page.url()).toBe(originalUrl)
+})
+
+test('a concept preview can follow another term and close back to its original inline link', async ({ page }) => {
+  await page.goto('?doc=acceptance&state=criticism-grace')
+  const originalUrl = page.url()
+  const deepReading = page.locator('.reading-body details').filter({ hasText: '깊은 읽기와 해석의 근거' })
+  await deepReading.locator('summary').click()
+  const justification = deepReading.locator('a[data-doc="concepts/justification"][aria-haspopup="dialog"]')
+  await expect(justification).toBeVisible()
+  await justification.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByRole('heading', { level: 2, name: '칭의' })).toBeVisible()
+  await dialog.locator('a[data-doc="concepts/sanctification"][aria-haspopup="dialog"]').click()
+  await expect(dialog.getByRole('heading', { level: 2, name: '성화' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '말뜻 설명 닫기' })).toBeFocused()
+  await page.getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  await expect(dialog).toHaveCount(0)
+  await expect(justification).toBeFocused()
+  expect(page.url()).toBe(originalUrl)
+})
+
+test('concept detail loads only on click, is cached on reopen, and full-page navigation restores the reading state', async ({ page }) => {
+  const requests: string[] = []
+  page.on('request', request => { if (request.url().includes('/generated-content/')) requests.push(request.url()) })
+  await page.goto('?doc=acceptance&state=criticism-grace')
+  const conceptLink = page.locator('.reading-body a[data-doc="concepts/grace"][aria-haspopup="dialog"]').first()
+  await expect(conceptLink).toBeVisible()
+  const countBeforePreview = requests.length
+  expect(countBeforePreview).toBeGreaterThan(0)
+  await conceptLink.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.locator('.concept-preview-sources')).toBeVisible()
+  const countAfterLoad = requests.length
+  expect(countAfterLoad).toBe(countBeforePreview + 1)
+  await dialog.getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  await conceptLink.click()
+  await expect(dialog.locator('.concept-preview-sources')).toBeVisible()
+  expect(requests).toHaveLength(countAfterLoad)
+  const conceptTitle = await dialog.getByRole('heading', { level: 2 }).textContent()
+  await dialog.getByRole('link', { name: /이 용어의 전체 페이지 읽기/ }).click()
+  await expect(page).toHaveURL(/doc=grace/)
+  await expect(page.locator('.reading-body h1')).toBeVisible()
+  await expect(page.locator('.reading-body h1')).toHaveText(conceptTitle ?? '')
+  await page.goBack()
+  await expect(page).toHaveURL(/doc=acceptance.*state=criticism-grace/)
+  await expect(page.locator('.reading-body')).toBeVisible()
+})
+
+test('concept preview supports modified clicks, retry, close during load, and stale response isolation', async ({ page, context }) => {
+  await page.goto('?doc=acceptance&state=criticism-grace')
+  const conceptLink = page.locator('.reading-body a[data-doc="concepts/grace"][aria-haspopup="dialog"]').first()
+  await expect(conceptLink).toBeVisible()
+  const [tab] = await Promise.all([context.waitForEvent('page'), conceptLink.click({ modifiers: ['Control'] })])
+  await tab.waitForLoadState()
+  await expect(tab.locator('.reading-body h1')).toBeVisible()
+  await tab.close()
+
+  let failureInjected = false
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch(), value = await response.json()
+    if (!value.rows && value.type === 'Concept' && !failureInjected) {
+      failureInjected = true
+      await route.fulfill({ status: 503, body: 'unavailable' })
+      return
+    }
+    await route.fulfill({ response })
+  })
+  await conceptLink.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByRole('alert')).toBeVisible()
+  await dialog.getByRole('button', { name: '설명 다시 불러오기' }).click()
+  await expect(dialog.locator('.concept-preview-sources')).toBeVisible()
+
+  await dialog.getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  await page.unrouteAll()
+  await page.reload()
+  let release!: () => void, entered!: () => void
+  const waiting = new Promise<void>(resolve => { entered = resolve })
+  const gate = new Promise<void>(resolve => { release = resolve })
+  let delayedCloseUrl = ''
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch(), value = await response.json()
+    if (!value.rows && value.type === 'Concept') { delayedCloseUrl = route.request().url(); entered(); await gate }
+    await route.fulfill({ response })
+  })
+  await conceptLink.click()
+  await waiting
+  const delayedCloseResponse = page.waitForResponse(response => response.url() === delayedCloseUrl)
+  await page.getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  release()
+  await delayedCloseResponse
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+
+  await page.unrouteAll()
+  await page.reload()
+  let releaseA!: () => void, enteredA!: () => void
+  const waitA = new Promise<void>(resolve => { enteredA = resolve })
+  const gateA = new Promise<void>(resolve => { releaseA = resolve })
+  let delayedA = false
+  let delayedAUrl = ''
+  await page.route('**/generated-content/*.json', async route => {
+    const response = await route.fetch(), value = await response.json()
+    if (!value.rows && value.type === 'Concept' && !delayedA) { delayedA = true; delayedAUrl = route.request().url(); enteredA(); await gateA }
+    await route.fulfill({ response })
+  })
+  await conceptLink.click()
+  await waitA
+  const delayedAResponse = page.waitForResponse(response => response.url() === delayedAUrl)
+  await page.getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  const otherConcept = page.locator('.reading-body a[data-doc="concepts/resurrection"][aria-haspopup="dialog"]').first()
+  await otherConcept.click()
+  const activeDialog = page.getByRole('dialog')
+  const activeTitle = await activeDialog.getByRole('heading', { level: 2 }).textContent()
+  releaseA()
+  await delayedAResponse
+  await expect(activeDialog.locator('.concept-preview-sources')).toBeVisible()
+  await expect(activeDialog.getByRole('heading', { level: 2 })).toHaveText(activeTitle!)
+})

@@ -22,7 +22,12 @@ const publicationFetch = vi.fn(async (input: RequestInfo | URL) => {
   })
 vi.stubGlobal('fetch', publicationFetch)
 
-beforeEach(() => { vi.stubGlobal('fetch', publicationFetch) })
+beforeEach(() => {
+  vi.stubGlobal('fetch', publicationFetch)
+  // JSDOM does not implement dialog methods; Chromium verifies native modality.
+  if (!HTMLDialogElement.prototype.showModal) Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true, value() { this.open = true } })
+  if (!HTMLDialogElement.prototype.close) Object.defineProperty(HTMLDialogElement.prototype, 'close', { configurable: true, value() { this.open = false } })
+})
 
 afterEach(() => {
   cleanup()

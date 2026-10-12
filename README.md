@@ -71,3 +71,6 @@ npm run wiki:sync -- "질문 문서의 출처 요약과 관련 링크를 갱신�
 ## 배포
 
 `main` 브랜치에 푸시하거나 Actions에서 수동 실행하면 GitHub Actions가 `npm run check`를 통과한 뒤 `dist/`를 GitHub Pages에 배포합니다. 저장소 Settings → Pages의 배포 소스가 GitHub Actions로 설정되어 있어야 합니다. 콘텐츠 검사와 데스크톱·모바일 브라우저 검사 모두 통과해야 배포됩니다. 현재 공개 주소는 <https://dong-ha.github.io/BIBE/> 입니다.
+
+
+본문의 점선 용어 링크는 읽던 자리에서 설명을 엽니다. 짧은 뜻과 상세 설명, 근거 자료를 살펴보고 `닫기`나 Escape로 원래 링크에 돌아갈 수 있습니다. 설명을 열고 닫는 동안 주소·체험 상태·읽기 날짜가 유지됩니다. 원자료는 새 탭으로 열 수 있고, 용어의 전체 페이지로 이동하는 링크도 제공합니다. Ctrl/Command 클릭은 기존처럼 새 탭을 엽니다.

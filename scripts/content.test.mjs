@@ -42,6 +42,7 @@ test('Markdown output strips active HTML and rewrites bundle links without losin
   const html = renderMarkdown('<script>alert(1)</script><img src=x onerror=alert(1)>\n\n[위험](javascript:alert(1)) [내부](/concepts/grace.md) 근거[^bible]', a, new Map([[a.id, a]]))
   assert.doesNotMatch(html, /<script|onerror|javascript:/)
   assert.match(html, /data-doc="concepts\/grace"/)
+  assert.match(html, /aria-haspopup="dialog"/)
   assert.match(html, /href="#source-bible"/)
 })
 
