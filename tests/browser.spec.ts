@@ -18,9 +18,9 @@ test('legacy passage links, Korean verse search, and invalid state recovery work
   await expect(page.getByRole('heading', { name: '떠남', exact: true })).toBeVisible()
 })
 
-test('home opens nineteen question paths and a question reveals sources and deep reading', async ({ page }) => {
+test('home opens twenty question paths and a question reveals sources and deep reading', async ({ page }) => {
   await page.goto('./')
-  await expect(page.locator('#questions .question-card')).toHaveCount(19)
+  await expect(page.locator('#questions .question-card')).toHaveCount(20)
   await page.getByRole('link', { name: /잘해야만 사랑받을 수 있을까/ }).click()
   await expect(page.getByRole('heading', { level: 1, name: '잘해야만 사랑받을 수 있을까?' })).toBeVisible()
   await page.getByText('깊은 읽기와 해석의 근거').click()
@@ -99,13 +99,80 @@ test('layers support keyboard adjustment, text mode, and state restoration', asy
   await expect(page.getByRole('heading', { name: '믿음으로 받음' })).toBeVisible()
 })
 
-test('all thirteen experience pages cover the four learning modes in the direct exploration collection', async ({ page }) => {
+test('all fourteen experience pages cover the four learning modes in the direct exploration collection', async ({ page }) => {
   await page.goto('?view=experiences')
   await expect(page.getByRole('heading', { level: 1, name: '읽고, 움직이고, 발견하다' })).toBeVisible()
-  await expect(page.locator('.question-card')).toHaveCount(13)
-  for (const title of ['두 아들과 아버지의 이야기', '유월절과 예수의 십자가', '은혜와 변화의 관계', '실패와 비판, 용서를 바라보는 두 관점', '부활의 증언과 그 의미', '주기도문의 흐름 따라 읽기', '기다림과 말없음의 두 관점']) {
+  await expect(page.locator('.question-card')).toHaveCount(14)
+  for (const title of ['두 아들과 아버지의 이야기', '유월절과 예수의 십자가', '은혜와 변화의 관계', '실패와 비판, 용서를 바라보는 두 관점', '부활의 증언과 그 의미', '주기도문의 흐름 따라 읽기', '기다림과 말없음의 두 관점', '질문의 자리에서 예수를 바라보기']) {
     await expect(page.getByRole('link', { name: new RegExp(title) })).toBeVisible()
   }
+})
+
+test('the doubt-faith question keeps its selected perspective shareable while following a concept and Bible passage', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('?doc=doubt-faith')
+  const body = page.locator('.reading-body')
+  await expect(body.locator('h1')).toHaveText('의심이 생기면 믿음이 없는 걸까?')
+  const experience = page.locator('.learning-experience[data-kind="perspectives"]')
+  await expect(experience.getByRole('heading', { level: 2, name: '질문의 자리에서 예수를 바라보기' })).toBeVisible()
+  const states = experience.getByRole('group', { name: '상황과 관점 선택' })
+  const help = states.getByRole('button', { name: '도움을 구하는 질문' })
+  await expect(help).toHaveAttribute('aria-pressed', 'true')
+
+  const waiting = states.getByRole('button', { name: '고통 속에서 묻는 질문' })
+  await waiting.click()
+  await expect(page).toHaveURL(/doc=doubt-faith&state=waiting/)
+  await expect(waiting).toHaveAttribute('aria-pressed', 'true')
+  await expect(experience.locator('.le-current h3')).toHaveText('고통 속에서 묻는 질문')
+  await page.getByRole('button', { name: '이 페이지 공유' }).click()
+  await expect(page.getByRole('button', { name: '링크 복사됨' })).toBeVisible()
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('doc=doubt-faith&state=waiting')
+
+  await page.reload()
+  const reloadedExperience = page.locator('.learning-experience[data-kind="perspectives"]')
+  const reloadedStates = reloadedExperience.getByRole('group', { name: '상황과 관점 선택' })
+  await expect(reloadedStates.getByRole('button', { name: '고통 속에서 묻는 질문' })).toHaveAttribute('aria-pressed', 'true')
+  const faithTerm = page.locator('.reading-body a[data-doc="concepts/faith"]').first()
+  await faithTerm.click()
+  await expect(page.getByRole('dialog', { name: '믿음' })).toBeVisible()
+  await expect(page).toHaveURL(/doc=doubt-faith&state=waiting/)
+  await page.getByRole('dialog').getByRole('button', { name: '말뜻 설명 닫기' }).click()
+  await expect(faithTerm).toBeFocused()
+
+  const passageLink = page.locator('.reading-body a[data-doc="passages/mk-9-14"]').first()
+  await passageLink.locator('xpath=ancestor::details[1]').locator('summary').click()
+  await passageLink.click()
+  await expect(page).toHaveURL(/doc=mk-9-14/)
+  await expect(page.locator('.reading-body h1')).toHaveText('믿음의 부족도 도와 달라고 말한 아버지')
+  await page.goBack()
+  await expect(page).toHaveURL(/doc=doubt-faith&state=waiting/)
+  await expect(page.locator('.reading-body h1')).toHaveText('의심이 생기면 믿음이 없는 걸까?')
+  const returnedStates = page.locator('.learning-experience[data-kind="perspectives"]').getByRole('group', { name: '상황과 관점 선택' })
+  await expect(returnedStates.getByRole('button', { name: '고통 속에서 묻는 질문' })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: '처음부터 다시 살펴보기' }).click()
+  await expect(page).toHaveURL(/doc=doubt-faith&state=help/)
+  await expect(page.locator('.learning-experience[data-kind="perspectives"]').getByRole('group', { name: '상황과 관점 선택' }).getByRole('button', { name: '도움을 구하는 질문' })).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('the doubt question is searchable and its experience resolves through the Reading Map internal ID', async ({ page }) => {
+  await page.goto('?view=search&q=의심')
+  await expect(page.getByRole('link', { name: /의심이 생기면 믿음이 없는 걸까/ })).toBeVisible()
+
+  await page.goto('?view=map&focus=doubt-faith&group=experiences')
+  const map = page.getByRole('group', { name: /에서 이어 읽을 자료/ })
+  const experienceNode = map.locator('.knowledge-map-node')
+  await expect(experienceNode).toHaveCount(1)
+  await expect(experienceNode).toHaveAttribute('aria-label', '질문의 자리에서 예수를 바라보기')
+  await experienceNode.focus()
+  await experienceNode.press('Enter')
+  await expect(page).toHaveURL(/view=map.*focus=doubt-faith.*group=experiences.*node=doubt-exploration/)
+  const detail = page.getByRole('complementary', { name: '선택한 연결 자료' })
+  await expect(detail.getByRole('heading', { level: 2, name: '질문의 자리에서 예수를 바라보기' })).toBeVisible()
+  await expect(detail.locator('[data-doc="experiences/doubt-faith"]')).toHaveAttribute('href', /doc=doubt-exploration/)
+  await detail.getByRole('link', { name: '전체 페이지 읽기 →' }).click()
+  await expect(page).toHaveURL(/doc=doubt-exploration/)
+  await expect(page.locator('.reading-body h1')).toHaveText('질문의 자리에서 예수를 바라보기')
+  await expect(page.locator('.learning-experience[data-kind="perspectives"]').getByRole('group', { name: '상황과 관점 선택' }).getByRole('button', { name: '도움을 구하는 질문' })).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('home, church hurt, and an interactive map fit the selected mobile or desktop viewport', async ({ page }) => {
@@ -236,7 +303,7 @@ test('home loads no article or search payload and search fetches one shared inde
   const payloads: string[] = []
   page.on('request', request => { if (request.url().includes('/generated-content/')) payloads.push(request.url()) })
   await page.goto('./')
-  await expect(page.locator('#questions .question-card')).toHaveCount(19)
+  await expect(page.locator('#questions .question-card')).toHaveCount(20)
   expect(payloads).toEqual([])
   await page.getByRole('searchbox').fill('은혜')
   await page.getByRole('searchbox').press('Enter')
@@ -377,7 +444,7 @@ test('reading paths load their complete connection evidence without fetching lin
 
 test('losing the connection after opening home fails safely and retries after reconnection', async ({ page, context }) => {
   await page.goto('./')
-  await expect(page.locator('#questions .question-card')).toHaveCount(19)
+  await expect(page.locator('#questions .question-card')).toHaveCount(20)
   await context.setOffline(true)
   await page.getByRole('link', { name: /잘해야만 사랑받을 수 있을까/ }).click()
   await expect(page.getByRole('alert')).toBeVisible()

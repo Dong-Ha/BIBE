@@ -3,14 +3,14 @@ import { bundle, concepts, documentById, documentByPublicId, documents, experien
 
 describe('published content and navigation data', () => {
   it('publishes compact summaries and supports asynchronous detail loading', async () => {
-    expect(documents).toHaveLength(267)
-    expect(questions).toHaveLength(19)
-    expect(Object.keys(bundle.legacy.passages)).toHaveLength(55)
+    expect(documents).toHaveLength(272)
+    expect(questions).toHaveLength(20)
+    expect(Object.keys(bundle.legacy.passages)).toHaveLength(58)
     expect(Object.keys(bundle.legacy.threads)).toHaveLength(11)
     expect(paths).toHaveLength(11)
     expect(studies).toHaveLength(7)
-    expect(passages).toHaveLength(92)
-    expect(experiences).toHaveLength(13)
+    expect(passages).toHaveLength(95)
+    expect(experiences).toHaveLength(14)
     expect(concepts).toHaveLength(24)
     expect(references.filter(doc => doc.type === 'Reference')).toHaveLength(44)
     expect(references.filter(doc => doc.type === 'Author')).toHaveLength(2)
@@ -61,6 +61,46 @@ describe('published content and navigation data', () => {
       counts[expected.kind as keyof typeof counts]++
     }
     expect(counts).toEqual({ promise: 3, theme: 4 })
+  })
+
+  it('connects the doubt-faith question to its four passages, faith concept, sources, and searchable language', async () => {
+    const question = documentByPublicId.get('doubt-faith')!
+    expect(question.type).toBe('Question')
+    expect(question.order).toBe(20)
+    expect(question.experience).toBe('experiences/doubt-faith')
+    expect(question.experienceState).toBe('help')
+    expect(question.links).toEqual(expect.arrayContaining([
+      'concepts/faith',
+      'passages/mk-9-14', 'passages/mt-11-2', 'passages/lk-24-13', 'passages/jn-20-24',
+      'references/keller-reconstructing-faith', 'experiences/doubt-faith',
+    ]))
+
+    const detail = await loadDocument(question.id)
+    expect(detail.passages).toEqual(['passages/mk-9-14', 'passages/mt-11-2', 'passages/lk-24-13', 'passages/jn-20-24'])
+    expect(detail.sources.map(source => source.id)).toEqual(['mark9', 'matthew11', 'luke24', 'john20', 'keller-reconstructing-faith'])
+    expect((await loadDocument('concepts/faith')).backlinks).toContain(question.id)
+    for (const id of ['passages/mk-9-14', 'passages/mt-11-2', 'passages/lk-24-13']) expect(documentById.get(id)?.backlinks).toContain(question.id)
+
+    const [bySynonym, byQuestionText] = await Promise.all([searchDocuments('의심'), searchDocuments('생기면')])
+    expect(bySynonym.map(item => item.id)).toContain(question.id)
+    expect(byQuestionText.map(item => item.id)).toContain(question.id)
+  })
+
+  it('publishes four distinct doubt exploration states with passage-specific evidence and a shareable default', async () => {
+    const question = documentByPublicId.get('doubt-faith')!
+    const payload = await loadReadingPayload(question.id)
+    expect(payload.experience?.id).toBe('doubt-exploration')
+    expect(payload.experience?.kind).toBe('perspectives')
+    expect(payload.experience?.defaultState).toBe('help')
+    expect(payload.experience?.states.map(state => state.id)).toEqual(['help', 'waiting', 'disappointed', 'witness'])
+    expect(payload.experience?.states.map(state => state.evidence[0])).toEqual([
+      '마가복음 9:14–29', '마태복음 11:2–6', '누가복음 24:13–35', '요한복음 20:24–31',
+    ])
+    expect(payload.experience?.states.every(state => state.activeNodes.length > 0 && state.activeEdges?.length)).toBe(true)
+    expect(readNavigation('?doc=doubt-faith').stateId).toBe('help')
+    expect(readNavigation('?doc=doubt-faith&state=waiting').stateId).toBe('waiting')
+    expect(readNavigation('?doc=doubt-faith&state=disappointed').stateId).toBe('disappointed')
+    expect(readNavigation('?doc=doubt-faith&state=witness').stateId).toBe('witness')
   })
 
   it('maps all legacy passage and thread links to current documents', () => {
@@ -360,7 +400,7 @@ it('loads the reading experience and its related documents as one payload', asyn
 
 it('loads every published detail with matching guide and experience navigation metadata', async () => {
   const loaded = await Promise.all(documents.map(summary => loadDocument(summary.id)))
-  expect(loaded).toHaveLength(267)
+  expect(loaded).toHaveLength(272)
   for (let i = 0; i < documents.length; i++) {
     expect(loaded[i].publicId).toBe(documents[i].publicId)
     expect(loaded[i].backlinks).toEqual(documents[i].backlinks)

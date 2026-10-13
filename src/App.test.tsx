@@ -16,14 +16,15 @@ describe('question and reading experience', () => {
     vi.stubGlobal('scrollTo', vi.fn())
   })
 
-  it('starts with nineteen life and faith questions and seven book reading paths', () => {
+  it('starts with twenty life and faith questions and seven book reading paths', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: '지금의 질문에서, 다시 복음으로.' })).toBeInTheDocument()
-    expect(document.querySelectorAll('#questions .question-card')).toHaveLength(19)
+    expect(document.querySelectorAll('#questions .question-card')).toHaveLength(20)
     expect(document.querySelectorAll('[aria-label="책과 함께 읽기"] .question-card')).toHaveLength(7)
     expect(screen.getByRole('link', { name: /교회에 실망했는데 예수를 알아볼 수 있을까/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /왜 기독교는 죄를 말할까/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /예수의 십자가는 무엇을 바꾸나요/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /의심이 생기면 믿음이 없는 걸까/ })).toBeInTheDocument()
   })
 
   it('opens the question-centered knowledge map from the main navigation', async () => {
@@ -70,6 +71,17 @@ describe('question and reading experience', () => {
     render(<App />)
     expect(await screen.findByText('탐색 상태를 찾을 수 없어 처음 상태로 열었습니다.')).toBeInTheDocument()
     expect(await screen.findByRole('heading', { level: 1, name: '두 아들과 아버지의 이야기' })).toBeInTheDocument()
+  })
+
+  it('restores the doubt exploration to its help state when its shared state is invalid', async () => {
+    setUrl('/BIBE/?doc=doubt-faith&state=missing')
+    render(<App />)
+    await waitFor(() => expect(document.querySelector('.reading-body h1')?.textContent).toBe('의심이 생기면 믿음이 없는 걸까?'))
+    expect(await screen.findByText('탐색 상태를 찾을 수 없어 처음 상태로 열었습니다.')).toBeInTheDocument()
+    const experience = document.querySelector<HTMLElement>('.learning-experience[data-kind="perspectives"]')!
+    expect(within(experience).getByRole('heading', { level: 2, name: '질문의 자리에서 예수를 바라보기' })).toBeInTheDocument()
+    expect(within(experience).getByRole('group', { name: '상황과 관점 선택' }).querySelector('[aria-pressed="true"]')).toHaveTextContent('도움을 구하는 질문')
+    expect(window.location.search).toContain('state=missing')
   })
 
   it('restores a document after browser popstate navigation', async () => {
